@@ -41,7 +41,7 @@ const login = await call('/api/auth/login', {
 });
 ok('вход a.ivanova', login.status === 200);
 const setCookie = login.headers.getSetCookie?.() ?? [];
-ok('cookie сессии HttpOnly', setCookie.some((c) => /httponly/i.test(c)));
+ok('cookie сессии HttpOnly + SameSite', setCookie.some((c) => /httponly/i.test(c) && /samesite=lax/i.test(c)));
 ok('cookie сессии Secure (https)', base.startsWith('https://') ? setCookie.some((c) => /secure/i.test(c)) : true);
 
 // 2. Чтение
@@ -84,9 +84,15 @@ if (ready) {
 const staff = await call('/api/staff/stats');
 ok('студент → /api/staff/* 403', staff.status === 403, String(staff.status));
 
-// 6. Проверка подделки QR
+// 6. Анонимный доступ к документам и формат ответа
+
 const verify = await call('/api/verify/AAAA.BBBB');
 ok('поддельная подпись документа отклонена', verify.status === 200 ? (await verify.json()).data.verified === false : verify.status === 404, String(verify.status));
+
+const anonDoc = await (await fetch(`${base}/api/requests/${ready?.id ?? 1}/document`)).status;
+ok('PDF без авторизации → 401', anonDoc === 401, String(anonDoc));
+const progress = await (await call('/api/progress')).json().catch(() => null);
+ok('API отвечает в формате {ok,data}', progress?.ok === true);
 
 console.log(failed === 0 ? '\nВСЁ В ПОРЯДКЕ' : `\nПРОБЛЕМ: ${failed}`);
 process.exit(failed === 0 ? 0 : 1);
