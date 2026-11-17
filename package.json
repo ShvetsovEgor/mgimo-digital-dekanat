@@ -4,8 +4,13 @@
   "version": "1.0.0",
   "type": "module",
   "description": "«Дедлайн» — Цифровой деканат 2030. Концепт личного кабинета студента МГИМО для конкурса. Неофициальный сервис.",
-  "workspaces": ["server", "web"],
-  "engines": { "node": ">=20" },
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev:server": "npm run dev -w server",
     "dev:web": "npm run dev -w web",
@@ -13,6 +18,11 @@
     "start": "npm run start -w server",
     "seed": "npm run seed -w server",
     "test": "npm run test -w server",
-    "smoke": "node scripts/smoke.mjs"
+    "doctor": "node scripts/doctor.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "screens": "node scripts/screens.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.55.0"
   }
 }

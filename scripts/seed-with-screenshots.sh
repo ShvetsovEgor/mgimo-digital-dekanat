@@ -14,5 +14,6 @@ SRV=$!
 trap 'kill $SRV 2>/dev/null || true; rm -rf "$TMP"' EXIT
 sleep 2
 mkdir -p "$OUT"
-node "$ROOT/.tools/screens.mjs" http://127.0.0.1:8097 "$OUT"
-echo "Скриншоты сохранены в $OUT"
+rm -rf "$ROOT/server/seed-context"
+node "$ROOT/.tools/screens.mjs" http://127.0.0.1:8097 "$ROOT/server/seed-context"
+echo "Снимки сохранены в $ROOT/server/seed-context (они попадут в образ и в репозиторий)"
