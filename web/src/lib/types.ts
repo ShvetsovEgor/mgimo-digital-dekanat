@@ -45,6 +45,16 @@ export interface Meta {
   disclaimer: string;
   accounts: MetaAccount[];
   today: string;
+  /** Момент, к которому относятся демо-данные. */
+  dataAsOf?: string | null;
+  context?: SeedContext | null;
+}
+
+/** Снимки экранов на момент создания демо-данных («холодный старт» бесплатного хостинга). */
+export interface SeedContext {
+  seedAt: string;
+  capturedAt: string;
+  screens: { name: string; title: string }[];
 }
 
 export interface HealthInfo {

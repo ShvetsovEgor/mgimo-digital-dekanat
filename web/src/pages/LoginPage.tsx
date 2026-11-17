@@ -11,6 +11,7 @@ import { useLogin } from '@/lib/auth';
 import { ApiError } from '@/lib/http';
 import { mockEnabled } from '@/lib/mode';
 import { useMeta, useSession } from '@/lib/queries';
+import { SeedContextCard } from '@/components/auth/SeedContext';
 import type { MetaAccount } from '@/lib/types';
 
 interface LocationState {
@@ -232,6 +233,8 @@ function LoginScreen({ from, expired }: { from?: string; expired?: boolean }) {
               </p>
             )}
           </form>
+
+          <SeedContextCard context={meta.data?.context ?? null} dataAsOf={meta.data?.dataAsOf ?? null} />
 
           <DemoAccounts
             loading={meta.isLoading}

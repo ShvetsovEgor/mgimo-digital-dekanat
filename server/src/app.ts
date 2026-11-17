@@ -16,6 +16,7 @@ import { createStaffRouter } from './routes/staff.js';
 import { buildMeta } from './meta.js';
 import { getToday } from './today.js';
 import { runSeed } from './seed/run.js';
+import { contextScreens, maybeResetExpiredDemo } from './lib/demo-lifecycle.js';
 
 const CSP =
   "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; " +
@@ -90,7 +91,24 @@ export function createApp(options: AppOptions = {}): express.Express {
     res.json({ ok: true, data: { status: 'ok', time: new Date().toISOString() } });
   });
   app.get('/api/meta', (_req, res) => {
+    if (maybeResetExpiredDemo()) {
+      res.json({ ok: true, data: { ...buildMeta(getToday()), reset: true } });
+      return;
+    }
     res.json({ ok: true, data: buildMeta(getToday()) });
+  });
+  // Снимки экранов «холодного старта» (только демо-данные с вымышленными ФИО)
+  app.get('/api/seed-context/:name', (req, res) => {
+    const list = contextScreens();
+    const name = String(req.params.name ?? '').replace(/\.png$/, '');
+    const shot = list.find((s) => s.name === name);
+    if (!shot) {
+      res.status(404).json({ ok: false, error: { code: 'NOT_FOUND', message: 'Снимок не найден' } });
+      return;
+    }
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.setHeader('Content-Type', 'image/png');
+    res.sendFile(shot.file);
   });
   app.use('/api', publicRouter); // /api/verify/:token
   app.use('/api', authRouter); // /api/auth/*

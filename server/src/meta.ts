@@ -1,6 +1,8 @@
 // Метаданные демо-стенда: конкурс, вуз, дилер-аккаунты для жюри (пароль публичный, см. docs/DATA.md).
 import { config } from './config.js';
 import { db } from './db.js';
+import { DEMO_RESET_HOURS, getSeedMeta } from './lib/demo-lifecycle.js';
+import { readSeedContext, type SeedContext } from './seed/context-screens.js';
 import { getToday, type TodayResult } from './today.js';
 
 export const APP_NAME = 'Дедлайн';
@@ -56,6 +58,12 @@ export interface MetaResponse {
   disclaimer: string;
   accounts: DemoAccount[];
   today: TodayResult;
+  /** К какому моменту относятся демо-данные (обновляются автоматически). */
+  dataAsOf: string | null;
+  /** Через сколько часов демо-данные пересобираются. */
+  demoResetHours: number;
+  /** «Холодный старт»: снимки экранов на момент создания демо-данных (если есть). */
+  context: SeedContext | null;
 }
 
 export function buildMeta(today: TodayResult): MetaResponse {
@@ -68,6 +76,10 @@ export function buildMeta(today: TodayResult): MetaResponse {
     disclaimer: DISCLAIMER,
     accounts: demoAccounts(),
     today,
+    // «Холодный старт»: снимки экранов и время, к которому относятся текущие демо-данные.
+    dataAsOf: getSeedMeta('last_seed_at') ?? null,
+    demoResetHours: DEMO_RESET_HOURS,
+    context: readSeedContext(),
   };
 }
 
