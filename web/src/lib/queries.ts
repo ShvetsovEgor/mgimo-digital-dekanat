@@ -55,12 +55,13 @@ export const keys = {
   verify: (token: string) => ['verify', token] as const,
 };
 
-export function useMeta() {
+export function useMeta(options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: keys.meta,
     queryFn: ({ signal }) => apiGet<Meta>('/meta', signal, true),
     staleTime: 10 * 60_000,
     retry: 1,
+    enabled: options.enabled ?? true,
   });
 }
 

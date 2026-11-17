@@ -10,7 +10,9 @@ import { useToast } from '@/components/ui/Toast';
 import { useLogin } from '@/lib/auth';
 import { ApiError } from '@/lib/http';
 import { mockEnabled } from '@/lib/mode';
-import { useMeta, useSession } from '@/lib/queries';
+import { resetUserCache, useMeta, useSession } from '@/lib/queries';
+import { api } from '@/lib/http';
+import { useQueryClient } from '@tanstack/react-query';
 import { SeedContextCard } from '@/components/auth/SeedContext';
 import type { MetaAccount } from '@/lib/types';
 
@@ -39,7 +41,7 @@ export default function LoginPage() {
 }
 
 function LoginScreen({ from, expired }: { from?: string; expired?: boolean }) {
-  const meta = useMeta();
+
   const login = useLogin();
   const toast = useToast();
   const navigate = useNavigate();
@@ -51,6 +53,22 @@ function LoginScreen({ from, expired }: { from?: string; expired?: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [fieldError, setFieldError] = useState<{ login?: string; password?: string }>({});
   const [slowHint, setSlowHint] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const meta = useMeta({ enabled: !resetting });
+  const queryClient = useQueryClient();
+  // «Холодный старт»: сервер мог пересобрать демо-данные (reset: true) — все прежние сессии недействительны.
+  useEffect(() => {
+    if (!meta.data?.reset) return;
+    setResetting(true);
+    void api
+      .post('/auth/logout')
+      .catch(() => undefined)
+      .finally(() => {
+        resetUserCache(queryClient);
+        void queryClient.invalidateQueries({ queryKey: ['meta'] });
+        setResetting(false);
+      });
+  }, [meta.data?.reset, queryClient]);
 
   useEffect(() => {
     if (!busy) {

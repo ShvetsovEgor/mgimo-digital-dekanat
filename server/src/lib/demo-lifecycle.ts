@@ -60,6 +60,9 @@ export function contextScreens(): { name: string; file: string }[] {
 }
 
 let resetTimer: NodeJS.Timeout | null = null;
+// Не чаще одной пересборки за 10 минут: каждый пересозданный запрос к /api/meta иначе запускает seed («холодный старт»).
+let lastResetAt = 0;
+const RESET_COOLDOWN_MS = 10 * 60_000;
 
 /** Планирует пересборку демо-данных, когда истечёт «срок жизни» текущей демо-БД. */
 export function scheduleDemoReset(): void {
@@ -92,6 +95,8 @@ export function maybeResetExpiredDemo(): boolean {
   if (!initialized) return false;
   const ageMs = Date.now() - new Date(initialized).getTime();
   if (ageMs < RESET_HOURS * 3_600_000) return false;
+  if (Date.now() - lastResetAt < RESET_COOLDOWN_MS) return false;
+  lastResetAt = Date.now();
   resetDemoNow('expired');
   scheduleDemoReset();
   return true;
