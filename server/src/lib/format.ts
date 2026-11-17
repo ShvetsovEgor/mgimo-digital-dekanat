@@ -39,6 +39,11 @@ export function relativeDateTimeLabel(iso: string, now = new Date()): string {
   return dateTimeLabel(iso);
 }
 
+/** «12 сентября» (для даты смены пароля). */
+export function formatDateLong(d: Date): string {
+  return `${d.getDate()} ${MONTHS_GEN[d.getMonth()]}`;
+}
+
 /** «17 ноября» */
 export function dayMonthLabel(d: Date): string {
   return `${d.getDate()} ${MONTHS_GEN[d.getMonth()]}`;
@@ -62,6 +67,12 @@ export function weekRangeLabel(weekStart: Date): string {
 }
 
 /** «через 3 дня», «завтра», «сегодня», «просрочено на 1 день». */
+/** «19 ноя» — абсолютная дата прогноза для заявок (всегда понятна без вычислений). */
+export function shortDueLabel(iso: string): string {
+  const d = parseLocal(iso);
+  return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+}
+
 export function daysRelativeLabel(dueIso: string, now = new Date()): string {
   const target = parseLocal(dueIso);
   const diff = Math.ceil((target.getTime() - now.getTime()) / 86_400_000);

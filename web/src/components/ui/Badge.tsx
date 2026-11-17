@@ -32,7 +32,7 @@ export function Badge({ children, tone = 'neutral', size = 'md', icon, dot, clas
   return (
     <span
       className={cx(
-        'inline-flex items-center whitespace-nowrap rounded-full font-semibold ring-1 ring-inset',
+        'inline-flex max-w-full items-center whitespace-nowrap rounded-full font-semibold ring-1 ring-inset',
         TONES[tone],
         SIZES[size],
         className,
@@ -58,9 +58,8 @@ interface ChipProps {
 /** Чип-фильтр или малая метка (радиус 999). */
 export function Chip({ children, selected = false, onClick, icon, className, as = 'button', ...rest }: ChipProps) {
   const cls = cx(
-    'inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-sm font-semibold transition-colors duration-150',
+    'inline-flex min-h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-sm font-semibold whitespace-nowrap transition-colors duration-150',
     selected ? 'border-brand bg-brand text-white' : 'border-line-strong bg-surface text-ink hover:bg-surface-2',
-    onClick && 'cursor-pointer',
     className,
   );
   if (as === 'span') return <span className={cls}>{children}</span>;

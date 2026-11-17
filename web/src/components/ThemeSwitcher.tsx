@@ -26,9 +26,9 @@ export function ThemeSwitcher() {
           setStoredTheme(value);
         }}
       />
-      <p className="mt-1.5 flex items-center gap-1 text-xs text-muted">
-        <Laptop className="size-3.5" aria-hidden="true" />
-        Выбор сохраняется в браузере и не передаётся на сервер.
+      <p className="mt-1.5 flex items-center gap-1 text-[11px] text-muted">
+        <Laptop className="size-3 shrink-0" aria-hidden="true" />
+        Хранится в браузере, серверу не передаётся.
       </p>
     </div>
   );

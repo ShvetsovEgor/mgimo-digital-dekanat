@@ -1,9 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { CheckCircle2, Copy, Lock, RotateCcw, ShieldCheck } from 'lucide-react';
-import { Button } from '../ui/Button';
-import { IconButton } from '../ui/Card';
-import { useToast } from '../ui/Toast';
+import { Button } from './ui/Button';
+import { IconButton } from './ui/Card';
+import { useToast } from './ui/Toast';
 import { useDeadlines } from '@/lib/queries';
 import { mockEnabled } from '@/lib/mode';
 import { api } from '@/lib/http';

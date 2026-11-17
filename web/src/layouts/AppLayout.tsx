@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   Bell,
   CalendarDays,
@@ -13,6 +12,7 @@ import {
   X,
 } from 'lucide-react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import type { ReactNode } from 'react';
 import { Avatar, SectionTitle } from '@/components/ui/Layout';
 import { Logo } from '@/components/Logo';
 import { DemoBar } from '@/components/DemoBar';
@@ -53,7 +53,7 @@ function navPath(to: string): string {
   return to.split('?')[0] ?? to;
 }
 
-export function AppLayout() {
+export function AppLayout({ children }: { children?: ReactNode }) {
   const location = useLocation();
   const [mobileMenu, setMobileMenu] = useState(false);
   const unread = useUnreadCount();
@@ -72,6 +72,7 @@ export function AppLayout() {
       <div className="lg:pl-[264px]">
         <Header onMenu={() => setMobileMenu(true)} />
         <main id="main" className="mx-auto w-full max-w-[1120px] px-4 pt-4 pb-6 sm:px-6 lg:px-8">
+          {children}
           <Outlet />
           <Footer />
           <DemoBar />

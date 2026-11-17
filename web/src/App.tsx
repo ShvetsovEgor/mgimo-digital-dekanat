@@ -44,16 +44,6 @@ function RouteError({ error, retry }: { error: unknown; retry?: () => void }) {
   );
 }
 
-/** Сброс скролла наверх при переходе между разделами (мобильный-first). */
-function ScrollToTop() {
-  const { pathname, hash } = useLocation();
-  useEffect(() => {
-    if (hash) return;
-    window.scrollTo(0, 0);
-  }, [pathname, hash]);
-  return null;
-}
-
 const router = createBrowserRouter([
   {
     path: '/login',
@@ -86,7 +76,11 @@ const router = createBrowserRouter([
         element: <StudentOnly allow={['student', 'staff']} />,
         children: [
           {
-            element: <AppLayout />,
+            element: (
+              <AppLayout>
+                <RouteScrollReset />
+              </AppLayout>
+            ),
             errorElement: <RouteError error={new Error('Не удалось показать раздел кабинета.')} />,
             children: [
               {
@@ -105,13 +99,17 @@ const router = createBrowserRouter([
               {
                 path: 'staff',
                 errorElement: <RouteError error={new Error('Кабинет сотрудника не загрузился.')} />,
-                element: (
-                  <StaffOnly>
-                    <SuspensePage>
-                      <StaffPage />
-                    </SuspensePage>
-                  </StaffOnly>
-                ),
+                element: <StaffOnly />,
+                children: [
+                  {
+                    index: true,
+                    element: (
+                      <SuspensePage>
+                        <StaffPage />
+                      </SuspensePage>
+                    ),
+                  },
+                ],
               },
               { path: 'profile', element: <SuspensePage><ProfilePage /></SuspensePage> },
               {
@@ -148,8 +146,19 @@ const router = createBrowserRouter([
 export function App() {
   return (
     <>
-      <ScrollToTop />
       <RouterProvider router={router} />
     </>
   );
+}
+
+/** Сброс скролла наверх при смене раздела (внутри контекста роутера). */
+let lastPath = '';
+function RouteScrollReset() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (lastPath === pathname) return;
+    lastPath = pathname;
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
 }

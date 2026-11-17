@@ -42,7 +42,7 @@ export const profilePatchInput = z
       .optional(),
     notifyMode: z.enum(['all', 'important', 'none']).optional(),
   })
-  .strict('Неизвестное поле профиля');
+  .strict();
 
 export const passwordChangeInput = z.object({
   current: z.string().min(1, 'Введите текущий пароль').max(200),

@@ -6,6 +6,7 @@ import type { FormFieldJson, Order, OrderHistory, RequestStatus } from './mapper
 import {
   ORDER_STEPS,
   buildHistory,
+  formOf,
   parseJson,
   toOrder,
   toRequestType,
@@ -95,7 +96,7 @@ export function validateValues(fields: FormFieldJson[], raw: unknown): Record<st
 }
 
 export function typeFields(formJson: string): FormFieldJson[] {
-  return parseJson<FormFieldJson[]>(formJson, []);
+  return formOf(formJson).fields;
 }
 
 /** Создание заявки: номер ЗВ-2030-000123, SLA, история, уведомление. */
@@ -164,7 +165,7 @@ export const createRequest = db.transaction((input: CreateRequestInput): Created
 export function orderForUser(id: number, userId: number, now: Date): Order {
   const row = requestByIdForUser(id, userId);
   if (!row) throw new ApiError(404, 'NOT_FOUND', 'Заявка не найдена');
-  return toOrder(row, { now, formFields: parseJson<FormFieldJson[]>(row.type_form_json, []) });
+  return toOrder(row, { now, formFields: formOf(row.type_form_json).fields });
 }
 
 export function requestTypeTitle(code: string): string {

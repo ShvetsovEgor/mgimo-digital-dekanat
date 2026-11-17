@@ -114,16 +114,25 @@ function drawBanner(doc: PDFKit.PDFDocument): void {
   doc.text(HEADER, MARGIN, y + h + 10, { width: CONTENT_WIDTH, align: 'right' });
 }
 
-function drawFooter(doc: PDFKit.PDFDocument, input: DocumentInput, pageNo: number): void {
+/**
+ * Колонтитул в абсолютных координатах. height + lineBreak:false: иначе при достижении нижнего
+ * поля pdfkit автоматически добавит пустую страницу.
+ */
+function drawFooter(doc: PDFKit.PDFDocument, pageNo: number): void {
   doc.save();
   doc.font('regular').fontSize(7.5).fillColor('#6B7280');
   doc.text(
     `${UNIVERSITY} · Все данные вымышлены. Документ сформирован автоматически в демонстрационном прототипе.`,
     MARGIN,
-    PAGE_HEIGHT - 46,
-    { width: CONTENT_WIDTH - 90, align: 'left' },
+    PAGE_HEIGHT - 40,
+    { width: CONTENT_WIDTH - 90, align: 'left', lineBreak: false, height: 9 },
   );
-  doc.text(`Стр. ${pageNo}`, PAGE_WIDTH - MARGIN - 90, PAGE_HEIGHT - 46, { width: 90, align: 'right' });
+  doc.text(`Стр. ${pageNo}`, PAGE_WIDTH - MARGIN - 90, PAGE_HEIGHT - 40, {
+    width: 90,
+    align: 'right',
+    lineBreak: false,
+    height: 9,
+  });
   doc.restore();
 }
 
@@ -214,7 +223,7 @@ function drawCertificate(doc: PDFKit.PDFDocument, input: DocumentInput): void {
     `Настоящая справка подтверждает, что ${id.fullName} обучается по очной форме на факультете «${id.faculty}», ` +
       `направление ${id.programCode} «${id.program}», ${id.course} курс, группа ${id.group}.`,
     10,
-    { align: 'justify', lineGap: 2 },
+    { align: 'left', lineGap: 2 },
   );
   doc.moveDown(0.8);
 
@@ -259,7 +268,7 @@ function drawApplication(doc: PDFKit.PDFDocument, input: DocumentInput): void {
   const top = doc.y;
   doc.text(`Директору-декану\n${input.facultyFull},\n${input.dean}`, rightX, top, { width: rightWidth });
   doc.text(
-    `от студента ${id.course} курса\n${input.faculty}\nпрограмма «${id.program}»\n${id.fullName}\nгруппа ${id.group}, зачётная книжка ${id.recordBook}`,
+    `от студента ${id.course} курса\n${id.faculty}\nпрограмма «${id.program}»\n${id.fullName}\nгруппа ${id.group}, зачётная книжка ${id.recordBook}`,
     rightX,
     top + 52,
     { width: rightWidth },
@@ -295,15 +304,15 @@ function drawApplication(doc: PDFKit.PDFDocument, input: DocumentInput): void {
   doc.font('bold').fontSize(10).fillColor('#1D4ED8').text('Отметка о регистрации', MARGIN + 12, regY + 10);
   doc
     .font('regular')
-    .fontSize(9)
-    .fillColor('#111827')
+    .fontSize(8.5)
+    .fillColor('#1F2937')
     .text(
-      `Зарегистрировано в деканате ${input.faculty.replace(/^Факультет /, 'ф-та ')}: № ${input.request.number}\n` +
+      `Зарегистрировано в деканате: № ${input.request.number}\n` +
         `Статус: ${input.request.statusLabel} · Срок исполнения: ${dateRu(input.request.dueAt)}\n` +
         `Регистратор: Цифровой деканат 2030 (автоматически)`,
       MARGIN + 12,
       regY + 26,
-      { width: CONTENT_WIDTH - 160, lineGap: 2 },
+      { width: CONTENT_WIDTH - 160, lineGap: 2, height: 42 },
     );
   drawQr(doc, input.baseUrl, input.request.number, PAGE_WIDTH - MARGIN - 110, regY - 2);
 }
@@ -357,7 +366,7 @@ function drawTranscript(doc: PDFKit.PDFDocument, input: DocumentInput): void {
     let x = MARGIN + 4;
     doc.fillColor('#111827');
     cols.forEach((c, i) => {
-      doc.text(values[i], x, y + 5, { width: c.width - 6, align: c.align, lineBreak: false });
+      doc.text(values[i], x, y + 5, { width: c.width - 6, align: c.align, lineBreak: false, height: 12 });
       x += c.width;
     });
     doc.moveTo(MARGIN, y + rowH).lineTo(PAGE_WIDTH - MARGIN, y + rowH).strokeColor('#E5E7EB').stroke();
@@ -412,10 +421,10 @@ export function renderDocument(input: DocumentInput): Promise<Buffer> {
         doc.save();
         doc.rect(0, 26, PAGE_WIDTH, 26).fill('#FBE9E7');
         doc.fillColor('#8A1C1C').font('bold').fontSize(10);
-        doc.text(DEMO_BANNER, 0, 34, { align: 'center', width: PAGE_WIDTH });
+        doc.text(DEMO_BANNER, 0, 34, { align: 'center', width: PAGE_WIDTH, height: 14, lineBreak: false });
         doc.restore();
       }
-      drawFooter(doc, input, i + 1);
+      drawFooter(doc, i + 1);
     }
     doc.end();
   });

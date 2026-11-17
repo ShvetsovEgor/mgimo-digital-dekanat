@@ -25,11 +25,15 @@ export interface ProgressResponse {
   scale: GradeScaleRow[];
 }
 
-/** Дисциплина «рискует», если набрано менее половины от порога и есть несданные точки. */
+/**
+ * Дисциплина «рискует»: до порога ещё баллы, и даже с максимальной оценкой
+ * оставшихся контрольных точек до «автомата» не добраться, либо набранных баллов мало.
+ */
 function isRisk(d: Discipline): boolean {
   if (!d.autoPossible || d.autoReached) return false;
-  const pending = d.controlPoints.some((p) => p.earned === null);
-  return pending && d.rating < Math.round(d.threshold / 2);
+  const pendingMax = d.controlPoints.filter((p) => p.earned === null).reduce((a, p) => a + p.max, 0);
+  if (d.rating + pendingMax < d.threshold) return true;
+  return d.rating < Math.round(d.threshold * 0.6);
 }
 
 export function buildProgress(userId: number, groupCode: string): ProgressResponse {
@@ -37,9 +41,11 @@ export function buildProgress(userId: number, groupCode: string): ProgressRespon
   const disciplines = rows.map(toDiscipline);
   const sorted = [...disciplines].sort((a, b) => a.title.localeCompare(b.title, 'ru'));
 
-  const rated = sorted.filter((d) => d.autoPossible || d.rating > 0);
+  // Пропускаем дисциплины без оцениваемого рейтинга: физкультура (порог 0) и ещё не начатые предметы.
+  const rated = sorted.filter((d) => d.autoPossible && d.rating > 0);
   const avgRating = rated.length ? Math.round((rated.reduce((a, d) => a + d.rating, 0) / rated.length) * 10) / 10 : 0;
-  const autoCount = sorted.filter((d) => d.autoReached).length;
+  // «Автомат» считается только по дисциплинам, где он применим (порог 70%).
+  const autoCount = sorted.filter((d) => d.autoPossible && d.autoReached).length;
   const riskCount = sorted.filter(isRisk).length;
 
   const summary: RatingSummary = {

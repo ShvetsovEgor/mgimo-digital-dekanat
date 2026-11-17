@@ -17,7 +17,7 @@ import type {
   StaffOrder,
   TodayEntry,
   WeekEntry,
-} from '../types';
+} from './types';
 import { ApiError } from './http';
 import {
   MOCK_ANNOUNCEMENTS,
@@ -336,7 +336,6 @@ function humanizeMs(ms: number): string {
 
 function todaySchedule(): ScheduleToday {
   const date = new Date();
-  const iso = toIso(date);
   const entries = entriesForDate(date);
   const clock = nowParts();
   const enriched: TodayEntry[] = entries.map((entry) => {
@@ -958,6 +957,21 @@ export async function mockRequest<T>(route: string, method: string, body: unknow
   await delay(NETWORK_DELAY);
   const [pathOnly, query = ''] = route.split('?');
   const path = pathOnly ?? '';
+  try {
+    return routeMock<T>(path, method, query, body);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      console.warn('[mock] 404:', method, path);
+    }
+    throw error;
+  }
+}
+
+function routeMock<T>(path: string, method: string, query: string, body: unknown): Promise<T> | T {
+  return dispatch<T>(path, method, query, body);
+}
+
+async function dispatch<T>(path: string, method: string, query: string, body: unknown): Promise<T> {
   const params = new URLSearchParams(query);
   const payload = (body ?? {}) as Record<string, unknown>;
   const isStaff = sessionUser?.login === 'dekanat';
@@ -1058,10 +1072,15 @@ export async function mockRequest<T>(route: string, method: string, body: unknow
     const values = (payload.values ?? {}) as RequestValues;
     return createOrder(typeCode, values) as T;
   }
-  const orderMatch = /^requests\/(\d+)(\/cancel)?$/.exec(path);
-  if (orderMatch && method === 'GET') return findOwnOrder(Number(orderMatch[1])) as T;
-  if (orderMatch && orderMatch[2] && method === 'POST') {
-    const order = findOwnOrder(Number(orderMatch[1]));
+  const orderMatch = /^requests\/(\d+)$/.exec(path);
+  const cancelMatch = /^requests\/(\d+)\/cancel$/.exec(path);
+  if (orderMatch && method === 'GET') {
+    const order = ordersStore.find((item) => item.id === Number(orderMatch[1]));
+    if (!order) throw new ApiError(404, 'NOT_FOUND', 'Заявка не найдена — возможно, удалена.');
+    return order as T;
+  }
+  if (cancelMatch && method === 'POST') {
+    const order = findOwnOrder(Number(cancelMatch[1]));
     if (!order.canCancel) throw new ApiError(409, 'REQUEST_NOT_CANCELLABLE', 'Эту заявку уже нельзя отменить.');
     const updated: Order = {
       ...order,

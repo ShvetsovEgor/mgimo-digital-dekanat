@@ -171,12 +171,11 @@ function needsRehash(hash: string): boolean {
   return !m || Number(m[1]) < 11;
 }
 
-let cachedDummy: string | null = null;
-/** Валидный bcrypt-хеш для выравнивания времени ответа при несуществующем логине. */
+/**
+ * Валидный bcrypt-хеш фиксированной строки: при несуществующем логине всё равно выполняется
+ * bcrypt-сравнение, чтобы время ответа не выдавало наличие аккаунта. Секрета здесь нет.
+ */
+const DUMMY_HASH = '$2b$11$DCKZJFIEhbHHqGsfs1YzQ.IaK5KCffBRim/lskFUHEtRXk7ikCPh2';
 function dummyHash(): string {
-  if (!cachedDummy) {
-    // Синхронный hash недопустим в горячем пути — генерируем один раз при первом промахе.
-    cachedDummy = '$2b$11$P.6u3b6nS6iM2mQ7g0YbUe1x5qZVb1cB7T8xG3V0rN1yU2eO0cK6W';
-  }
-  return cachedDummy;
+  return DUMMY_HASH;
 }

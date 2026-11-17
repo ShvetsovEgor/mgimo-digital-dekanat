@@ -1,6 +1,6 @@
 // Хуки данных (TanStack Query): ключи, useRole, useUnread и мутации с тостами.
 
-import { useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
+import { useQuery, type QueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { mockEnabled } from './mode';
 import { fetchRole } from './auth';
@@ -72,6 +72,8 @@ export interface SessionState {
 export function useSession() {
   return useQuery({
     queryKey: keys.me,
+    // Отправная точка сессии проверяется всегда заново; дальше состояние держит кэш.
+    staleTime: 0,
     queryFn: async ({ signal }): Promise<SessionState> => {
       try {
         await apiGet('/auth/me', signal, true);
@@ -82,7 +84,6 @@ export function useSession() {
         throw error;
       }
     },
-    staleTime: 60_000,
     retry: false,
     meta: { silent: true },
   });

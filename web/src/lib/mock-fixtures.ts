@@ -11,7 +11,7 @@ import type {
   StaffMessage,
   StaffOrder,
   StaffStats,
-} from '../types';
+} from './types';
 
 export const MOCK_META: Meta = {
   demo: true,

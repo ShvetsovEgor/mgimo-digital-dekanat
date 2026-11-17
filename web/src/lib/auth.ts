@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setUnauthorizedHandler, api, type ApiError } from './http';
-import { keys, resetUserCache, mockRouteOf } from './queries';
+import { keys, resetUserCache, mockRouteOf, type SessionState } from './queries';
 import type { UserRole } from './types';
 
 export type { UserRole };
@@ -46,7 +46,8 @@ export function useLogin(): (login: string, password: string) => Promise<LoginRe
     async (login: string, password: string) => {
       client.clear();
       await api.post<LoginResponse>('/auth/login', { login, password }, { mockRoute: mockRouteOf('/auth/login') });
-      await client.fetchQuery({ queryKey: keys.me, staleTime: 0 });
+      client.setQueryData(keys.me, { authenticated: true } satisfies SessionState);
+      await client.invalidateQueries({ queryKey: keys.me, refetchType: 'none' });
       const role = await client.fetchQuery({
         queryKey: keys.role,
         staleTime: 0,

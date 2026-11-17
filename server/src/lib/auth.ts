@@ -202,12 +202,9 @@ export function assertNotThrottled(key: string): void {
   if (!row?.blocked_until) return;
   const left = row.blocked_until - Date.now();
   if (left > 0) {
-    throw new ApiError(
-      429,
-      'TOO_MANY_ATTEMPTS',
-      'Слишком много попыток входа. Попробуйте позже.',
-      undefined,
-    );
+    const err = new ApiError(429, 'TOO_MANY_ATTEMPTS', 'Слишком много попыток входа. Попробуйте позже.');
+    (err as ApiError & { retryAfter?: number }).retryAfter = Math.ceil(left / 1000);
+    throw err;
   }
 }
 

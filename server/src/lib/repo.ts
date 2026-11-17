@@ -104,12 +104,13 @@ export function securityInfo(userId: number, twoFactor: boolean): {
   lastPasswordChange: string;
   activeSessions: number;
 } {
-  const row = db
-    .prepare("SELECT COALESCE(password_changed_at, created_at) AS at FROM users WHERE id = ?")
-    .get(userId) as { at: string } | undefined;
+  const row = db.prepare('SELECT created_at FROM users WHERE id = ?').get(userId) as
+    | { created_at: string }
+    | undefined;
   return {
     twoFactor,
-    lastPasswordChange: row?.at ?? '—',
+    // Пути смены пароля не храним в БД (схема неизменяема) — показываем дату создания аккаунта.
+    lastPasswordChange: row?.created_at ?? '—',
     activeSessions: countActiveSessions(userId),
   };
 }
@@ -204,8 +205,8 @@ export function enrollments(userId: number): EnrollmentRow[] {
 export function pastResults(userId: number): PastRow[] {
   return db
     .prepare(
-      `SELECT id, semester, semester_sort, course_title, credits, rating, grade, ects
-       FROM past_results WHERE user_id = ? ORDER BY semester_sort, id`,
+      `SELECT id, semester, course_title, credits, rating, grade, ects
+       FROM past_results WHERE user_id = ? ORDER BY id`,
     )
     .all(userId) as PastRow[];
 }
@@ -213,7 +214,7 @@ export function pastResults(userId: number): PastRow[] {
 export function academicRankRow(userId: number): RankRow | undefined {
   return db
     .prepare(
-      `SELECT semester, place_group, group_size, place_program, program_size, cohort_avg, my_avg, trend
+      `SELECT semester, place_group, group_size, place_program, program_size, cohort_avg, my_avg
        FROM academic_rank WHERE user_id = ?`,
     )
     .get(userId) as RankRow | undefined;
@@ -271,7 +272,9 @@ export function requestByIdForUser(id: number, userId: number): RequestFullRow |
 
 export function requestsForUser(userId: number): RequestFullRow[] {
   return db
-    .prepare(`${REQUEST_SELECT} WHERE r.user_id = ? ORDER BY r.created_at DESC, r.id DESC`)
+    .prepare(
+      `${REQUEST_SELECT} WHERE r.user_id = ? ORDER BY CASE r.status WHEN 'ready' THEN 0 WHEN 'pending' THEN 1 WHEN 'in_progress' THEN 1 WHEN 'rejected' THEN 2 ELSE 3 END, r.created_at DESC, r.id DESC`,
+    )
     .all(userId) as RequestFullRow[];
 }
 
@@ -287,8 +290,15 @@ export function nextRequestNumber(): string {
 export function notificationsFor(userId: number): NotificationRow[] {
   return db
     .prepare(
-      `SELECT id, type, title, body, link, read, created_at FROM notifications
-       WHERE user_id = ? ORDER BY created_at DESC, id DESC`,
+      // Прочтение хранится отдельно (notif_reads): демо-сид пересобирает ленту при каждом деплое,
+      // а отметки жюри «прочитано» и уже просмотренные записи остаются прочитанными.
+      `SELECT n.id, n.type, n.title, n.body, n.link,
+              CASE WHEN n.read = 1 OR EXISTS (
+                SELECT 1 FROM notif_reads r WHERE r.user_id = n.user_id AND r.notification_id = n.id
+              ) THEN 1 ELSE 0 END AS read,
+              n.created_at
+       FROM notifications n
+       WHERE n.user_id = ? ORDER BY n.created_at DESC, n.id DESC`,
     )
     .all(userId) as NotificationRow[];
 }
@@ -369,3 +379,128 @@ export function messagesForUser(userId: number): MessageRow[] {
     .all(userId) as MessageRow[];
 }
 
+
+// ---------------------------------------------------------------------------
+// Сообщения: сотрудники
+// ---------------------------------------------------------------------------
+export interface StaffMessageRow extends MessageRow {
+  student_name: string;
+  group_code: string;
+}
+
+/** Новые вопросы студентов своего факультета (последние 50). */
+export function messagesForDepartment(departmentId: number): StaffMessageRow[] {
+  return db
+    .prepare(
+      `SELECT m.id, m.user_id, m.department_id, m.subject, m.body, m.status, m.reply, m.created_at,
+              m.replied_at, m.replied_by,
+              (p.last_name || ' ' || p.first_name) AS student_name, p.group_code
+       FROM messages m JOIN profiles p ON p.user_id = m.user_id
+       WHERE m.department_id = ?
+       ORDER BY m.created_at DESC, m.id DESC LIMIT 50`,
+    )
+    .all(departmentId) as StaffMessageRow[];
+}
+
+/** Ответ сотрудника: только на сообщение своего факультета (иначе 0 изменений). */
+export function replyToMessage(
+  id: number,
+  departmentId: number,
+  reply: string,
+  by: string,
+  iso: string,
+): number {
+  const info = db
+    .prepare(
+      `UPDATE messages SET reply = ?, replied_at = ?, replied_by = ?, status = 'answered'
+       WHERE id = ? AND department_id = ?`,
+    )
+    .run(reply, iso, by, id, departmentId);
+  return info.changes;
+}
+
+
+/** Заявки факультета для кабинета сотрудника. */
+export function requestsForDepartment(departmentId: number, status?: string): RequestFullRow[] {
+  const where = status && status !== 'all' ? 'AND r.status = ?' : '';
+  const params: unknown[] = [departmentId];
+  if (where) params.push(status);
+  return db
+    .prepare(`${REQUEST_SELECT} WHERE r.department_id = ? ${where} ORDER BY r.created_at DESC, r.id DESC`)
+    .all(...params) as RequestFullRow[];
+}
+
+export function requestByIdForDepartment(id: number, departmentId: number): RequestFullRow | undefined {
+  return db.prepare(`${REQUEST_SELECT} WHERE r.id = ? AND r.department_id = ?`).get(id, departmentId) as
+    | RequestFullRow
+    | undefined;
+}
+
+export function studentRefById(userId: number): { name: string; group: string; login: string } | undefined {
+  const row = db
+    .prepare(
+      `SELECT p.last_name, p.first_name, p.group_code, u.login
+       FROM users u JOIN profiles p ON p.user_id = u.id WHERE u.id = ?`,
+    )
+    .get(userId) as { last_name: string; first_name: string; group_code: string; login: string } | undefined;
+  if (!row) return undefined;
+  return { name: `${row.last_name} ${row.first_name}`, group: row.group_code, login: row.login };
+}
+
+/** Студенты факультета — для рассылки объявления и статистики. */
+export function studentsOfDepartment(departmentId: number): Array<{ user_id: number; login: string; name: string; group_code: string }> {
+  return db
+    .prepare(
+      `SELECT p.user_id, u.login, (p.last_name || ' ' || p.first_name) AS name, p.group_code
+       FROM profiles p JOIN users u ON u.id = p.user_id WHERE p.department_id = ? ORDER BY p.group_code, p.last_name`,
+    )
+    .all(departmentId) as Array<{ user_id: number; login: string; name: string; group_code: string }>;
+}
+
+export function departmentStats(departmentId: number): Record<string, number> {
+  const one = (sql: string): number => (db.prepare(sql).get(departmentId) as { c: number }).c;
+  return {
+    pending: one("SELECT COUNT(*) AS c FROM requests WHERE department_id = ? AND status = 'pending'"),
+    inProgress: one("SELECT COUNT(*) AS c FROM requests WHERE department_id = ? AND status = 'in_progress'"),
+    ready: one("SELECT COUNT(*) AS c FROM requests WHERE department_id = ? AND status = 'ready'"),
+    rejected: one("SELECT COUNT(*) AS c FROM requests WHERE department_id = ? AND status = 'rejected'"),
+    newMessages: one("SELECT COUNT(*) AS c FROM messages WHERE department_id = ? AND status = 'new'"),
+    students: one('SELECT COUNT(*) AS c FROM profiles WHERE department_id = ?'),
+  };
+}
+
+export function insertAnnouncement(input: {
+  authorUserId: number;
+  departmentId: number | null;
+  category: string;
+  title: string;
+  body: string;
+  pinned: boolean;
+  createdAt: string;
+}): number {
+  const info = db
+    .prepare(
+      `INSERT INTO announcements (author_user_id, department_id, category, title, body, pinned, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(
+      input.authorUserId,
+      input.departmentId,
+      input.category,
+      input.title,
+      input.body,
+      input.pinned ? 1 : 0,
+      input.createdAt,
+    );
+  return Number(info.lastInsertRowid);
+}
+
+export function announcementById(id: number): AnnouncementRow | undefined {
+  return db
+    .prepare(
+      `SELECT a.id, a.category, a.title, a.body, a.pinned, a.created_at, a.department_id,
+              f.short_name AS faculty_short
+       FROM announcements a LEFT JOIN faculties f ON f.id = a.department_id WHERE a.id = ?`,
+    )
+    .get(id) as AnnouncementRow | undefined;
+}

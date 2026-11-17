@@ -4,6 +4,7 @@ import {
   CHANGE_LABELS,
   buildingShort,
   changeInfo,
+  changeMeta,
   changeNote,
   toWeekEntry,
 } from './mappers.js';
@@ -129,7 +130,7 @@ export function collectChanges(rows: EntryRow[], monday: Date, ctx: ScheduleCont
       if (!entryVisible(row, ctx.subgroup) || !row.change_kind) continue;
       const kind: ChangeKind = row.change_kind;
       const meta = changeInfo(row, ctx.now);
-      const originalStart = meta?.fromStartMin ?? row.start_min;
+      const originalStart = changeMeta(row).fromStartMin ?? row.start_min;
       const from =
         kind === 'moved' && row.original_date
           ? clockWithWeekday(row.original_date, originalStart)

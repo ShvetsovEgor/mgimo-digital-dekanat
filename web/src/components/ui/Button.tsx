@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, MouseEvent, ReactNode } from 'react';
 import { Loader2 } from 'lucide-react';
 import { cx } from '@/lib/cx';
 
@@ -109,7 +109,7 @@ interface AnchorButtonProps {
   iconRight?: ReactNode;
   className?: string;
   children?: ReactNode;
-  onClick?: () => void;
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }
 
 /** Кнопка-ссылка на файл (PDF, .ics). */

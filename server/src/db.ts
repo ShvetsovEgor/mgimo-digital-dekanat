@@ -5,7 +5,7 @@ import { config } from './config.js';
 
 fs.mkdirSync(config.dataDir, { recursive: true });
 
-export const dbPath = process.env.DB_FILE ?? path.join(config.dataDir, 'deadline.db');
+export const dbPath = config.dbFile || path.join(config.dataDir, 'deadline.db');
 
 export const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
@@ -252,6 +252,13 @@ CREATE TABLE IF NOT EXISTS audit_log (
   entity_id TEXT,
   ip_hash TEXT,
   created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS notif_reads (
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  notification_id INTEGER NOT NULL,
+  read_at TEXT NOT NULL,
+  PRIMARY KEY (user_id, notification_id)
 );
 
 CREATE TABLE IF NOT EXISTS login_throttle (

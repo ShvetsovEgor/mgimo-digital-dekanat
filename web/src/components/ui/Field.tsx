@@ -80,7 +80,7 @@ export function TextField({ label, error, hint, className, trailing, required, v
           className={cx(
             CONTROL,
             'h-11',
-            trailing && 'pr-11',
+            Boolean(trailing) && 'pr-11',
             error ? 'border-danger' : 'border-line-strong hover:border-line-strong/80',
             className,
           )}

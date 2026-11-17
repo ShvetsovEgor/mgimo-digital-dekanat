@@ -1,9 +1,8 @@
 // Преобразование строк БД в схемы контракта API (единственное место маппинга).
 import type { z } from 'zod';
 import type { schemas } from '../contract.js';
-import { dayMonthLabel, formatClock } from './time.js';
-import { dateTimeLabel, dayRelativeLabel, relativeDateTimeLabel } from './format.js';
-import { parseLocal } from './time.js';
+import { dateTimeLabel, daysRelativeLabel, dayMonthLabel, relativeDateTimeLabel, shortDueLabel } from './format.js';
+import { formatClock, parseLocal } from './time.js';
 
 // Типы ответов берём из zod-схем контракта — фронтенд ждёт именно их.
 export type Profile = z.infer<typeof schemas.profileSchema>;
@@ -402,7 +401,8 @@ export function toSessionExam(row: EnrollmentRow): SessionExam {
 }
 
 export function ratingSummary(rows: EnrollmentRow[], creditsEarnedYear: number, creditsPlanYear: number): RatingSummary {
-  const rated = rows.map((r) => toDiscipline(r)).filter((d) => d.rating > 0 || d.controlPoints.length > 0);
+  // В средний рейтинг идут только оцениваемые дисциплины (физкультура с порогом 0 не искажает средний балл).
+  const rated = rows.map((r) => toDiscipline(r)).filter((d) => d.autoPossible && (d.rating > 0 || d.controlPoints.length > 0));
   const avg = rated.length ? rated.reduce((a, d) => a + d.rating, 0) / rated.length : 0;
   const avgRating = Math.round(avg * 10) / 10;
   const autoCount = rated.filter((d) => d.autoReached).length;
@@ -420,7 +420,6 @@ export function ratingSummary(rows: EnrollmentRow[], creditsEarnedYear: number, 
 export interface PastRow {
   id: number;
   semester: string;
-  semester_sort?: number | string;
   course_title: string;
   credits: number;
   rating: number;
@@ -447,7 +446,6 @@ export interface RankRow {
   program_size: number;
   cohort_avg: number;
   my_avg: number;
-  trend?: string | null;
 }
 
 export function toAcademicRank(row: RankRow, groupCode: string): AcademicRank {
@@ -460,7 +458,8 @@ export function toAcademicRank(row: RankRow, groupCode: string): AcademicRank {
     outOfProgram: row.program_size,
     cohortAvg: row.cohort_avg,
     myAvg: row.my_avg,
-    trend: row.trend ?? null,
+    // Тренд позиции считается платформой по истории рейтинга; в демо-данных истории прошлых мест нет.
+    trend: null,
   };
 }
 
@@ -529,9 +528,19 @@ export interface RequestTypeRow {
   is_new: number;
 }
 
+interface FormJson {
+  steps?: string[];
+  fields?: FormFieldJson[];
+}
+
+/** Форма услуги: form_json = { steps: string[], fields: FormFieldJson[] }. */
+export function formOf(formJson: string | null | undefined): { steps: string[]; fields: FormFieldJson[] } {
+  const raw = parseJson<FormJson>(formJson, {});
+  return { steps: Array.isArray(raw.steps) ? raw.steps : [], fields: Array.isArray(raw.fields) ? raw.fields : [] };
+}
+
 export function toRequestType(row: RequestTypeRow): RequestType & { slaMinutes: number } {
-  const fields = parseJson<FormFieldJson[]>(row.form_json, []);
-  const steps = parseJson<{ steps?: string[] }>(row.form_json, {}).steps ?? defaultSteps(row.category);
+  const { fields, steps } = formOf(row.form_json);
   return {
     code: row.code,
     category: row.category === 'service' ? 'certificate' : row.category,
@@ -542,7 +551,7 @@ export function toRequestType(row: RequestTypeRow): RequestType & { slaMinutes: 
     slaLabel: row.sla_label,
     price: row.price,
     isNew: row.is_new === 1,
-    steps,
+    steps: steps.length ? steps : defaultSteps(row.category),
     fieldCount: fields.length,
     fields: fields.map((f) => ({
       name: f.name,
@@ -629,7 +638,7 @@ export function toOrder(row: RequestRow, ctx: OrderInputContext): Order {
     createdAt: row.created_at,
     createdAtLabel: dateTimeLabel(row.created_at),
     dueAt: row.due_at,
-    dueLabel: dayRelativeLabel(row.due_at, ctx.now),
+    dueLabel: shortDueLabel(row.due_at),
     readyAtLabel: ready && row.ready_at ? dateTimeLabel(row.ready_at) : null,
     isOverdue: overdue,
     canCancel,
@@ -747,8 +756,8 @@ export function toDeadline(row: DeadlineRow, now: Date): Deadline {
     title: row.title,
     course: row.course_title,
     dueAt: row.due_at,
-    dueLabel: dayRelativeLabel(row.due_at, now),
-    relative: dayRelativeLabel(row.due_at, now),
+    dueLabel: daysRelativeLabel(row.due_at, now),
+    relative: daysRelativeLabel(row.due_at, now),
     points: row.points,
     done: row.done === 1,
   };

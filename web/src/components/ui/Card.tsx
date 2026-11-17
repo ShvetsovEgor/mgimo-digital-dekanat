@@ -27,7 +27,10 @@ export function Card({ children, padding = 'md', className, as = 'div', accent =
       className={cx(
         'rounded-[16px] border border-line bg-surface shadow-soft',
         PADDING[padding],
-        accent && `accent-left-${accent}`,
+        accent === 'warn' && 'accent-left-warn',
+        accent === 'danger' && 'accent-left-danger',
+        accent === 'info' && 'accent-left-info',
+        accent === 'ok' && 'accent-left-ok',
         interactive && 'transition-shadow duration-150 hover:shadow-lift',
         className,
       )}

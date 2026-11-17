@@ -33,6 +33,8 @@ export const config = {
   root,
   port: Number(process.env.PORT ?? 8080),
   dataDir: process.env.DATA_DIR ?? path.join(root, 'data'),
+  /** Отдельное имя файла БД (тесты) — приоритетнее каталога данных. */
+  dbFile: process.env.DB_FILE ?? '',
   webDist: path.join(root, 'web', 'dist'),
   sessionCookie: isProd ? '__Host-dl_session' : 'dl_session',
   sessionTtlDays: 30,
