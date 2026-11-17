@@ -1,0 +1,21 @@
+# Blueprint Render: один Docker-сервис (API + SPA), SQLite на локальном диске.
+# Бесплатный план засыпает после 15 минут бездействия; файловая система пересоздаётся,
+# поэтому сервер сам пересобирает демо-данные (см. server/src/lib/demo-lifecycle.ts).
+services:
+  - type: web
+    name: mgimo-digital-dekanat
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
+    envVars:
+      - key: DOC_VERIFY_SECRET
+        generateValue: true
+      - key: DEMO_PASSWORD
+        value: DemoKonkurs2030
+      - key: DEMO_AUTORESET
+        value: '1'
+      - key: PUBLIC_URL
+        sync: false
