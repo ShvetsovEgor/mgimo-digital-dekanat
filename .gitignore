@@ -11,3 +11,7 @@ screenshots/
 .tools/
 .npm-cache/
 web/.preview/
+
+# Личные демо-данные и логи
+.mvp/
+.mvp.log

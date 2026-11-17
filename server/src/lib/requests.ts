@@ -14,9 +14,14 @@ import {
 import { addWorkingMinutes, toLocalIso } from './time.js';
 
 /** Все даты — локальные ISO-строки МСК (TZ процесса — Europe/Moscow, см. lib/time.ts). */
+import { dateTimeLabel } from './format.js';
+
+/** Хранимые значения — локальное ISO; в историю заявки попадает человекочитаемое «16 ноя, 12:10». */
 export function nowIso(now: Date): string {
   return toLocalIso(now);
 }
+
+const historyTime = (iso: string): string => (iso.length > 10 ? dateTimeLabel(iso) : iso);
 
 /** Срок выполнения с учётом только рабочих дней (пн–пт, 09:00–18:00). */
 export function dueFor(now: Date, slaMinutes: number): string {
@@ -113,9 +118,9 @@ export const createRequest = db.transaction((input: CreateRequestInput): Created
   const status: RequestStatus = instant ? 'ready' : 'pending';
   const history: OrderHistory[] = instant
     ? [
-        { label: ORDER_STEPS[0], at: iso, by: 'Студент', done: true, current: false },
-        { label: ORDER_STEPS[1], at: iso, by: 'Деканат, автоматически', done: true, current: false },
-        { label: ORDER_STEPS[2], at: iso, by: 'Деканат, автоматически', done: true, current: false },
+        { label: ORDER_STEPS[0], at: historyTime(iso), by: 'Студент', done: true, current: false },
+        { label: ORDER_STEPS[1], at: historyTime(iso), by: 'Деканат, автоматически', done: true, current: false },
+        { label: ORDER_STEPS[2], at: historyTime(iso), by: 'Деканат, автоматически', done: true, current: false },
       ]
     : buildHistory(0, iso, 'Студент');
   const due = dueFor(input.now, type.sla_minutes);
@@ -221,10 +226,14 @@ export const updateRequestStatus = db.transaction((id: number, departmentId: num
         }
       }
     }
-    nextHistory = history.map((h) => (h.label === ORDER_STEPS[2] ? { ...h, at: iso, by: change.by, done: true, current: true } : h));
+    nextHistory = history.map((h) =>
+      h.label === ORDER_STEPS[2] ? { ...h, at: historyTime(iso), by: change.by, done: true, current: true } : h,
+    );
   } else {
     // rejected — история остаётся, текущий шаг помечается пройденным
-    nextHistory = history.map((h) => (h.current ? { ...h, at: iso, by: change.by, done: true, current: false } : h));
+    nextHistory = history.map((h) =>
+      h.current ? { ...h, at: historyTime(iso), by: change.by, done: true, current: false } : h,
+    );
   }
   db.prepare(
     `UPDATE requests SET status = ?, comment = ?, reject_reason = ?, updated_at = ?, ready_at = ?,

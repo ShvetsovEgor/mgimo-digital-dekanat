@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import type BetterSqlite3 from 'better-sqlite3';
 import { BCRYPT_ROUNDS } from '../lib/auth.js';
 import { addDays, parseLocal, startOfWeek, toDateString, toLocalIso } from '../lib/time.js';
+import { dateTimeLabel } from '../lib/format.js';
 
 type DB = BetterSqlite3.Database;
 type SqlParams = Record<string, string | number | null>;
@@ -1407,9 +1408,10 @@ function buildSeedHistory(
   ready: string | null,
   due: string,
 ): Array<{ label: string; at: string; by: string | null; done: boolean; current: boolean }> {
+  // В историю заявки пишем человекочитаемое «16 ноя, 12:10», а не машинный ISO
   const step = (label: string, atIso: string | null, by: string | null, done: boolean, current: boolean) => ({
     label,
-    at: atIso ?? '—',
+    at: atIso ? dateTimeLabel(atIso) : '—',
     by,
     done,
     current,

@@ -87,6 +87,10 @@ await desktop.ctx.close();
 
 // Кабинет деканата
 const s = await open({ width: 360, height: 740 });
+await login(s.page, 'a.ivanova'); // по ходу сценария сервер может пересобрать демо-данные
+await s.page.evaluate(() => fetch('/api/auth/logout', { method: 'POST' }));
+await s.page.goto(base + '/login', { waitUntil: 'domcontentloaded' });
+await s.page.waitForTimeout(1200);
 await login(s.page, 'dekanat');
 await s.page.goto(base + '/staff', { waitUntil: 'networkidle' });
 await s.page.waitForTimeout(800);
