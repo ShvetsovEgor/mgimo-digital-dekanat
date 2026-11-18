@@ -4,12 +4,16 @@ import { LessonBlock } from './LessonCard';
 import type { WeekDay } from '@/lib/types';
 
 const ROW_HEIGHT = 52; // px на час
-const HOURS = Array.from({ length: 21 }, (_, index) => index + 3); // 03:00 … 23:00
-const START_MIN = HOURS[0]! * 60;
-const END_MIN = (HOURS[HOURS.length - 1]! + 1) * 60;
+const FIRST_HOUR = 8; // раньше 08:00 занятий не бывает — не тратим высоту впустую
+const LAST_HOUR = 22;
+const HOURS = Array.from({ length: LAST_HOUR - FIRST_HOUR }, (_, index) => index + FIRST_HOUR); // 08:00 … 21:00
+const START_MIN = FIRST_HOUR * 60;
+const END_MIN = LAST_HOUR * 60;
 
-function nowTop(now: Date): number {
+/** Положение «сейчас» по вертикали; null — текущее время вне учебного окна. */
+function nowTop(now: Date): number | null {
   const minutes = now.getHours() * 60 + now.getMinutes();
+  if (minutes < START_MIN || minutes > END_MIN) return null;
   return ((minutes - START_MIN) / 60) * ROW_HEIGHT;
 }
 
@@ -88,18 +92,19 @@ export function WeekCalendar({
               })}
             </div>
           ))}
-          {/* линия «сейчас»: 2px по ширине колонки текущего дня */}
-          {todayIndex >= 0 && (
+          {/* линия «сейчас»: горизонтальная, 2px по ширине колонки текущего дня */}
+          {todayIndex >= 0 && nowTop(now) !== null && (
             <div
-              className="pointer-events-none absolute top-0 bottom-0"
+              className="pointer-events-none absolute"
               style={{
                 left: `calc(56px + ${todayIndex} * (100% - 56px) / 7)`,
                 width: 'calc((100% - 56px) / 7)',
+                top: nowTop(now) ?? 0,
               }}
               aria-hidden="true"
             >
-              <span className="absolute top-0 left-0 h-full w-0.5 bg-now" style={{ transform: `translateY(${nowTop(now)}px)` }} />
-              <span className="absolute left-0 -translate-x-1/2 size-2 rounded-full bg-now" style={{ top: nowTop(now) - 3 }} />
+              <span className="absolute inset-x-0 h-0.5 -translate-y-1/2 rounded-full bg-now" />
+              <span className="absolute top-0 left-0 size-2 -translate-x-1 -translate-y-1/2 rounded-full bg-now" />
             </div>
           )}
         </div>
