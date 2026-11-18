@@ -9,7 +9,7 @@ import { ErrorState, ListSkeleton } from '@/components/ui/States';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { useStaffMessages, useStaffRequests, useStaffStats } from '@/lib/queries';
 import { StaffOrderList } from '@/components/staff/StaffOrderList';
-import { StaffQuestions } from '@/components/staff/StaffQuestions';
+import { StaffMessenger } from '@/components/staff/StaffMessenger';
 import { StaffStats } from '@/components/staff/StaffStats';
 import { AnnouncementComposer } from '@/components/staff/AnnouncementComposer';
 
@@ -71,13 +71,18 @@ export default function StaffPage() {
       )}
 
       {tab === 'messages' && (
-        <StaffQuestions
-          messages={messages.data}
-          loading={messages.isLoading}
-          error={messages.error}
-          onRetry={() => void messages.refetch()}
-          onChange={refresh}
-        />
+        <>
+          <p className="mb-2 text-[13px] text-muted">
+            Вопросы студентов из кабинета: выберите переписку и ответьте — ответ придёт студенту в уведомления.
+          </p>
+          <StaffMessenger
+            messages={messages.data}
+            loading={messages.isLoading}
+            error={messages.error}
+            onRetry={() => void messages.refetch()}
+            onChange={refresh}
+          />
+        </>
       )}
 
       {tab === 'announce' && <AnnouncementComposer onPublished={refresh} />}

@@ -483,8 +483,11 @@ export interface StaffMessage {
   body: string;
   student: { name: string; group: string };
   createdAtLabel: string;
+  /** «вчера», «2 дня назад» — для строки чата. */
+  relative: string;
   status: 'new' | 'answered';
   reply: string | null;
+  repliedAtLabel: string | null;
 }
 
 export interface StaffRequestUpdate {

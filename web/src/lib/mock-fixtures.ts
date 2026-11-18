@@ -263,8 +263,10 @@ export const MOCK_STAFF_MESSAGES: StaffMessage[] = [
     body: 'Справка № ЗВ-2030-000012 готова. Нужно ли приходить лично?',
     student: { name: 'Анна Иванова', group: 'МО-2-3' },
     createdAtLabel: '9 ноя, 14:12',
+    relative: '2 дня назад',
     status: 'new',
     reply: null,
+    repliedAtLabel: null,
   },
   {
     id: 2,
@@ -272,8 +274,10 @@ export const MOCK_STAFF_MESSAGES: StaffMessage[] = [
     body: 'Если не смогу прийти в день экзамена по уважительной причине, как оформляется пересдача?',
     student: { name: 'Дмитрий Смирнов', group: 'МО-2-7' },
     createdAtLabel: '10 ноя, 09:40',
+    relative: 'вчера',
     status: 'answered',
     reply: 'По уважительной причине оформляется индивидуальный график через деканат.',
+    repliedAtLabel: '10 ноя, 10:05',
   },
 ];
 
