@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowRight, Eye, EyeOff, Lock, ShieldCheck, UserRound } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, Lock, UserRound } from 'lucide-react';
 import { TextField } from '@/components/ui/Field';
 import { Logo, LogoMark } from '@/components/Logo';
 
@@ -15,6 +15,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { CompactLanguageButton, CompactThemeButton } from '@/components/auth/AuthChrome';
 import { DemoAccountsCard } from '@/components/auth/DemoAccountsCard';
 import { LoginBackdrop } from '@/components/auth/LoginBackdrop';
+import { NewsFeed } from '@/components/auth/NewsFeed';
 import type { Meta, MetaAccount } from '@/lib/types';
 
 interface LocationState {
@@ -176,41 +177,26 @@ function LoginScreen({
   };
 
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-bg">
+    <div className="relative min-h-dvh overflow-hidden bg-bg lg:h-dvh">
       <LoginBackdrop />
-      <div className="relative grid min-h-dvh lg:grid-cols-[1.02fr_1fr]">
-        {/* Левая колонка: рассказ о кабинете поверх сменяющегося фона */}
+      <div className="relative grid min-h-dvh lg:h-full lg:grid-cols-[1.02fr_1fr]">
+        {/* Левая колонка: новости деканата поверх сменяющегося фона кампуса */}
         <aside className="relative hidden flex-col justify-between p-10 lg:flex xl:p-14">
           <Logo size="md" withSubtitle />
-          <div className="max-w-[36ch] rounded-[28px] border border-line bg-surface/80 p-7 backdrop-blur-md">
-            <p className="text-[26px] leading-[1.2] font-semibold tracking-[-0.02em] text-ink">
-              Расписание, рейтинг и справки <span className="text-brand">в одном месте</span>
-            </p>
-            <p className="mt-3 text-sm text-muted">
-              «Успею ли на автомат?» превращается в понятный ответ: сколько баллов осталось, когда будет справка и что
-              изменилось в расписании.
-            </p>
-            <ul className="mt-5 space-y-2 text-[13px] text-muted">
-              {[
-                'Прогноз «автомата» по регламенту МГИМО',
-                'Заявки и справки с прогнозом готовности',
-                'Изменения в расписании с авторами правки',
-              ].map((text) => (
-                <li key={text} className="flex items-center gap-2">
-                  <ShieldCheck className="size-4 shrink-0 text-brand" strokeWidth={1.75} aria-hidden="true" />
-                  {text}
-                </li>
-              ))}
-            </ul>
+          <div className="no-scrollbar max-h-[calc(100dvh-190px)] w-full max-w-[420px] overflow-y-auto pr-1">
+            <NewsFeed news={meta.data?.news ?? []} limit={4} compact />
           </div>
         </aside>
 
         {/* Правая колонка: виджет авторизации и демо-доступы */}
-        <div className="flex flex-col justify-center bg-bg/85 px-4 py-4 backdrop-blur-md sm:px-8 lg:bg-bg lg:py-6 lg:backdrop-blur-none">
+        <div className="flex flex-col justify-center bg-bg/70 px-4 py-4 backdrop-blur-md sm:px-8 lg:bg-gradient-to-r lg:from-transparent lg:via-bg/55 lg:to-bg/90 lg:py-4 lg:backdrop-blur-none">
           <div className="mx-auto w-full max-w-[440px] space-y-4">
+            <div className="lg:hidden">
+              <NewsFeed news={meta.data?.news ?? []} limit={1} compact />
+            </div>
             <section
               aria-labelledby="auth-title"
-              className="rounded-[26px] border border-line bg-surface p-6 sm:p-7 lg:p-8"
+              className="rounded-[26px] border border-line bg-surface p-6 sm:p-7 lg:p-7"
             >
               <div className="flex items-center justify-between gap-3">
                 <span className="flex items-center gap-2.5">

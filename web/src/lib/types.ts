@@ -50,6 +50,18 @@ export interface Meta {
   context?: SeedContext | null;
   /** true — демо-данные только что пересобраны сервером (все прежние сессии недействительны). */
   reset?: boolean;
+  /** Публичные объявления деканатов для ленты на экране входа. */
+  news?: NewsItem[];
+}
+
+export interface NewsItem {
+  id: number;
+  category: string;
+  categoryLabel: string;
+  title: string;
+  body: string;
+  relative: string;
+  scope: string;
 }
 
 /** Снимки экранов на момент создания демо-данных («холодный старт» бесплатного хостинга). */

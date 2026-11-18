@@ -3,6 +3,7 @@ import { config } from './config.js';
 import { db } from './db.js';
 import { DEMO_RESET_HOURS, getSeedMeta } from './lib/demo-lifecycle.js';
 import { readSeedContext, type SeedContext } from './seed/context-screens.js';
+import { relativePastLabel } from './lib/format.js';
 import { getToday, type TodayResult } from './today.js';
 
 export const APP_NAME = 'Дедлайн';
@@ -64,6 +65,58 @@ export interface MetaResponse {
   demoResetHours: number;
   /** «Холодный старт»: снимки экранов на момент создания демо-данных (если есть). */
   context: SeedContext | null;
+  /** Публичные новости деканата для экрана входа: только заголовки и тексты, без персональных данных. */
+  news: NewsItem[];
+}
+
+export interface NewsItem {
+  id: number;
+  category: string;
+  categoryLabel: string;
+  title: string;
+  body: string;
+  relative: string;
+  scope: string;
+}
+
+const NEWS_CATEGORIES: Record<string, string> = {
+  study: 'Учёба',
+  session: 'Сессия',
+  documents: 'Документы',
+  life: 'Студенческая жизнь',
+  important: 'Важно',
+};
+
+/**
+ * Лента на экране входа: свежая студенческая жизнь — победы в конкурсах, конференции,
+ * патенты, зарубежные стажировки (категория `life`). Данные вымышлены, персональных сведений нет.
+ */
+export function publicNews(limit = 3): NewsItem[] {
+  const rows = db
+    .prepare(
+      `SELECT a.id, a.category, a.title, a.body, a.created_at, f.short_name AS faculty_short
+       FROM announcements a LEFT JOIN faculties f ON f.id = a.department_id
+       WHERE a.category = 'life'
+       ORDER BY a.pinned DESC, a.created_at DESC, a.id DESC LIMIT ?`,
+    )
+    .all(limit) as Array<{
+    id: number;
+    category: string;
+    title: string;
+    body: string;
+    created_at: string;
+    faculty_short: string | null;
+  }>;
+  return rows
+    .map((row) => ({
+      id: row.id,
+      category: row.category,
+      categoryLabel: NEWS_CATEGORIES[row.category] ?? 'Новости',
+      title: row.title,
+      body: row.body,
+      relative: relativePastLabel(row.created_at),
+      scope: row.faculty_short ? `Деканат · ${row.faculty_short}` : 'Для всех факультетов',
+    }));
 }
 
 export function buildMeta(today: TodayResult): MetaResponse {
@@ -77,6 +130,7 @@ export function buildMeta(today: TodayResult): MetaResponse {
     accounts: demoAccounts(),
     today,
     // «Холодный старт»: снимки экранов и время, к которому относятся текущие демо-данные.
+    news: publicNews(4),
     dataAsOf: getSeedMeta('last_seed_at') ?? null,
     demoResetHours: DEMO_RESET_HOURS,
     context: readSeedContext(),

@@ -5,7 +5,8 @@ import { cx } from '@/lib/cx';
  * Медленно меняющиеся фоны экрана входа: три кадра кампуса (сгенерированы ИИ для концепта),
  * кроссфейд раз в 9 секунд. При `prefers-reduced-motion` кадр не меняется.
  */
-const SLIDES = ['/backdrops/campus-path.jpg', '/backdrops/campus-hall.jpg', '/backdrops/campus-yard.jpg'];
+// Первым — кадр без вывесок, чтобы первый экран не читался как «чужой вуз»
+const SLIDES = ['/backdrops/campus-yard.jpg', '/backdrops/campus-hall.jpg', '/backdrops/campus-path.jpg'];
 const INTERVAL_MS = 9000;
 
 export function LoginBackdrop() {
