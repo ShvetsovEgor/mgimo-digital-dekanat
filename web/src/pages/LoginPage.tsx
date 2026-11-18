@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Eye, EyeOff, KeyRound, Lock, ShieldCheck, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/Field';
@@ -11,6 +11,7 @@ import { useLogin } from '@/lib/auth';
 import { ApiError } from '@/lib/http';
 import { mockEnabled } from '@/lib/mode';
 import { keys, resetUserCache, useMeta, useSession } from '@/lib/queries';
+import { getTabSession } from '@/lib/tab-session';
 import { api } from '@/lib/http';
 import { useQueryClient } from '@tanstack/react-query';
 import { SeedContextCard } from '@/components/auth/SeedContext';
@@ -33,14 +34,30 @@ export default function LoginPage() {
       </div>
     );
   }
-  if (session.data?.authenticated) {
+  // Вкладка со своей сессией просто возвращается в кабинет. Вкладка без токена
+  // (например, только что открытая) может войти другим аккаунтом, не трогая соседние.
+  if (session.data?.authenticated && getTabSession()) {
     return <Navigate to={state.from && state.from !== '/login' ? state.from : '/'} replace />;
   }
 
-  return <LoginScreen from={state.from} expired={state.expired} />;
+  return (
+    <LoginScreen
+      from={state.from}
+      expired={state.expired}
+      signedInElsewhere={session.data?.authenticated === true}
+    />
+  );
 }
 
-function LoginScreen({ from, expired }: { from?: string; expired?: boolean }) {
+function LoginScreen({
+  from,
+  expired,
+  signedInElsewhere,
+}: {
+  from?: string;
+  expired?: boolean;
+  signedInElsewhere?: boolean;
+}) {
 
   const login = useLogin();
   const toast = useToast();
@@ -173,6 +190,18 @@ function LoginScreen({ from, expired }: { from?: string; expired?: boolean }) {
           <h2 className="text-2xl font-semibold text-ink">Вход в кабинет</h2>
           <p className="mt-1 text-sm text-muted">Логин и пароль выдаёт деканат. У демо-аккаунтов — общий пароль.</p>
 
+          {signedInElsewhere && (
+            <p
+              role="status"
+              className="mt-4 rounded-[10px] border border-line bg-surface px-3 py-2.5 text-[13px] text-muted"
+            >
+              В другой вкладке этого браузера кабинет уже открыт. Можно войти здесь другим аккаунтом — та вкладка
+              останется под своим.{' '}
+              <Link to={from && from !== '/login' ? from : '/'} className="font-medium text-brand hover:underline">
+                Продолжить в кабинете
+              </Link>
+            </p>
+          )}
           {expired && (
             <p
               role="status"

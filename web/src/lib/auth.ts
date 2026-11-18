@@ -100,6 +100,16 @@ export function useLogout(): (options?: { allDevices?: boolean }) => Promise<voi
   return useCallback(
     async (options) => {
       try {
+        // Вкладка без своего токена сначала получает отдельную сессию: иначе выход
+        // отозвал бы общую cookie-сессию и завершил работу в соседних вкладках.
+        if (!getTabSession()) {
+          try {
+            const own = await api.post<{ tabToken: string }>('/auth/tab');
+            if (own?.tabToken) setTabSession(own.tabToken);
+          } catch {
+            /* останется как есть */
+          }
+        }
         if (options?.allDevices) {
           await api.post('/me/logout-all', undefined, { mockRoute: mockRouteOf('/me/logout-all') });
         }
