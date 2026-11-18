@@ -189,7 +189,7 @@ function LoginScreen({
         </aside>
 
         {/* Правая колонка: виджет авторизации и демо-доступы */}
-        <div className="flex flex-col justify-center bg-bg/70 px-4 py-4 backdrop-blur-md sm:px-8 lg:bg-gradient-to-r lg:from-transparent lg:via-bg/55 lg:to-bg/90 lg:py-4 lg:backdrop-blur-none">
+        <div className="flex flex-col justify-center bg-bg/35 px-4 py-4 backdrop-blur-[2px] sm:px-8 lg:bg-transparent lg:py-4 lg:backdrop-blur-none">
           <div className="mx-auto w-full max-w-[440px] space-y-4">
             <div className="lg:hidden">
               <NewsFeed news={meta.data?.news ?? []} limit={1} compact />
@@ -328,7 +328,9 @@ function LoginScreen({
               pendingLogin={pendingAccount}
             />
 
-            <p className="px-1 text-[11px] text-quiet">Учебный проект · не официальный сервис университета</p>
+            <p className="mx-auto w-fit rounded-full border border-line bg-surface/85 px-3 py-1 text-[11px] text-muted backdrop-blur-sm">
+              Учебный проект · не официальный сервис университета
+            </p>
           </div>
         </div>
       </div>

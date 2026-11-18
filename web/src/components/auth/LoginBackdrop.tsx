@@ -36,11 +36,11 @@ export function LoginBackdrop() {
           )}
         />
       ))}
-      {/* Мягкая вуаль: слева текст читается, справа фото остаётся заметным */}
-      <div className="absolute inset-0 bg-gradient-to-r from-bg/95 via-bg/80 to-bg/35 lg:from-bg/90 lg:via-bg/60 lg:to-bg/10" />
-      <div className="absolute inset-0 bg-bg/50 lg:bg-transparent" />
-      {/* Тёмная тема: кадр приглушается, чтобы карточка оставалась главным объектом */}
-      <div className="absolute inset-0 hidden bg-bg/55 dark:block" />
+      {/* Лёгкая вуаль только у левого края — фото остаётся почти в полную силу */}
+      <div className="absolute inset-0 bg-gradient-to-r from-bg/70 via-bg/20 to-transparent" />
+      <div className="absolute inset-0 bg-bg/30 lg:hidden" />
+      {/* Тёмная тема: кадр чуть приглушается, но остаётся читаемым фоном */}
+      <div className="absolute inset-0 hidden bg-bg/30 dark:block" />
     </div>
   );
 }

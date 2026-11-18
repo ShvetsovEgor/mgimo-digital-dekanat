@@ -12,7 +12,7 @@ export function NewsFeed({ news, limit = 4, compact }: { news: NewsItem[]; limit
   if (items.length === 0) return null;
   return (
     <section aria-label="Новости деканата" className="w-full">
-      <p className="mb-2 flex items-center gap-1.5 px-1 text-[11px] font-semibold tracking-[0.08em] text-muted uppercase">
+      <p className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-line bg-surface/85 px-2.5 py-1 text-[11px] font-semibold tracking-[0.08em] text-muted uppercase backdrop-blur-sm">
         <Sparkles className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
         Студенческая жизнь
       </p>
