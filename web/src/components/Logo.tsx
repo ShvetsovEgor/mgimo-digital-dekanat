@@ -1,4 +1,4 @@
-// Логотип «Дедлайн»: свой знак — контурный конверт с закладкой-дедлайном, цвет акцента #9154EB.
+// Логотип «Дедлайн»: свой знак — стилизованная «застёжка» между двумя линиями, цвет акцента.
 // Логотипы университетов не используются.
 
 interface LogoMarkProps {
@@ -11,27 +11,30 @@ export function LogoMark({ size = 28, className }: LogoMarkProps) {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 28 28"
       className={className}
       role="img"
       aria-label="Логотип «Дедлайн»"
       focusable="false"
       fill="none"
+      xmlns="http://www.w3.org/2000/svg"
     >
-      {/* конверт */}
-      <rect
-        x="3.6"
-        y="7.6"
-        width="24.8"
-        height="18.4"
-        rx="3.2"
+      <path d="M7 4.5H21M7 23.5H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path
+        d="M9 4.5V7.5C9 9.5 10.4 11.3 12.3 12.4L14 13.4L15.7 12.4C17.6 11.3 19 9.5 19 7.5V4.5"
         stroke="currentColor"
         strokeWidth="2"
+        strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M5.2 9.6 16 18l10.8-8.4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      {/* закладка-дедлайн */}
-      <path d="M19.4 2.8h7.2v7.2l-3.6-2.6-3.6 2.6z" fill="currentColor" stroke="none" />
+      <path
+        d="M9 23.5V20.5C9 18.5 10.4 16.7 12.3 15.6L14 14.6L15.7 15.6C17.6 16.7 19 18.5 19 20.5V23.5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M11.5 21.5H16.5L14 18.5L11.5 21.5Z" fill="currentColor" />
     </svg>
   );
 }
