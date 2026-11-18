@@ -25,7 +25,7 @@ export function Progress({ value, max = 100, threshold, tone = 'brand', label, s
   const thresholdPercent = threshold && threshold > 0 ? Math.max(0, Math.min(100, (threshold / safeMax) * 100)) : null;
   return (
     <div
-      className={cx('relative w-full overflow-visible rounded-full bg-line/70', size === 'md' ? 'h-2.5' : 'h-2', className)}
+      className={cx('relative w-full overflow-visible rounded-full bg-grid', size === 'md' ? 'h-1.5' : 'h-1', className)}
       role="progressbar"
       aria-label={label}
       aria-valuemin={0}
@@ -38,7 +38,7 @@ export function Progress({ value, max = 100, threshold, tone = 'brand', label, s
       />
       {thresholdPercent !== null && (
         <span
-          className="absolute -top-1 -bottom-1 w-0.5 rounded-full bg-ink/55"
+          className="absolute -top-0.5 -bottom-0.5 w-0.5 rounded-full bg-ink"
           style={{ left: `calc(${thresholdPercent}% - 1px)` }}
           aria-hidden="true"
         />
@@ -78,7 +78,7 @@ export function RingProgress({ value, max = 100, size = 120, stroke = 10, label,
       style={{ width: size, height: size }}
     >
       <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" strokeWidth={stroke} className="stroke-line/80" />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" strokeWidth={stroke} className="stroke-grid" />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -114,7 +114,7 @@ export function Skeleton({ className, count = 1 }: SkeletonProps) {
 /** Каркас загрузки карточки: заголовок + строки. */
 export function SkeletonCard({ lines = 3 }: { lines?: number }) {
   return (
-    <div className="rounded-[16px] border border-line bg-surface p-4">
+    <div className="rounded-[12px] border border-line bg-surface p-4">
       <Skeleton className="mb-3 h-4 w-1/3" />
       <div className="space-y-2">
         <Skeleton className="h-3.5 w-full" />

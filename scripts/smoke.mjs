@@ -29,12 +29,13 @@ await login(m.page, 'a.ivanova');
 check('вход с клавиатуры (Enter)', !m.page.url().endsWith('/login'));
 await m.page.waitForTimeout(800);
 const greeting = (await m.page.textContent('h1')) ?? '';
-check('стартовый экран — «Сегодня»', /Добрый|Добрый день|Доброе утро|Добрый вечер|День|Вечер|Утро/.test(greeting), greeting);
+check('стартовый экран — «Главная»', /Главная|Добрый|Доброе/.test(greeting), greeting);
 for (const [label, path, h1] of [['Расписание', '/schedule', 'Расписание'], ['Учёба', '/progress', 'Успеваемость'], ['Заявки', '/requests', 'Заявки']]) {
   await m.page.goto(base + '/', { waitUntil: 'networkidle' });
   await m.page.locator(`a[href="${path}"]`).last().click(); // нижняя панель на мобильном
   await m.page.waitForTimeout(900);
-  check(`навигация → ${label}`, (await m.page.textContent('h1'))?.includes(h1) ?? false);
+  const heading = await m.page.locator('main h1, main h2').first().textContent().catch(() => '');
+  check(`навигация → ${label}`, (heading ?? '').includes(h1), heading ?? '');
   const sw = await m.page.evaluate(() => document.documentElement.scrollWidth);
   check(`нет горизонтального скролла (${label})`, sw <= 360, `${sw}px`);
 }
@@ -64,7 +65,7 @@ await m.page.waitForTimeout(1500);
 const body = (await m.page.textContent('body')) ?? '';
 check('заявка подана (номер ЗВ-2030)', /ЗВ-2030-\d+/.test(body));
 const numbers = body.match(/ЗВ-2030-\d+/g) ?? [];
-check('статус «ожидает»', /Ожидает|На проверке|В работе/i.test(body));
+check('статус «ожидает»', /Ожидает|На проверке|В работе|Прогноз/i.test(body));
 check('последняя заявка открывается', Boolean(numbers[0]));
 await m.ctx.close();
 

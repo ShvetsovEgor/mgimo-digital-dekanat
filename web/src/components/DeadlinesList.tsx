@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CheckCircle2, Circle, Hourglass } from 'lucide-react';
 import { Badge } from './ui/Badge';
-import { ButtonLink } from './ui/Button';
+import { ActionLink } from './ui/ActionLink';
 import { Skeleton } from './ui/Progress';
 import { useDeadlines } from '@/lib/queries';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -51,8 +51,8 @@ export function DeadlinesList({ items, loading, limit }: DeadlinesListProps) {
   if (loading || (query.isLoading && !items)) {
     return (
       <div className="space-y-2" aria-busy="true">
-        <Skeleton className="h-14 w-full rounded-xl" />
-        <Skeleton className="h-14 w-full rounded-xl" />
+        <Skeleton className="h-14 w-full rounded-[10px]" />
+        <Skeleton className="h-14 w-full rounded-[10px]" />
       </div>
     );
   }
@@ -61,8 +61,8 @@ export function DeadlinesList({ items, loading, limit }: DeadlinesListProps) {
 
   if (source.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-line-strong px-3 py-4 text-center">
-        <p className="text-sm font-bold text-ink">Дедлайнов нет</p>
+      <div className="rounded-[10px] border border-dashed border-line-strong px-3 py-4 text-center">
+        <p className="text-sm font-semibold text-ink">Дедлайнов нет</p>
         <p className="mt-0.5 text-[13px] text-muted">Новых контрольных точек пока не публиковали.</p>
       </div>
     );
@@ -78,8 +78,8 @@ export function DeadlinesList({ items, loading, limit }: DeadlinesListProps) {
             <li key={item.id}>
               <div
                 className={cx(
-                  'flex items-start gap-3 rounded-xl border px-3 py-2.5 transition-colors',
-                  item.done ? 'border-line bg-surface-2' : urgent ? 'border-warn/40 bg-warn-soft/50' : 'border-line bg-surface',
+                  'flex items-start gap-3 rounded-[10px] border px-3 py-2.5 transition-colors',
+                  item.done ? 'border-line bg-surface-2' : urgent ? 'border-line bg-surface-hover/50' : 'border-line bg-surface',
                 )}
               >
                 <button
@@ -88,7 +88,7 @@ export function DeadlinesList({ items, loading, limit }: DeadlinesListProps) {
                   disabled={pending === item.id}
                   aria-pressed={item.done}
                   aria-label={item.done ? `Снять отметку: ${item.title}` : `Отметить выполненным: ${item.title}`}
-                  className="-m-1 grid size-11 shrink-0 cursor-pointer place-items-center rounded-lg hover:bg-line/40 disabled:opacity-60"
+                  className="-m-1 grid size-11 shrink-0 cursor-pointer place-items-center rounded-[8px] hover:bg-surface-hover disabled:opacity-60"
                 >
                   {item.done ? (
                     <CheckCircle2 className="size-5 text-ok" aria-hidden="true" />
@@ -97,10 +97,10 @@ export function DeadlinesList({ items, loading, limit }: DeadlinesListProps) {
                   )}
                 </button>
                 <div className="min-w-0 flex-1 pt-0.5">
-                  <p className={cx('text-[14px] leading-snug font-bold', item.done ? 'text-muted line-through' : 'text-ink')}>{item.title}</p>
+                  <p className={cx('text-[14px] leading-snug font-semibold', item.done ? 'text-muted line-through' : 'text-ink')}>{item.title}</p>
                   <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-muted">
                     <span className="sm:hidden">
-                      <span className={urgent && !item.done ? 'font-semibold text-warn-ink' : ''}>{item.relative}</span>
+                      <span className={urgent && !item.done ? 'font-semibold text-ink' : ''}>{item.relative}</span>
                       {' · '}
                     </span>
                     <span className="hidden sm:inline">{item.course}</span>
@@ -132,9 +132,7 @@ export function DeadlinesList({ items, loading, limit }: DeadlinesListProps) {
       </ul>
       {limit && source.length > limit && (
         <div className="mt-2 flex justify-end">
-          <ButtonLink to="/notifications?tab=deadlines" variant="ghost" size="sm">
-            Все дедлайны ({source.length})
-          </ButtonLink>
+          <ActionLink to="/notifications?tab=deadlines">Все дедлайны ({source.length})</ActionLink>
         </div>
       )}
     </div>

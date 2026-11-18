@@ -69,7 +69,7 @@ export function Sheet({ open, onClose, title, description, children, footer, siz
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="presentation">
-      <div className="animate-overlay absolute inset-0 bg-[#0B1120]/55 backdrop-blur-[2px]" onClick={onClose} aria-hidden="true" />
+      <div className="animate-overlay absolute inset-0 bg-[#1c1b23]/45 dark:bg-black/60" onClick={onClose} aria-hidden="true" />
       <div
         ref={panelRef}
         role="dialog"
@@ -78,14 +78,14 @@ export function Sheet({ open, onClose, title, description, children, footer, siz
         aria-describedby={description ? descId : undefined}
         tabIndex={-1}
         className={cx(
-          'animate-sheet relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[22px] border border-line bg-surface shadow-lift sm:rounded-[22px]',
+          'animate-sheet relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[16px] border border-line bg-surface sm:rounded-[12px]',
           size === 'md' ? 'sm:max-w-lg' : 'sm:max-w-md',
         )}
       >
         <div className="flex items-start justify-between gap-3 border-b border-line px-4 pt-4 pb-3 sm:px-5">
           <div className="min-w-0">
             <span className="mx-auto mb-3 block h-1 w-10 rounded-full bg-line-strong sm:hidden" aria-hidden="true" />
-            <h2 id={titleId} className="text-lg font-bold text-ink">
+            <h2 id={titleId} className="text-lg font-semibold text-ink">
               {title}
             </h2>
             {description && (
@@ -99,7 +99,7 @@ export function Sheet({ open, onClose, title, description, children, footer, siz
           </IconButton>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5">{children}</div>
-        {footer && <div className="safe-bottom border-t border-line bg-surface-2 px-4 py-3 sm:px-5">{footer}</div>}
+        {footer && <div className="safe-bottom border-t border-line bg-surface px-4 py-3 sm:px-5">{footer}</div>}
       </div>
     </div>
   );

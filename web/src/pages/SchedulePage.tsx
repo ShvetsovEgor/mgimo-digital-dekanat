@@ -1,6 +1,6 @@
 import { useMemo, useState, type MouseEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, Coffee, Clock } from 'lucide-react';
+import { CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, Coffee } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { AnchorButton, Button } from '@/components/ui/Button';
 import { IconButton } from '@/components/ui/Card';
@@ -11,8 +11,8 @@ import { PageHeader } from '@/components/ui/Layout';
 import { useToast } from '@/components/ui/Toast';
 import { ChangeCard } from '@/components/schedule/ChangeCard';
 import { DayPanel } from '@/components/schedule/DayPanel';
-import { LessonCard, NextLessonCard } from '@/components/schedule/LessonCard';
-import { WeekGrid } from '@/components/schedule/WeekGrid';
+import { LessonBlock, NextLessonCard } from '@/components/schedule/LessonCard';
+import { WeekCalendar } from '@/components/schedule/WeekGrid';
 import { relativeTimeLabel } from '@/components/schedule/meta';
 import { calendarUrl, cx, isMock } from '@/lib/cx';
 import { formatDateLong } from '@/lib/format';
@@ -36,7 +36,7 @@ export default function SchedulePage() {
       />
       <Segmented
         label="Вид расписания"
-        className="mb-4"
+        className="mb-4 lg:w-auto"
         value={view}
         onChange={setView}
         options={[
@@ -80,9 +80,9 @@ function TodayView() {
   if (today.isLoading) {
     return (
       <div className="space-y-3" aria-busy="true">
-        <Skeleton className="h-40 w-full rounded-[22px]" />
-        <Skeleton className="h-24 w-full rounded-[16px]" />
-        <Skeleton className="h-24 w-full rounded-[16px]" />
+        <Skeleton className="h-40 w-full rounded-[12px]" />
+        <Skeleton className="h-24 w-full rounded-[12px]" />
+        <Skeleton className="h-24 w-full rounded-[12px]" />
       </div>
     );
   }
@@ -94,7 +94,7 @@ function TodayView() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-[15px] font-bold text-ink first-letter:uppercase">{data.dateLabel}</p>
+          <p className="text-sm font-semibold text-ink first-letter:uppercase">{data.dateLabel}</p>
           <p className="text-[13px] text-muted">
             {data.weekParityLabel} · {data.universityDay}
           </p>
@@ -109,12 +109,11 @@ function TodayView() {
           lecture={data.next}
           countdown={data.next ? relativeTimeLabel(data.next, now) : ''}
           finishedLabel="На сегодня пары закончились"
-          compact
         />
       )}
 
       <section aria-labelledby="today-timeline">
-        <h2 id="today-timeline" className="mb-2.5 text-[16px] font-bold text-ink">
+        <h2 id="today-timeline" className="mb-2.5 text-sm font-semibold text-ink">
           Лента дня
         </h2>
         {data.entries.length === 0 ? (
@@ -124,20 +123,11 @@ function TodayView() {
             description="Отдохните или посмотрите расписание недели: изменения уже отмечены."
           />
         ) : (
-          <ol className="space-y-2">
+          <ol className="space-y-1.5">
             {data.entries.map((entry) => (
               <li key={entry.id}>
-                <LessonCard
-                  entry={entry}
-                  status={entry.status}
-                  action={
-                    entry.status === 'now' ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-ok-soft px-2 py-1 text-[11px] font-bold text-ok-ink">
-                        <Clock className="size-3" aria-hidden="true" /> идёт до {entry.end}
-                      </span>
-                    ) : null
-                  }
-                />
+                <LessonBlock entry={entry} codes={data.entries.map((item) => item.subjectCode)} status={entry.status} />
+                {entry.change && <p className="mt-1 pl-2 text-[12px] text-muted">{entry.change.note}</p>}
               </li>
             ))}
           </ol>
@@ -146,7 +136,7 @@ function TodayView() {
 
       {data.changes.length > 0 && (
         <section aria-labelledby="today-changes">
-          <h2 id="today-changes" className="mb-2.5 text-[16px] font-bold text-ink">
+          <h2 id="today-changes" className="mb-2.5 text-sm font-semibold text-ink">
             Изменения на неделе
           </h2>
           <ul className="space-y-2">
@@ -191,12 +181,12 @@ function WeekView() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2 rounded-[16px] border border-line bg-surface p-2">
+      <div className="flex items-center gap-2 rounded-[12px] border border-line bg-surface p-2">
         <IconButton label="Предыдущая неделя" variant="ghost" onClick={() => setOffset((value) => value - 1)}>
           <ChevronLeft className="size-5" aria-hidden="true" />
         </IconButton>
         <div className="flex-1 text-center" aria-live="polite">
-          <p className="text-[15px] font-bold text-ink">{week.data?.weekLabel ?? formatDateLong(anchor)}</p>
+          <p className="text-sm font-semibold text-ink">{week.data?.weekLabel ?? formatDateLong(anchor)}</p>
           <p className="text-[12px] text-muted">{week.data?.parityLabel ?? '…'}</p>
         </div>
         <IconButton label="Следующая неделя" variant="ghost" onClick={() => setOffset((value) => value + 1)}>
@@ -211,9 +201,9 @@ function WeekView() {
 
       {week.isLoading && (
         <div className="space-y-2" aria-busy="true">
-          <Skeleton className="h-16 w-full rounded-xl" />
-          <Skeleton className="h-32 w-full rounded-[16px]" />
-          <Skeleton className="h-32 w-full rounded-[16px]" />
+          <Skeleton className="h-16 w-full rounded-[10px]" />
+          <Skeleton className="h-32 w-full rounded-[12px]" />
+          <Skeleton className="h-32 w-full rounded-[12px]" />
         </div>
       )}
       {week.isError && <ErrorState error={week.error} onRetry={() => void week.refetch()} title="Неделя не загрузилась" />}
@@ -223,6 +213,8 @@ function WeekView() {
 }
 
 function WeekBody({ week }: { week: ScheduleWeek }) {
+  const now = useNow();
+  const toast = useToast();
   const todayIndex = week.days.findIndex((day) => day.isToday);
   const [selected, setSelected] = useState(() => (todayIndex >= 0 ? todayIndex : 0));
   const day = week.days[selected] ?? week.days[0];
@@ -242,12 +234,12 @@ function WeekBody({ week }: { week: ScheduleWeek }) {
                 aria-label={`${item.weekdayLabel}, ${item.dayLabel} ${item.monthLabel}${item.isToday ? ', сегодня' : ''}`}
                 onClick={() => setSelected(index)}
                 className={cx(
-                  'flex w-[54px] shrink-0 cursor-pointer flex-col items-center rounded-xl border px-1 py-1.5 transition-colors',
+                  'flex w-[54px] shrink-0 cursor-pointer flex-col items-center rounded-[10px] border px-1 py-1.5 transition-colors',
                   active ? 'border-brand bg-brand text-white' : 'border-line bg-surface text-ink hover:bg-surface-2',
                 )}
               >
                 <span className={cx('text-[11px] font-semibold', active ? 'text-white/80' : 'text-muted')}>{item.weekdayLabel}</span>
-                <span className="nums text-[17px] leading-tight font-extrabold">{item.dayLabel}</span>
+                <span className="nums text-lg leading-tight font-semibold">{item.dayLabel}</span>
                 <span className={cx('nums text-[10px]', active ? 'text-white/75' : 'text-muted')}>
                   {item.entries.length > 0 ? `${item.entries.length} пар` : '—'}
                 </span>
@@ -259,13 +251,22 @@ function WeekBody({ week }: { week: ScheduleWeek }) {
         {day && <DayPanel day={day} />}
       </div>
 
-      <WeekGrid days={week.days} />
+      <div className="hidden lg:block">
+        <WeekCalendar
+          days={week.days}
+          now={now}
+          onOpenChange={(entryId) => {
+            const change = week.changes.find((item) => item.entryId === entryId);
+            if (change) toast.show(`${change.kindLabel}: ${change.note}`, 'info');
+          }}
+        />
+      </div>
 
       {week.changes.length > 0 && (
         <section aria-labelledby="week-changes">
-          <h2 id="week-changes" className="mb-2.5 flex items-center gap-2 text-[16px] font-bold text-ink">
+          <h2 id="week-changes" className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-ink">
             Изменения на неделе
-            <span className="nums rounded-full bg-line/60 px-2 py-0.5 text-xs font-semibold text-muted">{week.changes.length}</span>
+            <span className="nums rounded-full bg-surface-hover px-2 py-0.5 text-xs font-semibold text-muted">{week.changes.length}</span>
           </h2>
           <ul className="grid gap-2 sm:grid-cols-2">
             {week.changes.map((change) => (

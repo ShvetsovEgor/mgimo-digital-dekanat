@@ -43,7 +43,7 @@ export default function StaffPage() {
         title="Кабинет деканата"
         description="Заявки факультета МО: принять в работу, выдать готовый документ или отказать с причиной."
       />
-      {stats.isLoading && <Skeleton className="mb-3 h-24 w-full rounded-[16px]" />}
+      {stats.isLoading && <Skeleton className="mb-3 h-24 w-full rounded-[12px]" />}
       {stats.isError && <ErrorState error={stats.error} onRetry={() => void stats.refetch()} title="Данные кабинета не загрузились" compact />}
       {stats.data && <StaffStats stats={stats.data} />}
 

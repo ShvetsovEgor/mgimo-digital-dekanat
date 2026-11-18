@@ -37,7 +37,7 @@ export default function NewRequestPage() {
         back={
           <Link
             to="/requests"
-            className="inline-flex items-center gap-1 text-[13px] font-semibold text-brand-ink hover:underline underline-offset-2"
+            className="inline-flex items-center gap-1 text-[13px] font-semibold text-brand hover:underline underline-offset-2"
           >
             <ArrowLeft className="size-4" aria-hidden="true" /> Мои заявки
           </Link>
@@ -45,9 +45,9 @@ export default function NewRequestPage() {
       />
       {types.isLoading && (
         <div className="space-y-2" aria-busy="true">
-          <Skeleton className="h-24 w-full rounded-[16px]" />
-          <Skeleton className="h-24 w-full rounded-[16px]" />
-          <Skeleton className="h-24 w-full rounded-[16px]" />
+          <Skeleton className="h-24 w-full rounded-[12px]" />
+          <Skeleton className="h-24 w-full rounded-[12px]" />
+          <Skeleton className="h-24 w-full rounded-[12px]" />
         </div>
       )}
       {types.isError && <ErrorState error={types.error} onRetry={() => void types.refetch()} title="Каталог услуг не загрузился" />}
@@ -98,14 +98,14 @@ function ServiceCatalog({ types, onPick }: { types: RequestType[]; onPick: (code
                         </Badge>
                       )}
                     </div>
-                    <h2 className="mt-1.5 text-[16px] leading-snug font-bold text-ink">{type.title}</h2>
+                    <h2 className="mt-1.5 text-sm leading-snug font-semibold text-ink">{type.title}</h2>
                   </div>
-                  <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand-ink" aria-hidden="true">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-surface-hover text-brand" aria-hidden="true">
                     <FileText className="size-[18px]" />
                   </span>
                 </div>
                 <p className="mt-1 text-[13px] text-muted">{type.short}</p>
-                <p className="mt-2 line-clamp-2 text-[12px] text-muted/90">{type.description}</p>
+                <p className="mt-2 line-clamp-2 text-[12px] text-muted">{type.description}</p>
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
                   <Badge tone="info" size="sm" icon={<Clock className="size-3" aria-hidden="true" />}>
                     {type.slaLabel}
@@ -120,7 +120,7 @@ function ServiceCatalog({ types, onPick }: { types: RequestType[]; onPick: (code
                 <Button
                   className="mt-3"
                   fullWidth
-                  variant="tonal"
+                  variant="outline"
                   size="sm"
                   onClick={() => onPick(type.code)}
                   iconRight={<ArrowRight className="size-4" aria-hidden="true" />}
@@ -233,7 +233,7 @@ function OrderFlow({ type, onBack }: { type: RequestType; onBack: () => void }) 
                 </div>
               ))}
               {serverError && (
-                <p role="alert" className="rounded-xl border border-danger/35 bg-danger-soft px-3 py-2 text-[13px] font-semibold text-danger-ink">
+                <p role="alert" className="rounded-[10px] border border-line bg-surface-hover px-3 py-2 text-[13px] font-semibold text-danger">
                   {serverError}
                 </p>
               )}
@@ -252,7 +252,7 @@ function OrderFlow({ type, onBack }: { type: RequestType; onBack: () => void }) 
         {step === 'review' && (
           <Card padding="md">
             <div className="flex items-start justify-between gap-2">
-              <h2 className="text-[16px] font-bold text-ink">Проверьте заявку</h2>
+              <h2 className="text-sm font-semibold text-ink">Проверьте заявку</h2>
               <Badge tone="info">{type.slaLabel}</Badge>
             </div>
             <dl className="mt-3 divide-y divide-line">
@@ -264,11 +264,11 @@ function OrderFlow({ type, onBack }: { type: RequestType; onBack: () => void }) 
               ))}
             </dl>
             <p className="mt-2 flex items-start gap-1.5 text-[12px] text-muted">
-              <BadgeCheck className="mt-0.5 size-3.5 shrink-0 text-brand-ink" aria-hidden="true" />
+              <BadgeCheck className="mt-0.5 size-3.5 shrink-0 text-brand" aria-hidden="true" />
               Номер присвоится после подачи. Прогноз готовности учитывает только рабочие дни.
             </p>
             {serverError && (
-              <p role="alert" className="mt-2 rounded-xl border border-danger/35 bg-danger-soft px-3 py-2 text-[13px] font-semibold text-danger-ink">
+              <p role="alert" className="mt-2 rounded-[10px] border border-line bg-surface-hover px-3 py-2 text-[13px] font-semibold text-danger">
                 {serverError}
               </p>
             )}
@@ -285,19 +285,19 @@ function OrderFlow({ type, onBack }: { type: RequestType; onBack: () => void }) 
       </div>
 
       <aside className="space-y-3">
-        <Card padding="md" className="bg-brand-soft/40">
-          <h2 className="text-[13px] font-bold text-brand-ink">Как это работает</h2>
+        <Card padding="md" className="bg-surface-hover">
+          <h2 className="text-[13px] font-semibold text-brand">Как это работает</h2>
           <ol className="mt-2 space-y-2">
             {type.steps.map((text, index) => (
               <li key={text} className="flex gap-2 text-[13px] text-ink">
-                <span className="nums grid size-5 shrink-0 place-items-center rounded-full bg-surface text-[11px] font-bold text-brand-ink">
+                <span className="nums grid size-5 shrink-0 place-items-center rounded-full bg-surface text-[11px] font-semibold text-brand">
                   {index + 1}
                 </span>
                 {text}
               </li>
             ))}
           </ol>
-          <div className="mt-3 flex flex-wrap gap-1.5 border-t border-brand/15 pt-2.5">
+          <div className="mt-3 flex flex-wrap gap-1.5 border-t border-brand pt-2.5">
             <Badge tone="info" size="sm">
               {type.slaLabel}
             </Badge>
@@ -330,10 +330,10 @@ function OrderFlow({ type, onBack }: { type: RequestType; onBack: () => void }) 
 
 function StepDot({ index, label, active, done }: { index: number; label: string; active: boolean; done: boolean }) {
   return (
-    <span className={cx('inline-flex items-center gap-1.5 font-semibold', active || done ? 'text-brand-ink' : 'text-muted')}>
+    <span className={cx('inline-flex items-center gap-1.5 font-semibold', active || done ? 'text-brand' : 'text-muted')}>
       <span
         className={cx(
-          'nums grid size-6 place-items-center rounded-full text-[11px] font-bold',
+          'nums grid size-6 place-items-center rounded-full text-[11px] font-semibold',
           done ? 'bg-ok text-white' : active ? 'bg-brand text-white' : 'bg-line text-muted',
         )}
       >
@@ -347,22 +347,22 @@ function StepDot({ index, label, active, done }: { index: number; label: string;
 function SuccessScreen({ order, type }: { order: Order; type: RequestType }) {
   return (
     <Card padding="lg" className="mx-auto max-w-xl text-center">
-      <span className="mx-auto grid size-14 place-items-center rounded-full bg-ok-soft text-ok-ink" aria-hidden="true">
+      <span className="mx-auto grid size-14 place-items-center rounded-full bg-surface-hover text-ink" aria-hidden="true">
         <Check className="size-7" />
       </span>
-      <h2 className="mt-3 text-xl font-extrabold text-ink">Заявка подана</h2>
+      <h2 className="mt-3 text-xl font-semibold text-ink">Заявка подана</h2>
       <p className="mt-1 text-[13px] text-muted">{type.title}</p>
       <dl className="mt-4 grid grid-cols-2 gap-2 text-left">
-        <div className="rounded-xl border border-line bg-surface-2 p-3">
-          <dt className="text-[11px] font-bold tracking-wide text-muted uppercase">Номер</dt>
-          <dd className="nums mt-0.5 text-[15px] font-extrabold text-ink">{order.number}</dd>
+        <div className="rounded-[10px] border border-line bg-surface-2 p-3">
+          <dt className="text-[11px] font-semibold tracking-wide text-muted uppercase">Номер</dt>
+          <dd className="nums mt-0.5 text-sm font-semibold text-ink">{order.number}</dd>
         </div>
-        <div className="rounded-xl border border-line bg-surface-2 p-3">
-          <dt className="text-[11px] font-bold tracking-wide text-muted uppercase">Прогноз готовности</dt>
-          <dd className="mt-0.5 text-[15px] font-extrabold text-ink">{order.dueLabel}</dd>
+        <div className="rounded-[10px] border border-line bg-surface-2 p-3">
+          <dt className="text-[11px] font-semibold tracking-wide text-muted uppercase">Прогноз готовности</dt>
+          <dd className="mt-0.5 text-sm font-semibold text-ink">{order.dueLabel}</dd>
         </div>
       </dl>
-      <p className="mt-3 rounded-xl bg-brand-soft px-3 py-2 text-[13px] text-brand-ink">
+      <p className="mt-3 rounded-[10px] bg-surface-hover px-3 py-2 text-[13px] text-brand">
         Статус обновляется автоматически. Когда документ будет готов, придёт уведомление — ничего звонить не нужно.
       </p>
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">

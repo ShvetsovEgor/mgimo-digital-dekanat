@@ -110,12 +110,12 @@ function FeedTab({ unread, onRead }: { unread: number; onRead: (open: boolean) =
   return (
     <div className="space-y-4">
       {unread > 0 && (
-        <div className="flex items-center justify-between gap-2 rounded-xl bg-brand-soft px-3 py-2">
-          <p className="flex items-center gap-1.5 text-[13px] font-semibold text-brand-ink">
+        <div className="flex items-center justify-between gap-2 rounded-[10px] bg-surface-hover px-3 py-2">
+          <p className="flex items-center gap-1.5 text-[13px] font-semibold text-brand">
             <BellRing className="size-4" aria-hidden="true" />
             Непрочитанных: {unread}
           </p>
-          <Button variant="tonal" size="sm" loading={marking} onClick={() => void markAll()} iconLeft={<CheckCheck className="size-4" aria-hidden="true" />}>
+          <Button variant="outline" size="sm" loading={marking} onClick={() => void markAll()} iconLeft={<CheckCheck className="size-4" aria-hidden="true" />}>
             Прочитать всё
           </Button>
         </div>
@@ -134,7 +134,7 @@ function FeedTab({ unread, onRead }: { unread: number; onRead: (open: boolean) =
         {messages.isLoading && <ListSkeleton count={1} lines={2} />}
         {messages.isError && <ErrorState error={messages.error} onRetry={() => void messages.refetch()} compact />}
         {messages.data && <MyQuestions items={messages.data} />}
-        <Button variant="tonal" size="sm" fullWidth className="mt-2" onClick={() => onRead(true)} iconLeft={<Send className="size-4" aria-hidden="true" />}>
+        <Button variant="primary" size="sm" fullWidth className="mt-2" onClick={() => onRead(true)} iconLeft={<Send className="size-4" aria-hidden="true" />}>
           Задать вопрос деканату
         </Button>
       </Card>
@@ -191,8 +191,8 @@ function AnnouncementCard({ announcement }: { announcement: Announcement }) {
         )}
         <span className="ml-auto text-[11px] text-muted">{announcement.createdAtLabel}</span>
       </div>
-      <h2 className="mt-1.5 text-[16px] leading-snug font-bold text-ink">{announcement.title}</h2>
-      <p className="mt-1 text-[14px] leading-relaxed text-ink/80">{announcement.body}</p>
+      <h2 className="mt-1.5 text-sm leading-snug font-semibold text-ink">{announcement.title}</h2>
+      <p className="mt-1 text-[14px] leading-relaxed text-ink">{announcement.body}</p>
       <p className="mt-2 flex items-center gap-1 text-[11px] text-muted">
         <Megaphone className="size-3" aria-hidden="true" />
         {announcement.scope}

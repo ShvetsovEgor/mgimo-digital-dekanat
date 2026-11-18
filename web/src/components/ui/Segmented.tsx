@@ -46,7 +46,7 @@ export function Segmented<T extends string>({
       aria-label={label}
       onKeyDown={onKeyDown}
       className={cx(
-        'inline-flex items-center gap-1 rounded-xl border border-line bg-surface-2 p-1',
+        'inline-flex items-center gap-1 rounded-[10px] border border-line bg-surface p-0.5',
         fullWidth && 'w-full',
         className,
       )}
@@ -63,16 +63,16 @@ export function Segmented<T extends string>({
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(option.value)}
             className={cx(
-              'inline-flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg font-semibold transition-colors duration-150',
-              size === 'md' ? 'min-h-9 px-3 text-sm' : 'min-h-8 px-2.5 text-[13px]',
-              selected ? 'bg-surface text-ink shadow-soft' : 'text-muted hover:text-ink',
+              'inline-flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-[8px] text-sm font-medium transition-colors duration-150',
+              size === 'md' ? 'min-h-9 px-3' : 'min-h-8 px-2.5 text-[13px]',
+              selected ? 'bg-surface-hover text-ink' : 'text-muted hover:text-ink',
             )}
           >
             {option.label}
             {typeof option.badge === 'number' && option.badge > 0 && (
               <span
                 className={cx(
-                  'nums rounded-full px-1.5 text-[11px] font-bold',
+                  'nums rounded-full px-1.5 text-[11px] font-semibold',
                   selected ? 'bg-brand text-white' : 'bg-line text-muted',
                 )}
               >
@@ -113,14 +113,14 @@ export function Tabs<T extends string>({ options, value, onChange, label, classN
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(option.value)}
             className={cx(
-              'relative shrink-0 cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold transition-colors duration-150',
-              selected ? 'text-brand-ink' : 'text-muted hover:text-ink',
+              'relative shrink-0 cursor-pointer rounded-[8px] px-3 py-2 text-sm font-semibold transition-colors duration-150',
+              selected ? 'text-brand' : 'text-muted hover:text-ink',
             )}
           >
             <span className="inline-flex items-center gap-1.5">
               {option.label}
               {typeof option.badge === 'number' && option.badge > 0 && (
-                <span className="nums rounded-full bg-line/70 px-1.5 text-[11px] font-bold text-muted">{option.badge}</span>
+                <span className="nums rounded-full bg-surface-hover px-1.5 text-[11px] font-semibold text-muted">{option.badge}</span>
               )}
             </span>
             {selected && <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-brand" aria-hidden="true" />}

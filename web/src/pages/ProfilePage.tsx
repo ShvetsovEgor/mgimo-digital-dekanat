@@ -77,9 +77,9 @@ export default function ProfilePage() {
       <PageHeader title="Профиль" description="Личные данные, деканат и безопасность аккаунта." />
       {profile.isLoading && (
         <div className="space-y-3" aria-busy="true">
-          <Skeleton className="h-32 w-full rounded-[22px]" />
-          <Skeleton className="h-40 w-full rounded-[16px]" />
-          <Skeleton className="h-32 w-full rounded-[16px]" />
+          <Skeleton className="h-32 w-full rounded-[12px]" />
+          <Skeleton className="h-40 w-full rounded-[12px]" />
+          <Skeleton className="h-32 w-full rounded-[12px]" />
         </div>
       )}
       {profile.isError && <ErrorState error={profile.error} onRetry={() => void profile.refetch()} title="Профиль не загрузился" />}
@@ -112,9 +112,9 @@ export default function ProfilePage() {
             <Card padding="md">
               <CardHeader title="Безопасность" icon={<ShieldCheck className="size-[18px]" aria-hidden="true" />} />
               <div className="space-y-3">
-                <div className="flex items-start gap-2 rounded-xl bg-ok-soft px-3 py-2">
-                  <BadgeCheck className="mt-0.5 size-4 shrink-0 text-ok-ink" aria-hidden="true" />
-                  <p className="text-[12px] text-ok-ink">
+                <div className="flex items-start gap-2 rounded-[10px] bg-surface-hover px-3 py-2">
+                  <BadgeCheck className="mt-0.5 size-4 shrink-0 text-ink" aria-hidden="true" />
+                  <p className="text-[12px] text-ink">
                     {data.profile.verification.label} · {data.profile.verification.note}
                   </p>
                 </div>
@@ -148,7 +148,7 @@ export default function ProfilePage() {
               <ThemeSwitcher />
             </Card>
             <Card padding="md" className="bg-surface-2">
-              <p className="flex items-center gap-1.5 text-[13px] font-bold text-ink">
+              <p className="flex items-center gap-1.5 text-[13px] font-semibold text-ink">
                 <Info className="size-4 text-muted" aria-hidden="true" />
                 Концепт для конкурса
               </p>
@@ -192,7 +192,7 @@ function StudentCard({ data }: { data: ProfileBundle }) {
       <div className="flex items-center gap-3.5">
         <Avatar initials={p.initials} name={p.displayName} size="lg" />
         <div className="min-w-0">
-          <h2 className="text-xl leading-tight font-extrabold text-ink">{p.fullName}</h2>
+          <h2 className="text-xl leading-tight font-semibold text-ink">{p.fullName}</h2>
           <p className="mt-0.5 text-[13px] text-muted">
             {p.courseOrdinal} · {p.group} · {p.facultyShort}
           </p>
@@ -208,21 +208,21 @@ function StudentCard({ data }: { data: ProfileBundle }) {
       </div>
       <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-line pt-3.5 sm:grid-cols-3">
         <div>
-          <dt className="text-[11px] font-bold tracking-wide text-muted uppercase">E-mail</dt>
+          <dt className="text-[11px] font-semibold tracking-wide text-muted uppercase">E-mail</dt>
           <dd className="mt-0.5 flex items-center gap-1 truncate text-[13px] font-semibold text-ink">
             <Mail className="size-3.5 shrink-0 text-muted" aria-hidden="true" />
             <span className="truncate">{p.email}</span>
           </dd>
         </div>
         <div>
-          <dt className="text-[11px] font-bold tracking-wide text-muted uppercase">Телефон</dt>
+          <dt className="text-[11px] font-semibold tracking-wide text-muted uppercase">Телефон</dt>
           <dd className="mt-0.5 flex items-center gap-1 text-[13px] font-semibold text-ink">
             <Phone className="size-3.5 shrink-0 text-muted" aria-hidden="true" />
             {p.phone ?? 'не указан'}
           </dd>
         </div>
         <div>
-          <dt className="text-[11px] font-bold tracking-wide text-muted uppercase">Telegram</dt>
+          <dt className="text-[11px] font-semibold tracking-wide text-muted uppercase">Telegram</dt>
           <dd className="mt-0.5 flex items-center gap-1 text-[13px] font-semibold text-ink">
             <AtSign className="size-3.5 shrink-0 text-muted" aria-hidden="true" />
             {p.telegram ?? 'не указан'}
@@ -252,13 +252,13 @@ function DeaneryCard({ data }: { data: ProfileBundle }) {
         </li>
         <li className="flex items-start gap-2">
           <Mail className="mt-0.5 size-4 shrink-0 text-muted" aria-hidden="true" />
-          <a href={`mailto:${d.email}`} className="break-all text-brand-ink hover:underline underline-offset-2">
+          <a href={`mailto:${d.email}`} className="break-all text-brand hover:underline underline-offset-2">
             {d.email}
           </a>
         </li>
         <li className="flex items-start gap-2">
           <Phone className="mt-0.5 size-4 shrink-0 text-muted" aria-hidden="true" />
-          <a href={`tel:${d.phone.replace(/[^+\d]/g, '')}`} className="nums text-brand-ink hover:underline underline-offset-2">
+          <a href={`tel:${d.phone.replace(/[^+\d]/g, '')}`} className="nums text-brand hover:underline underline-offset-2">
             {d.phone}
           </a>
         </li>
@@ -268,7 +268,7 @@ function DeaneryCard({ data }: { data: ProfileBundle }) {
         <Stat label="Декан" value={<span className="text-[14px]">{d.dean}</span>} />
       </div>
       <p className="mt-2 text-[12px] text-muted">{d.responseTime}</p>
-      <Button variant="tonal" size="sm" fullWidth className="mt-2.5" onClick={() => window.location.assign('/notifications?ask=1')} iconLeft={<MessageCircle className="size-4" aria-hidden="true" />}>
+      <Button variant="outline" size="sm" fullWidth className="mt-2.5" onClick={() => window.location.assign('/notifications?ask=1')} iconLeft={<MessageCircle className="size-4" aria-hidden="true" />}>
         Задать вопрос
       </Button>
     </Card>

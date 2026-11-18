@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { AlertTriangle, Inbox, RefreshCw, WifiOff } from 'lucide-react';
-import { Button } from './Button';
 import { Skeleton } from './Progress';
 import { ApiError } from '@/lib/http';
 
@@ -16,14 +15,16 @@ interface EmptyStateProps {
 export function EmptyState({ icon, title, description, action, secondary, compact }: EmptyStateProps) {
   return (
     <div
-      className={`flex flex-col items-center justify-center rounded-[16px] border border-dashed border-line-strong bg-surface/60 px-5 text-center ${compact ? 'py-6' : 'py-10'}`}
+      className={`flex flex-col items-start rounded-[12px] border border-line bg-surface px-4 text-left ${compact ? 'py-4' : 'py-5'}`}
     >
-      <span className="mb-3 grid size-12 place-items-center rounded-2xl bg-brand-soft text-brand-ink" aria-hidden="true">
-        {icon ?? <Inbox className="size-6" />}
-      </span>
-      <p className="max-w-[34ch] text-[15px] font-bold text-ink">{title}</p>
-      {description && <p className="mt-1 max-w-[42ch] text-sm text-muted">{description}</p>}
-      {(action || secondary) && <div className="mt-4 flex flex-wrap items-center justify-center gap-2">{action ?? secondary}</div>}
+      <p className="flex items-center gap-2 text-sm font-semibold text-ink">
+        <span className="text-brand" aria-hidden="true">
+          {icon ?? <Inbox className="size-[18px]" strokeWidth={1.75} />}
+        </span>
+        {title}
+      </p>
+      {description && <p className="mt-1 max-w-[52ch] text-[13px] text-muted">{description}</p>}
+      {(action || secondary) && <div className="mt-2 flex flex-wrap items-center gap-3">{action ?? secondary}</div>}
     </div>
   );
 }
@@ -56,23 +57,24 @@ export function ErrorState({ error, onRetry, title, compact }: ErrorStateProps) 
   return (
     <div
       role="alert"
-      className={`flex flex-col items-center justify-center rounded-[16px] border border-line bg-surface px-5 text-center ${compact ? 'py-6' : 'py-10'}`}
+      className={`flex flex-col items-start rounded-[12px] border border-line bg-surface px-4 text-left ${compact ? 'py-4' : 'py-5'}`}
     >
-      <span className="mb-3 grid size-12 place-items-center rounded-2xl bg-danger-soft text-danger-ink" aria-hidden="true">
-        {info.offline ? <WifiOff className="size-6" /> : <AlertTriangle className="size-6" />}
-      </span>
-      <p className="text-[15px] font-bold text-ink">{title ?? info.title}</p>
-      <p className="mt-1 max-w-[42ch] text-sm text-muted">{info.message}</p>
+      <p className="flex items-center gap-2 text-sm font-semibold text-ink">
+        <span className="text-quiet" aria-hidden="true">
+          {info.offline ? <WifiOff className="size-[18px]" strokeWidth={1.75} /> : <AlertTriangle className="size-[18px]" strokeWidth={1.75} />}
+        </span>
+        {title ?? info.title}
+      </p>
+      <p className="mt-1 max-w-[52ch] text-[13px] text-muted">{info.message}</p>
       {onRetry && (
-        <Button
-          variant="outline"
-          size="sm"
-          className="mt-4"
+        <button
+          type="button"
           onClick={onRetry}
-          iconLeft={<RefreshCw className="size-4" aria-hidden="true" />}
+          className="mt-2 inline-flex min-h-11 cursor-pointer items-center gap-1.5 text-sm font-medium text-brand transition-colors hover:text-brand-strong hover:underline"
         >
+          <RefreshCw className="size-4" strokeWidth={1.75} aria-hidden="true" />
           Повторить
-        </Button>
+        </button>
       )}
     </div>
   );
@@ -89,9 +91,9 @@ export function ListSkeleton({ count = 3, lines = 3 }: ListSkeletonProps) {
     <div className="space-y-3" aria-busy="true" aria-live="polite">
       <span className="sr-only">Загружаем данные…</span>
       {Array.from({ length: count }, (_, index) => (
-        <div key={index} className="rounded-[16px] border border-line bg-surface p-4">
+        <div key={index} className="rounded-[12px] border border-line bg-surface p-4">
           <div className="mb-3 flex items-center gap-3">
-            <Skeleton className="size-10 rounded-xl" />
+            <Skeleton className="size-10 rounded-[10px]" />
             <div className="flex-1 space-y-2">
               <Skeleton className="h-3.5 w-2/3" />
               <Skeleton className="h-3 w-1/3" />

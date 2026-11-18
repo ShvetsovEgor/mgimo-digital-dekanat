@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FilePlus2, FolderOpen, History } from 'lucide-react';
 import { ButtonLink } from '@/components/ui/Button';
+import { ActionLink } from '@/components/ui/ActionLink';
 import { Card } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/Layout';
 import { Segmented } from '@/components/ui/Segmented';
@@ -35,10 +36,10 @@ export default function RequestsPage() {
   return (
     <div className="animate-fade">
       <PageHeader
-        title="Заявки и справки"
+        title="Заявки"
         description="Заказ без визита в деканат: статус обновляется сам, готовый документ — PDF с QR-подписью."
         actions={
-          <ButtonLink to="/requests/new" iconLeft={<FilePlus2 className="size-4" aria-hidden="true" />}>
+          <ButtonLink to="/requests/new" variant="primary" iconLeft={<FilePlus2 className="size-4" aria-hidden="true" />}>
             Новая заявка
           </ButtonLink>
         }
@@ -55,9 +56,7 @@ export default function RequestsPage() {
           title="Заявок пока нет"
           description="Начните со справки об обучении — она бесплатна и готова за 1 рабочий день."
           action={
-            <ButtonLink to="/requests/new" iconLeft={<FilePlus2 className="size-4" aria-hidden="true" />}>
-              Заказать справку
-            </ButtonLink>
+            <ActionLink to="/requests/new">Заказать справку</ActionLink>
           }
         />
       )}
@@ -77,8 +76,8 @@ export default function RequestsPage() {
           {bucket === 'active' && (
             <>
               {groups.ready.length > 0 && (
-                <Card padding="sm" className="border-ok/35 bg-ok-soft/50">
-                  <p className="text-[13px] font-bold text-ok-ink">
+                <Card padding="sm" accent="ok">
+                  <p className="text-[13px] font-semibold text-ink">
                     {groups.ready.length === 1 ? 'Готов ваш документ' : `Готовы документы: ${groups.ready.length}`}
                   </p>
                   <ul className="mt-1.5 space-y-1">
@@ -86,10 +85,10 @@ export default function RequestsPage() {
                       <li key={order.id}>
                         <Link
                           to={`/requests/${order.id}`}
-                          className="nums flex min-h-9 items-center justify-between gap-2 text-[13px] font-semibold text-ok-ink hover:underline underline-offset-2"
+                          className="flex min-h-11 items-center justify-between gap-2 text-sm text-ink hover:text-brand"
                         >
-                          {order.typeTitle} · {order.number}
-                          <span aria-hidden="true">→</span>
+                          <span className="truncate">{order.typeTitle}</span>
+                          <span className="nums shrink-0 text-[12px] text-muted">{order.number}</span>
                         </Link>
                       </li>
                     ))}
@@ -101,7 +100,7 @@ export default function RequestsPage() {
                   icon={<History className="size-6" aria-hidden="true" />}
                   title="Активных заявок нет"
                   description="Все заказы завершены — они в истории. Нужна новая справка?"
-                  action={<ButtonLink to="/requests/new" variant="tonal">Новая заявка</ButtonLink>}
+                  action={<ActionLink to="/requests/new">Новая заявка</ActionLink>}
                 />
               ) : (
                 <OrderList orders={groups.active} />

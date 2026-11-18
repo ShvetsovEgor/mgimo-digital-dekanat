@@ -102,7 +102,7 @@ export function AskForm({ open, onClose }: AskFormProps) {
         />
         <p className="text-[12px] text-muted">Не пишите пароль от кабинета — деканату он не нужен.</p>
         {serverError && (
-          <p role="alert" className="rounded-xl border border-danger/35 bg-danger-soft px-3 py-2 text-[13px] font-semibold text-danger-ink">
+          <p role="alert" className="rounded-[10px] border border-line bg-surface-hover px-3 py-2 text-[13px] font-semibold text-danger">
             {serverError}
           </p>
         )}

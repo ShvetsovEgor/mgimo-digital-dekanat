@@ -88,7 +88,7 @@ export function PasswordForm({ open, onClose }: PasswordFormProps) {
           required
         />
         <TextField label="Повторите новый пароль" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} error={errors.confirm} required />
-        {serverError && <p role="alert" className="rounded-xl border border-danger/35 bg-danger-soft px-3 py-2 text-[13px] font-semibold text-danger-ink">{serverError}</p>}
+        {serverError && <p role="alert" className="rounded-[10px] border border-line bg-surface-hover px-3 py-2 text-[13px] font-semibold text-danger">{serverError}</p>}
       </form>
     </Sheet>
   );

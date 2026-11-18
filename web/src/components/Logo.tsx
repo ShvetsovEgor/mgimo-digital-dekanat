@@ -1,33 +1,37 @@
-// Логотип «Дедлайн»: конверт-цепочка в золотом круге + название.
-// Собственный знак, логотип университета не используется.
+// Логотип «Дедлайн»: свой знак — контурный конверт с закладкой-дедлайном, цвет акцента #9154EB.
+// Логотипы университетов не используются.
 
 interface LogoMarkProps {
   size?: number;
   className?: string;
 }
 
-export function LogoMark({ size = 40, className }: LogoMarkProps) {
+export function LogoMark({ size = 28, className }: LogoMarkProps) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 48 48"
+      viewBox="0 0 32 32"
       className={className}
       role="img"
       aria-label="Логотип «Дедлайн»"
       focusable="false"
+      fill="none"
     >
-      <defs>
-        <linearGradient id="dl-gold" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#E9CD6E" />
-          <stop offset="1" stopColor="#C9A227" />
-        </linearGradient>
-      </defs>
-      <rect width="48" height="48" rx="14" fill="#1D3A8A" />
-      <circle cx="24" cy="24" r="15.5" fill="none" stroke="url(#dl-gold)" strokeWidth="2" />
-      <rect x="14.5" y="18" width="19" height="13" rx="2.6" fill="none" stroke="#F6F5F1" strokeWidth="2" strokeLinejoin="round" />
-      <path d="M15 19.2 24 26l9-6.8" fill="none" stroke="#F6F5F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="24" cy="30.2" r="1.9" fill="url(#dl-gold)" />
+      {/* конверт */}
+      <rect
+        x="3.6"
+        y="7.6"
+        width="24.8"
+        height="18.4"
+        rx="3.2"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path d="M5.2 9.6 16 18l10.8-8.4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      {/* закладка-дедлайн */}
+      <path d="M19.4 2.8h7.2v7.2l-3.6-2.6-3.6 2.6z" fill="currentColor" stroke="none" />
     </svg>
   );
 }
@@ -39,21 +43,20 @@ interface LogoProps {
 }
 
 const SIZES = {
-  sm: { mark: 32, title: 'text-[16px]', sub: 'text-[10px]' },
-  md: { mark: 40, title: 'text-[19px]', sub: 'text-[11px]' },
-  lg: { mark: 52, title: 'text-[24px]', sub: 'text-[12px]' },
+  sm: { mark: 22, title: 'text-sm' },
+  md: { mark: 28, title: 'text-lg' },
+  lg: { mark: 40, title: 'text-2xl' },
 } as const;
 
-export function Logo({ size = 'md', withSubtitle = true, className }: LogoProps) {
+/** Знак цветом акцента, рядом слово «Дедлайн». Подпись — тихой сноской. */
+export function Logo({ size = 'md', withSubtitle = false, className }: LogoProps) {
   const s = SIZES[size];
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className ?? ''}`}>
-      <LogoMark size={s.mark} />
+    <span className={`inline-flex items-center gap-2 ${className ?? ''}`}>
+      <LogoMark size={s.mark} className="text-brand" />
       <span className="flex flex-col leading-none">
-        <span className={`font-extrabold tracking-tight text-ink ${s.title}`}>Дедлайн</span>
-        {withSubtitle && (
-          <span className={`mt-1 font-semibold uppercase tracking-[0.12em] text-muted ${s.sub}`}>цифровой деканат 2030</span>
-        )}
+        <span className={`font-semibold tracking-[-0.02em] text-ink ${s.title}`}>Дедлайн</span>
+        {withSubtitle && <span className="mt-1 text-[11px] text-quiet">цифровой деканат 2030</span>}
       </span>
     </span>
   );

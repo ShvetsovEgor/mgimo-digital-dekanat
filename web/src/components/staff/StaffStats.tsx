@@ -19,13 +19,13 @@ export function StaffStats({ stats }: { stats: Stats }) {
           <li
             key={item.label}
             className={cx(
-              'rounded-xl border px-2.5 py-2',
-              item.tone === 'danger' && item.value > 0 ? 'border-danger/35 bg-danger-soft/60' : 'border-line bg-surface-2',
+              'rounded-[10px] border px-2.5 py-2',
+              item.tone === 'danger' && item.value > 0 ? 'border-line bg-surface-hover/60' : 'border-line bg-surface-2',
             )}
           >
             <div className="flex items-center gap-1.5">
               <item.icon className="size-3.5 text-muted" aria-hidden="true" />
-              <span className="text-[11px] font-bold tracking-wide text-muted uppercase">{item.label}</span>
+              <span className="text-[11px] font-semibold tracking-wide text-muted uppercase">{item.label}</span>
             </div>
             <p className="display-num mt-0.5 text-xl text-ink">{item.value}</p>
           </li>

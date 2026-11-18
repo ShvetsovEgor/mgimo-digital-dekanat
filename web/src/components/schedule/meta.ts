@@ -12,11 +12,11 @@ export const KIND_STYLES: Record<WeekEntry['kind'] | 'default', { tone: Tone; sh
 };
 
 export const CHANGE_LABELS: Record<ScheduleChange['kind'], { label: string; tone: Tone; accent: 'warn' | 'danger' | 'info' }> = {
-  room: { label: 'Аудитория изменена', tone: 'warn', accent: 'warn' },
-  cancelled: { label: 'Отменено', tone: 'danger', accent: 'danger' },
-  moved: { label: 'Перенос', tone: 'info', accent: 'info' },
-  added: { label: 'Добавлено', tone: 'info', accent: 'info' },
-  time: { label: 'Время изменено', tone: 'warn', accent: 'warn' },
+  room: { label: 'новая аудитория', tone: 'neutral', accent: 'warn' },
+  cancelled: { label: 'отменено', tone: 'danger', accent: 'danger' },
+  moved: { label: 'перенос', tone: 'brand', accent: 'info' },
+  added: { label: 'добавлено', tone: 'brand', accent: 'info' },
+  time: { label: 'новое время', tone: 'neutral', accent: 'warn' },
 };
 
 export function relativeTimeLabel(target: TodayLecture, now: Date): string {

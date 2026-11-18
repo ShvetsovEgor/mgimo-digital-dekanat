@@ -52,16 +52,16 @@ export function DemoBar() {
   };
 
   return (
-    <div className="mx-4 mb-4 rounded-[16px] border border-gold/40 bg-gold-soft/60 p-3 text-[13px] sm:mx-0">
+    <div className="mx-4 mb-4 rounded-[12px] border border-gold/40 bg-surface-hover/60 p-3 text-[13px] sm:mx-0">
       <div className="flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 font-bold text-gold-ink">
+        <span className="flex items-center gap-1.5 font-semibold text-brand">
           <ShieldCheck className="size-4" aria-hidden="true" />
           Демо-режим
         </span>
         <button
           type="button"
           onClick={() => setOpen((value) => !value)}
-          className="cursor-pointer rounded-lg px-2 py-1 text-xs font-semibold text-gold-ink hover:bg-gold/15"
+          className="cursor-pointer rounded-[8px] px-2 py-1 text-xs font-semibold text-brand hover:bg-gold/15"
           aria-expanded={open}
         >
           {open ? 'Скрыть' : 'Что можно попробовать'}

@@ -3,19 +3,21 @@ import { cx } from '@/lib/cx';
 
 export type Tone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info' | 'brand' | 'gold';
 
+// Бейдж кадра — короткий факт: акцентная заливка либо нейтральная. Оттенков вне палитры нет.
 const TONES: Record<Tone, string> = {
-  neutral: 'bg-line/55 text-ink/75 ring-line-strong/50',
-  ok: 'bg-ok-soft text-ok-ink ring-ok/25',
-  warn: 'bg-warn-soft text-warn-ink ring-warn/25',
-  danger: 'bg-danger-soft text-danger-ink ring-danger/25',
-  info: 'bg-info-soft text-info-ink ring-info/25',
-  brand: 'bg-brand-soft text-brand-ink ring-brand/25',
-  gold: 'bg-gold-soft text-gold-ink ring-gold/35',
+  neutral: 'bg-surface-hover text-muted',
+  ok: 'bg-brand text-white',
+  warn: 'bg-surface-hover text-muted',
+  danger: 'bg-now text-white',
+  info: 'bg-surface-hover text-muted',
+  brand: 'bg-brand text-white',
+  gold: 'bg-surface-hover text-muted',
 };
 
+// sm — бейдж кадра: высота 16, капитель 10/700, паддинг 0 6px.
 const SIZES = {
-  sm: 'text-[11px] px-2 py-0.5 gap-1',
-  md: 'text-xs px-2.5 py-1 gap-1.5',
+  sm: 'h-4 text-[10px] leading-none font-semibold tracking-[0.02em] uppercase px-1.5 gap-1',
+  md: 'h-[22px] text-[11px] font-semibold px-2 gap-1',
 } as const;
 
 interface BadgeProps {
@@ -28,11 +30,11 @@ interface BadgeProps {
 }
 
 /** Статус-бейдж: «Готово», «В работе», «Отклонена». */
-export function Badge({ children, tone = 'neutral', size = 'md', icon, dot, className }: BadgeProps) {
+export function Badge({ children, tone = 'neutral', size = 'sm', icon, dot, className }: BadgeProps) {
   return (
     <span
       className={cx(
-        'inline-flex max-w-full items-center whitespace-nowrap rounded-full font-semibold ring-1 ring-inset',
+        'inline-flex max-w-full items-center whitespace-nowrap rounded-full',
         TONES[tone],
         SIZES[size],
         className,
@@ -58,8 +60,8 @@ interface ChipProps {
 /** Чип-фильтр или малая метка (радиус 999). */
 export function Chip({ children, selected = false, onClick, icon, className, as = 'button', ...rest }: ChipProps) {
   const cls = cx(
-    'inline-flex min-h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-sm font-semibold whitespace-nowrap transition-colors duration-150',
-    selected ? 'border-brand bg-brand text-white' : 'border-line-strong bg-surface text-ink hover:bg-surface-2',
+    'inline-flex min-h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-[13px] font-medium whitespace-nowrap transition-colors duration-150',
+    selected ? 'border-brand text-brand' : 'border-line bg-surface text-muted hover:bg-surface-hover',
     className,
   );
   if (as === 'span') return <span className={cls}>{children}</span>;
@@ -79,13 +81,13 @@ interface DotProps {
 
 export function Dot({ tone = 'ok', className, pulse }: DotProps) {
   const colors: Record<Tone, string> = {
-    neutral: 'bg-muted',
-    ok: 'bg-ok',
-    warn: 'bg-warn',
-    danger: 'bg-danger',
-    info: 'bg-info',
+    neutral: 'bg-quiet',
+    ok: 'bg-brand',
+    warn: 'bg-quiet',
+    danger: 'bg-now',
+    info: 'bg-quiet',
     brand: 'bg-brand',
-    gold: 'bg-gold',
+    gold: 'bg-quiet',
   };
   return (
     <span className={cx('relative inline-flex size-2 shrink-0', className)} aria-hidden="true">

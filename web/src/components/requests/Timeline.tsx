@@ -14,8 +14,8 @@ export function Timeline({ steps }: { steps: RequestTimelineStep[] }) {
             {!last && <span className="absolute top-6 bottom-0 left-[11px] w-px bg-line" aria-hidden="true" />}
             <span
               className={cx(
-                'relative z-10 mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-[10px] font-bold',
-                step.done ? 'bg-ok text-white' : step.current ? 'bg-brand-soft text-brand-ink ring-2 ring-brand/40' : 'bg-line text-muted',
+                'relative z-10 mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-[10px] font-semibold',
+                step.done ? 'bg-ok text-white' : step.current ? 'bg-surface-hover text-brand ring-2 ring-brand/40' : 'bg-line text-muted',
               )}
               aria-hidden="true"
             >

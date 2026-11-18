@@ -29,11 +29,11 @@ export function SessionList({ session }: { session: SessionExam[] }) {
         {session.map((exam) => (
           <li key={exam.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
             <div className="w-[52px] shrink-0 text-center">
-              <p className="nums text-[12px] font-bold text-brand-ink">{exam.date.split(' ')[0]}</p>
+              <p className="nums text-[12px] font-semibold text-brand">{exam.date.split(' ')[0]}</p>
               <p className="text-[10px] text-muted uppercase">{exam.date.split(' ')[1] ?? ''}</p>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[15px] leading-snug font-bold text-ink">{exam.title}</p>
+              <p className="text-[15px] leading-snug font-semibold text-ink">{exam.title}</p>
               <p className="mt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[12px] text-muted">
                 <span className="inline-flex items-center gap-1">
                   <Clock className="size-3" aria-hidden="true" /> {exam.time}
@@ -85,7 +85,7 @@ export function TranscriptTable({ rows }: { rows: TranscriptRow[] }) {
               <table className="w-full border-collapse text-[13px]">
                 <caption className="sr-only">Итоги: {semester}</caption>
                 <thead className="hidden sm:table-header-group">
-                  <tr className="bg-surface-2 text-left text-[11px] font-bold tracking-wide text-muted uppercase">
+                  <tr className="bg-surface-2 text-left text-[11px] font-semibold tracking-wide text-muted uppercase">
                     <th scope="col" className="px-3 py-2">Дисциплина</th>
                     <th scope="col" className="px-3 py-2 text-right">З.е.</th>
                     <th scope="col" className="px-3 py-2 text-right">Рейтинг</th>
@@ -103,9 +103,9 @@ export function TranscriptTable({ rows }: { rows: TranscriptRow[] }) {
                         </span>
                       </td>
                       <td className="hidden px-3 py-2.5 text-right text-muted sm:table-cell">{row.credits}</td>
-                      <td className="nums hidden px-3 py-2.5 text-right font-bold text-ink sm:table-cell">{row.rating}%</td>
+                      <td className="nums hidden px-3 py-2.5 text-right font-semibold text-ink sm:table-cell">{row.rating}%</td>
                       <td className="hidden px-3 py-2.5 text-ink sm:table-cell">{row.grade}</td>
-                      <td className="hidden px-3 py-2.5 text-right font-bold text-brand-ink sm:table-cell">{row.ects}</td>
+                      <td className="hidden px-3 py-2.5 text-right font-semibold text-brand sm:table-cell">{row.ects}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -29,19 +29,19 @@ export function NotificationList({ items, loading, limit, onOpen }: Notification
   if (loading) {
     return (
       <div className="space-y-2" aria-busy="true">
-        <Skeleton className="h-16 w-full rounded-xl" />
-        <Skeleton className="h-16 w-full rounded-xl" />
-        <Skeleton className="h-16 w-full rounded-xl" />
+        <Skeleton className="h-16 w-full rounded-[10px]" />
+        <Skeleton className="h-16 w-full rounded-[10px]" />
+        <Skeleton className="h-16 w-full rounded-[10px]" />
       </div>
     );
   }
   if (!items || items.length === 0) {
     return (
       <Card padding="lg" className="text-center">
-        <span className="mx-auto grid size-11 place-items-center rounded-2xl bg-line/50 text-muted" aria-hidden="true">
+        <span className="mx-auto grid size-11 place-items-center rounded-[12px] bg-surface-hover text-muted" aria-hidden="true">
           <BellOff className="size-5" />
         </span>
-        <p className="mt-2.5 text-sm font-bold text-ink">Пока тихо</p>
+        <p className="mt-2.5 text-sm font-semibold text-ink">Пока тихо</p>
         <p className="mt-0.5 text-[13px] text-muted">Здесь появятся изменения расписания, оценки и статусы заявок.</p>
       </Card>
     );
@@ -56,7 +56,7 @@ export function NotificationList({ items, loading, limit, onOpen }: Notification
             <span className="flex items-start justify-between gap-2">
               <span className="flex min-w-0 items-center gap-1.5">
                 {!item.read && <Dot tone="brand" />}
-                <span className={cx('truncate text-sm', item.read ? 'font-semibold text-ink/80' : 'font-extrabold text-ink')}>
+                <span className={cx('truncate text-sm', item.read ? 'font-semibold text-ink' : 'font-semibold text-ink')}>
                   {item.title}
                 </span>
               </span>
@@ -68,7 +68,7 @@ export function NotificationList({ items, loading, limit, onOpen }: Notification
                 {meta.label}
               </Badge>
               {item.link && (
-                <span className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-brand-ink">
+                <span className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-brand">
                   Открыть <ArrowRight className="size-3" aria-hidden="true" />
                 </span>
               )}
@@ -79,8 +79,8 @@ export function NotificationList({ items, loading, limit, onOpen }: Notification
           <li key={item.id}>
             <div
               className={cx(
-                'rounded-xl border transition-colors',
-                item.read ? 'border-line bg-surface' : 'border-brand/25 bg-brand-soft/40',
+                'rounded-[10px] border transition-colors',
+                item.read ? 'border-line bg-surface' : 'border-brand bg-surface-hover',
               )}
             >
               {onOpen ? (
@@ -111,7 +111,7 @@ export function NotificationsWidget() {
       <div className="mt-2 flex justify-end">
         <Link
           to="/notifications"
-          className="inline-flex items-center gap-1 text-[13px] font-semibold text-brand-ink hover:underline underline-offset-2"
+          className="inline-flex items-center gap-1 text-[13px] font-semibold text-brand hover:underline underline-offset-2"
         >
           <Bell className="size-3.5" aria-hidden="true" />
           Все уведомления

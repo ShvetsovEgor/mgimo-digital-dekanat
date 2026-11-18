@@ -17,16 +17,16 @@ export function RankCard({ rank }: { rank: AcademicRank }) {
       <p className="text-[12px] text-muted">{rank.semester}</p>
 
       <div className="mt-3 grid grid-cols-2 gap-2">
-        <div className="rounded-xl border border-line bg-surface-2 p-3">
-          <p className="text-[11px] font-bold tracking-wide text-muted uppercase">В группе</p>
+        <div className="rounded-[10px] border border-line bg-surface-2 p-3">
+          <p className="text-[11px] font-semibold tracking-wide text-muted uppercase">В группе</p>
           <p className="display-num mt-0.5 text-[26px] leading-none text-ink">
             {rank.placeGroup}
             <span className="text-[14px] font-semibold text-muted"> / {rank.outOfGroup}</span>
           </p>
           <p className="mt-1 text-[12px] text-muted">{rank.group}</p>
         </div>
-        <div className="rounded-xl border border-line bg-surface-2 p-3">
-          <p className="text-[11px] font-bold tracking-wide text-muted uppercase">На потоке</p>
+        <div className="rounded-[10px] border border-line bg-surface-2 p-3">
+          <p className="text-[11px] font-semibold tracking-wide text-muted uppercase">На потоке</p>
           <p className="display-num mt-0.5 text-[26px] leading-none text-ink">
             {rank.placeProgram}
             <span className="text-[14px] font-semibold text-muted"> / {rank.outOfProgram}</span>
@@ -38,8 +38,8 @@ export function RankCard({ rank }: { rank: AcademicRank }) {
       {rank.trend && (
         <p
           className={cx(
-            'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-bold',
-            trendPositive ? 'bg-ok-soft text-ok-ink' : 'bg-warn-soft text-warn-ink',
+            'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold',
+            trendPositive ? 'bg-surface-hover text-ink' : 'bg-surface-hover text-ink',
           )}
         >
           <TrendIcon className="size-3.5" aria-hidden="true" />
@@ -54,7 +54,7 @@ export function RankCard({ rank }: { rank: AcademicRank }) {
         </div>
         <Progress value={rank.myAvg} tone="brand" label="Мой средний рейтинг" />
         <Progress value={rank.cohortAvg} tone="ok" label="Средний рейтинг по потоку" size="sm" />
-        <p className={cx('text-[13px] font-semibold', above ? 'text-ok-ink' : 'text-warn-ink')}>
+        <p className={cx('text-[13px] font-semibold', above ? 'text-ink' : 'text-ink')}>
           {above ? `На ${diff} п. выше среднего по потоку` : `На ${diff} п. ниже среднего по потоку`}
         </p>
       </div>

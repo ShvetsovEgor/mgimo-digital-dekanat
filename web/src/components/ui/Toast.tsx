@@ -19,9 +19,9 @@ interface ToastApi {
 const ToastContext = createContext<ToastApi | null>(null);
 
 const ICONS: Record<ToastTone, ReactNode> = {
-  success: <CheckCircle2 className="size-5 text-ok" aria-hidden="true" />,
-  error: <AlertTriangle className="size-5 text-danger" aria-hidden="true" />,
-  info: <Info className="size-5 text-info" aria-hidden="true" />,
+  success: <CheckCircle2 className="size-[18px] text-brand" aria-hidden="true" />,
+  error: <AlertTriangle className="size-[18px] text-danger" aria-hidden="true" />,
+  info: <Info className="size-[18px] text-muted" aria-hidden="true" />,
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -68,17 +68,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={item.id}
             className={cx(
-              'animate-rise pointer-events-auto flex w-full max-w-sm items-start gap-2.5 rounded-2xl border bg-surface px-3.5 py-3 shadow-lift sm:w-auto sm:min-w-[280px]',
-              item.tone === 'error' ? 'border-danger/40' : item.tone === 'success' ? 'border-ok/35' : 'border-line',
+              'animate-rise pointer-events-auto flex w-full max-w-sm items-start gap-2.5 rounded-[12px] border border-line bg-surface px-3.5 py-3 sm:w-auto sm:min-w-[280px]',
             )}
           >
             <span className="mt-0.5 shrink-0">{ICONS[item.tone]}</span>
-            <p className="flex-1 text-sm font-medium text-ink">{item.message}</p>
+            <p className="flex-1 text-sm text-ink">{item.message}</p>
             <button
               type="button"
               onClick={() => dismiss(item.id)}
               aria-label="Закрыть уведомление"
-              className="-mt-1 -mr-1 grid size-8 shrink-0 cursor-pointer place-items-center rounded-lg text-muted hover:bg-line/50"
+              className="-mt-1 -mr-1 grid size-8 shrink-0 cursor-pointer place-items-center rounded-[8px] text-muted hover:bg-surface-hover"
             >
               <X className="size-4" aria-hidden="true" />
             </button>

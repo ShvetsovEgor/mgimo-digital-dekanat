@@ -3,7 +3,7 @@ import { AlertCircle } from 'lucide-react';
 import { cx } from '@/lib/cx';
 
 const CONTROL =
-  'w-full rounded-xl border bg-surface px-3 text-[15px] text-ink placeholder:text-muted/70 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand disabled:opacity-60';
+  'w-full rounded-[10px] border border-line bg-surface px-3 text-sm text-ink placeholder:text-quiet transition-colors duration-150 focus-visible:border-brand focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand disabled:opacity-60';
 
 interface FieldShellProps {
   id: string;
@@ -19,7 +19,7 @@ function FieldShell({ id, label, hint, error, required, children, counter }: Fie
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-baseline justify-between gap-2">
-        <label htmlFor={id} className="text-sm font-semibold text-ink">
+        <label htmlFor={id} className="text-sm font-medium text-ink">
           {label}
           {required && (
             <span className="ml-1 text-danger" aria-hidden="true">
@@ -32,7 +32,7 @@ function FieldShell({ id, label, hint, error, required, children, counter }: Fie
       </div>
       {children}
       {error ? (
-        <p id={`${id}-error`} className="flex items-start gap-1.5 text-[13px] font-medium text-danger-ink" role="alert">
+        <p id={`${id}-error`} className="flex items-start gap-1.5 text-[13px] text-danger" role="alert">
           <AlertCircle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
           {error}
         </p>
@@ -212,8 +212,8 @@ export function RadioGroup<T extends string>({
             <label
               key={option.value}
               className={cx(
-                'flex min-h-11 cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2 text-[15px] transition-colors duration-150',
-                selected ? 'border-brand bg-brand-soft font-semibold text-brand-ink' : 'border-line-strong bg-surface hover:bg-surface-2',
+                'flex min-h-11 cursor-pointer items-center gap-2.5 rounded-[10px] border px-3 py-2 text-sm transition-colors duration-150',
+                selected ? 'border-brand bg-surface-hover font-semibold text-brand' : 'border-line-strong bg-surface hover:bg-surface-2',
               )}
             >
               <input
@@ -230,7 +230,7 @@ export function RadioGroup<T extends string>({
         })}
       </div>
       {error ? (
-        <p id={`${id}-error`} className="text-[13px] font-medium text-danger-ink" role="alert">
+        <p id={`${id}-error`} className="text-[13px] font-medium text-danger" role="alert">
           {error}
         </p>
       ) : (
@@ -252,7 +252,7 @@ export function CheckboxField({ label, checked, onChange, hint, className }: Che
   const id = useId();
   return (
     <div className={cx('flex flex-col gap-1', className)}>
-      <label htmlFor={id} className="flex min-h-11 cursor-pointer items-start gap-2.5 text-[15px] text-ink">
+      <label htmlFor={id} className="flex min-h-11 cursor-pointer items-start gap-2.5 text-sm text-ink">
         <input
           id={id}
           type="checkbox"
@@ -284,7 +284,7 @@ export function Toggle({ label, description, checked, onChange, disabled }: Togg
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
-        <label htmlFor={id} className="cursor-pointer text-[15px] font-semibold text-ink">
+        <label htmlFor={id} className="cursor-pointer text-sm font-semibold text-ink">
           {label}
         </label>
         {description && (

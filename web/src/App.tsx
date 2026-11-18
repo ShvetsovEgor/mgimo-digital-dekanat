@@ -24,9 +24,9 @@ function PageFallback() {
   return (
     <div className="space-y-3 py-6" role="status" aria-live="polite">
       <div className="skeleton h-7 w-2/5" />
-      <div className="skeleton h-24 w-full rounded-[16px]" />
-      <div className="skeleton h-24 w-full rounded-[16px]" />
-      <div className="skeleton h-24 w-full rounded-[16px]" />
+      <div className="skeleton h-24 w-full rounded-[12px]" />
+      <div className="skeleton h-24 w-full rounded-[12px]" />
+      <div className="skeleton h-24 w-full rounded-[12px]" />
       <span className="sr-only">Загружаем раздел…</span>
     </div>
   );
@@ -132,7 +132,7 @@ const router = createBrowserRouter([
       <div className="grid min-h-dvh place-items-center bg-bg px-4">
         <div className="text-center">
           <Logo size="lg" className="mb-6 justify-center" />
-          <h1 className="text-2xl font-extrabold text-ink">Страница не найдена</h1>
+          <h1 className="text-2xl font-semibold text-ink">Страница не найдена</h1>
           <p className="mt-1 text-sm text-muted">Возможно, ссылка устарела.</p>
           <ButtonLink to="/login" className="mt-4">
             Ко входу

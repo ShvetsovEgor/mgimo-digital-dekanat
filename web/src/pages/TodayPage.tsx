@@ -14,11 +14,12 @@ import {
   MessageCircle,
   WifiOff,
 } from 'lucide-react';
-import { Button, ButtonLink } from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
+import { ActionLink } from '@/components/ui/ActionLink';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Skeleton, SkeletonCard } from '@/components/ui/Progress';
 import { EmptyState, ErrorState } from '@/components/ui/States';
-import { LessonCard, NextLessonCard } from '@/components/schedule/LessonCard';
+import { LessonBlock, NextLessonCard } from '@/components/schedule/LessonCard';
 import { relativeTimeLabel } from '@/components/schedule/meta';
 import { DeadlinesList } from '@/components/DeadlinesList';
 import { NotificationList } from '@/components/NotificationList';
@@ -50,7 +51,7 @@ export default function TodayPage() {
   const requests = useRequests();
   const notifications = useNotifications();
 
-  useDocumentTitle('Сегодня — Дедлайн');
+  useDocumentTitle('Главная — Дедлайн');
 
   const name = profile.data?.profile.firstName ?? '';
   const countdown = today.data?.next ? relativeTimeLabel(today.data.next, now) : '';
@@ -61,7 +62,7 @@ export default function TodayPage() {
         {profile.isLoading ? (
           <Skeleton className="h-8 w-3/5" />
         ) : (
-          <h1 className="text-[22px] leading-tight font-extrabold tracking-tight text-ink sm:text-[26px]">
+          <h1 className="text-2xl font-semibold text-ink">
             {greeting(now)}
             {name ? `, ${name}` : ''}
           </h1>
@@ -94,8 +95,8 @@ export default function TodayPage() {
         <div className="space-y-4">
           {today.isLoading && (
             <div className="space-y-3" aria-busy="true">
-              <Skeleton className="h-[168px] w-full rounded-[22px]" />
-              <Skeleton className="h-20 w-full rounded-[16px]" />
+              <Skeleton className="h-[168px] w-full rounded-[12px]" />
+              <Skeleton className="h-20 w-full rounded-[12px]" />
             </div>
           )}
           {today.isError && (
@@ -124,13 +125,13 @@ export default function TodayPage() {
               <Link
                 key={action.to + action.label}
                 to={action.to}
-                className="group flex min-h-[76px] flex-col justify-between rounded-[16px] border border-line bg-surface p-3 shadow-soft transition-colors hover:border-brand/35 hover:bg-brand-soft/30"
+                className="group flex min-h-[76px] flex-col justify-between gap-3 rounded-[12px] border border-line bg-surface p-4 transition-colors hover:bg-surface-hover"
               >
-                <span className="grid size-9 place-items-center rounded-xl bg-brand-soft text-brand-ink transition-colors group-hover:bg-brand group-hover:text-white">
-                  <action.icon className="size-[18px]" aria-hidden="true" />
+                <span className="text-brand">
+                  <action.icon className="size-5" strokeWidth={1.75} aria-hidden="true" />
                 </span>
                 <span>
-                  <span className="block text-[13px] leading-tight font-bold text-ink">{action.label}</span>
+                  <span className="block text-sm leading-[1.3] font-semibold text-ink">{action.label}</span>
                   <span className="block text-[11px] text-muted">{action.hint}</span>
                 </span>
               </Link>
@@ -144,9 +145,7 @@ export default function TodayPage() {
               icon={<CalendarDays className="size-[18px]" aria-hidden="true" />}
               count={today.data?.entries.length}
               action={
-                <Link to="/schedule" className="text-[13px] font-semibold text-brand-ink hover:underline underline-offset-2">
-                  Вся неделя
-                </Link>
+                <ActionLink to="/schedule">Вся неделя</ActionLink>
               }
             />
             {today.data && <TodaySchedulePreview today={today.data} />}
@@ -160,9 +159,7 @@ export default function TodayPage() {
               title="Не опоздать"
               icon={<Hourglass className="size-[18px]" aria-hidden="true" />}
               action={
-                <Link to="/notifications?tab=deadlines" className="text-[13px] font-semibold text-brand-ink hover:underline underline-offset-2">
-                  Все
-                </Link>
+                <ActionLink to="/notifications?tab=deadlines">Все</ActionLink>
               }
             />
             <DeadlinesList limit={3} />
@@ -172,24 +169,20 @@ export default function TodayPage() {
               title="Последние события"
               icon={<Bell className="size-[18px]" aria-hidden="true" />}
               action={
-                <Link to="/notifications" className="text-[13px] font-semibold text-brand-ink hover:underline underline-offset-2">
-                  Все
-                </Link>
+                <ActionLink to="/notifications">Все</ActionLink>
               }
             />
             <NotificationList items={notifications.data} loading={notifications.isLoading} limit={3} />
           </Card>
-          <Card padding="md" className="bg-brand-soft/40">
-            <p className="flex items-center gap-1.5 text-[13px] font-bold text-brand-ink">
-              <MessageCircle className="size-4" aria-hidden="true" />
+          <Card padding="md">
+            <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
+              <MessageCircle className="size-[18px] text-brand" strokeWidth={1.75} aria-hidden="true" />
               Быстрый вопрос деканату
             </p>
             <p className="mt-1 text-[13px] text-muted">
               Не нужно идти в ауд. 214 — ответ придёт в уведомления{profile.data ? `, обычно ${profile.data.deanery.responseTime.replace('обычно ', '')}` : ''}.
             </p>
-            <ButtonLink to="/notifications?ask=1" size="sm" variant="tonal" className="mt-2.5" iconRight={<ArrowRight className="size-4" aria-hidden="true" />}>
-              Задать вопрос
-            </ButtonLink>
+            <ActionLink to="/notifications?ask=1" className="mt-1">Задать вопрос</ActionLink>
           </Card>
         </div>
       </div>
@@ -205,9 +198,7 @@ function TodaySchedulePreview({ today }: { today: ScheduleToday }) {
         title="Сегодня занятий нет — свободный день"
         description="Переключитесь на расписание недели, чтобы спланировать дальше."
         action={
-          <ButtonLink to="/schedule?view=week" size="sm" variant="tonal">
-            Расписание недели
-          </ButtonLink>
+          <ActionLink to="/schedule?view=week">Расписание недели</ActionLink>
         }
         compact
       />
@@ -217,7 +208,7 @@ function TodaySchedulePreview({ today }: { today: ScheduleToday }) {
     <ul className="space-y-2">
       {today.entries.map((entry) => (
         <li key={entry.id}>
-          <LessonCard entry={entry} status={entry.status} />
+          <LessonBlock entry={entry} codes={today.entries.map((item) => item.subjectCode)} status={entry.status} />
         </li>
       ))}
     </ul>
@@ -276,25 +267,19 @@ function AttentionCard({ today, progress, requests }: AttentionCardProps) {
           <li key={item.id}>
             <Link
               to={item.to}
-              className={`flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 py-2 text-[13px] font-semibold no-underline transition-colors ${
-                item.tone === 'danger'
-                  ? 'bg-danger-soft text-danger-ink hover:brightness-[0.97]'
-                  : item.tone === 'warn'
-                    ? 'bg-warn-soft text-warn-ink hover:brightness-[0.97]'
-                    : 'bg-info-soft text-info-ink hover:brightness-[0.97]'
-              }`}
+              className="flex min-h-11 items-center justify-between gap-3 rounded-[8px] px-1 py-1.5 text-sm no-underline transition-colors hover:bg-surface-hover"
             >
-              <span className="flex min-w-0 items-center gap-2">
+              <span className="flex min-w-0 items-center gap-2 text-ink">
                 {item.tone === 'info' ? (
-                  <CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />
+                  <CheckCircle2 className="size-4 shrink-0 text-brand" strokeWidth={1.75} aria-hidden="true" />
                 ) : (
-                  <AlertTriangle className="size-4 shrink-0" aria-hidden="true" />
+                  <AlertTriangle className={item.tone === 'danger' ? 'size-4 shrink-0 text-now' : 'size-4 shrink-0 text-quiet'} strokeWidth={1.75} aria-hidden="true" />
                 )}
                 <span className="line-clamp-2 sm:truncate">{item.text}</span>
               </span>
-              <span className="inline-flex shrink-0 items-center gap-0.5">
+              <span className="inline-flex shrink-0 items-center gap-1 font-medium text-brand">
                 {item.cta}
-                <ArrowRight className="size-3.5" aria-hidden="true" />
+                <ArrowRight className="size-4" aria-hidden="true" />
               </span>
             </Link>
           </li>
@@ -315,9 +300,7 @@ function RequestsCard({ requests, loading, error, onRetry }: { requests?: Order[
         icon={<FileText className="size-[18px]" aria-hidden="true" />}
         count={shown.length}
         action={
-          <Link to="/requests" className="text-[13px] font-semibold text-brand-ink hover:underline underline-offset-2">
-            Все
-          </Link>
+          <ActionLink to="/requests">Все</ActionLink>
         }
       />
       {loading && <SkeletonCard lines={2} />}
@@ -327,9 +310,7 @@ function RequestsCard({ requests, loading, error, onRetry }: { requests?: Order[
           title="Активных заявок нет"
           description="Справку об обучении можно заказать за пару кликов."
           action={
-            <ButtonLink to="/requests/new" size="sm" variant="tonal" iconLeft={<FilePlus2 className="size-4" aria-hidden="true" />}>
-              Новая заявка
-            </ButtonLink>
+            <ActionLink to="/requests/new">Новая заявка</ActionLink>
           }
           compact
         />
@@ -350,47 +331,40 @@ function RequestsCard({ requests, loading, error, onRetry }: { requests?: Order[
               <li key={order.id}>
                 <Link
                   to={`/requests/${order.id}`}
-                  className="flex min-h-14 items-center gap-3 rounded-xl border border-line px-3 py-2 no-underline transition-colors hover:bg-surface-2"
+                  className="flex min-h-11 items-center gap-3 rounded-[8px] px-1 py-1.5 no-underline transition-colors hover:bg-surface-hover"
                 >
                   <span
-                    className={`grid size-9 shrink-0 place-items-center rounded-lg ${
-                      ready ? 'bg-ok-soft text-ok-ink' : 'bg-brand-soft text-brand-ink'
+                    className={`grid size-9 shrink-0 place-items-center rounded-[8px] ${
+                      ready ? 'bg-surface-hover text-ink' : 'bg-surface-hover text-brand'
                     }`}
                     aria-hidden="true"
                   >
                     {ready ? <CheckCircle2 className="size-[18px]" /> : <Hourglass className="size-[18px]" />}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] font-bold text-ink">{order.typeTitle}</span>
+                    <span className="block truncate text-sm font-semibold text-ink">{order.typeTitle}</span>
                     <span className="nums block truncate text-[12px] text-muted">
                       {order.number} · {order.statusLabel}
                       {tail}
                     </span>
                   </span>
-                  <ArrowRight className="size-4 shrink-0 text-muted" aria-hidden="true" />
+                  <ArrowRight className="size-4 shrink-0 text-quiet" aria-hidden="true" />
                 </Link>
               </li>
             );
           })}
         </ul>
       )}
-      <ButtonLink
-        to="/requests/new"
-        size="sm"
-        variant="ghost"
-        fullWidth
-        className="mt-2"
-        iconLeft={<FilePlus2 className="size-4" aria-hidden="true" />}
-      >
-        Новая заявка
-      </ButtonLink>
+      <div className="mt-2 border-t border-line pt-2">
+        <ActionLink to="/requests/new">Новая заявка</ActionLink>
+      </div>
     </Card>
   );
 }
 
 function OfflineNote({ error, onRetry }: { error: unknown; onRetry: () => void }) {
   return (
-    <div className="mb-4 flex items-start gap-2 rounded-xl border border-warn/35 bg-warn-soft px-3 py-2 text-[13px] text-warn-ink" role="status">
+    <div className="mb-4 flex items-start gap-2 rounded-[10px] border border-line bg-surface-hover px-3 py-2 text-[13px] text-ink" role="status">
       <WifiOff className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
       <p className="flex-1">
         Часть данных не загрузилась{(error as Error | null)?.message ? `: ${(error as Error).message}` : '.'}{' '}

@@ -42,11 +42,11 @@ export function StaffOrderList({ orders, onChange, filterLabel }: StaffOrderList
 function StaffOrderRow({ order, onChange }: { order: StaffOrder; onChange: () => void }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className={cx('rounded-xl border bg-surface', order.isOverdue ? 'border-warn/40' : 'border-line')}>
+    <div className={cx('rounded-[10px] border bg-surface', order.isOverdue ? 'border-line' : 'border-line')}>
       <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="flex min-h-14 w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left">
         <div className="min-w-0 flex-1">
           <p className="nums text-[11px] font-semibold text-muted">{order.number}</p>
-          <p className="truncate text-[14px] font-bold text-ink">{order.typeTitle}</p>
+          <p className="truncate text-[14px] font-semibold text-ink">{order.typeTitle}</p>
           <p className="truncate text-[12px] text-muted">
             {order.student.name} · {order.student.group} · {order.createdAtLabel}
           </p>
@@ -113,10 +113,10 @@ function OrderActions({ order, onChange }: { order: StaffOrder; onChange: () => 
           ))}
         </dl>
       )}
-      {error && <p role="alert" className="mb-2 rounded-lg bg-danger-soft px-2 py-1.5 text-[12px] font-semibold text-danger-ink">{error}</p>}
+      {error && <p role="alert" className="mb-2 rounded-[8px] bg-surface-hover px-2 py-1.5 text-[12px] font-semibold text-danger">{error}</p>}
       <div className="flex flex-wrap gap-2">
         {order.status === 'pending' && (
-          <Button size="sm" variant="tonal" loading={busy === 'in_progress'} onClick={() => void patch({ status: 'in_progress' })}>
+          <Button size="sm" variant="outline" loading={busy === 'in_progress'} onClick={() => void patch({ status: 'in_progress' })}>
             Взять в работу
           </Button>
         )}

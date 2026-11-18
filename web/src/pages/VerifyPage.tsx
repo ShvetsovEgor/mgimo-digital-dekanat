@@ -31,13 +31,13 @@ export default function VerifyPage() {
             <div className="animate-fade">
               <span
                 className={`mx-auto grid size-[72px] place-items-center rounded-full ${
-                  query.data.verified ? 'bg-ok-soft text-ok-ink' : 'bg-danger-soft text-danger-ink'
+                  query.data.verified ? 'bg-surface-hover text-ink' : 'bg-surface-hover text-danger'
                 }`}
                 aria-hidden="true"
               >
                 {query.data.verified ? <ShieldCheck className="size-9" /> : <ShieldAlert className="size-9" />}
               </span>
-              <p className={`mt-4 text-[22px] font-extrabold ${query.data.verified ? 'text-ok-ink' : 'text-danger-ink'}`}>
+              <p className={`mt-4 text-[22px] font-semibold ${query.data.verified ? 'text-ink' : 'text-danger'}`}>
                 {query.data.verified ? 'Документ подлинный' : 'Документ не подтверждён'}
               </p>
               <p className="mx-auto mt-2 max-w-[40ch] text-sm text-muted">
@@ -47,10 +47,10 @@ export default function VerifyPage() {
               </p>
 
               {query.data.verified && (
-                <dl className="mt-6 space-y-3 rounded-xl border border-line bg-surface-2 p-4 text-left">
+                <dl className="mt-6 space-y-3 rounded-[10px] border border-line bg-surface-2 p-4 text-left">
                   <div className="flex items-center justify-between gap-3">
                     <dt className="text-xs font-medium text-muted">Номер документа</dt>
-                    <dd className="nums flex items-center gap-1.5 text-sm font-bold text-ink">
+                    <dd className="nums flex items-center gap-1.5 text-sm font-semibold text-ink">
                       <BadgeCheck className="size-4 text-ok" aria-hidden="true" />
                       {query.data.number ?? '—'}
                     </dd>

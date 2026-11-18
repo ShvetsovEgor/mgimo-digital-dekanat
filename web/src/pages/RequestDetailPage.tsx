@@ -69,9 +69,9 @@ export default function RequestDetailPage() {
       <BackLink />
       {query.isLoading && (
         <div className="space-y-3" aria-busy="true">
-          <Skeleton className="h-28 w-full rounded-[22px]" />
-          <Skeleton className="h-24 w-full rounded-[16px]" />
-          <Skeleton className="h-16 w-full rounded-[16px]" />
+          <Skeleton className="h-28 w-full rounded-[12px]" />
+          <Skeleton className="h-24 w-full rounded-[12px]" />
+          <Skeleton className="h-16 w-full rounded-[12px]" />
         </div>
       )}
       {query.isError && (
@@ -122,7 +122,7 @@ function BackLink() {
   return (
     <Link
       to="/requests"
-      className="mb-3 inline-flex items-center gap-1 text-[13px] font-semibold text-brand-ink hover:underline underline-offset-2"
+      className="mb-3 inline-flex items-center gap-1 text-[13px] font-semibold text-brand hover:underline underline-offset-2"
     >
       <ArrowLeft className="size-4" aria-hidden="true" /> Мои заявки
     </Link>
@@ -148,13 +148,13 @@ function OrderDetails({ order, onCancel, onDownload }: { order: Order; onCancel:
                 <FileText className="size-3.5" aria-hidden="true" />
                 <span className="nums">{order.number}</span>
               </p>
-              <h1 className="mt-1 text-xl leading-tight font-extrabold text-ink sm:text-[24px]">{order.typeTitle}</h1>
+              <h1 className="mt-1 text-xl leading-tight font-semibold text-ink sm:text-[24px]">{order.typeTitle}</h1>
             </div>
             <StatusBadge status={order.status} label={order.statusLabel} />
           </div>
 
-          <p className="mt-3 flex items-start gap-2 rounded-xl bg-surface-2 px-3 py-2.5 text-[13px] text-ink">
-            <span className="mt-0.5 shrink-0 text-brand-ink">{statusIcon(order)}</span>
+          <p className="mt-3 flex items-start gap-2 rounded-[10px] bg-surface-2 px-3 py-2.5 text-[13px] text-ink">
+            <span className="mt-0.5 shrink-0 text-brand">{statusIcon(order)}</span>
             <span>
               {order.status === 'ready' && `Документ готов${order.readyAtLabel ? ` · ${order.readyAtLabel}` : ''}. Скачайте PDF — он подписан и проверяется по QR.`}
               {order.status === 'pending' && `Заявка ждёт проверки деканата. Прогноз готовности — ${order.dueLabel}.`}
@@ -165,15 +165,15 @@ function OrderDetails({ order, onCancel, onDownload }: { order: Order; onCancel:
           </p>
 
           {order.isOverdue && order.status !== 'ready' && (
-            <p className="mt-2 flex items-center gap-1.5 rounded-lg bg-warn-soft px-2.5 py-1.5 text-[12px] font-semibold text-warn-ink">
+            <p className="mt-2 flex items-center gap-1.5 rounded-[8px] bg-surface-hover px-2.5 py-1.5 text-[12px] font-semibold text-ink">
               <AlertTriangle className="size-3.5" aria-hidden="true" /> Срок прошёл — деканат уже в курсе, уточните статус вопросом.
             </p>
           )}
 
           {order.rejectReason && (
-            <div role="alert" className="mt-2 rounded-xl border border-danger/30 bg-danger-soft px-3 py-2.5">
-              <p className="text-[11px] font-bold tracking-wide text-danger-ink uppercase">Причина отказа</p>
-              <p className="mt-0.5 text-[13px] font-medium text-danger-ink">{order.rejectReason}</p>
+            <div role="alert" className="mt-2 rounded-[10px] border border-line bg-surface-hover px-3 py-2.5">
+              <p className="text-[11px] font-semibold tracking-wide text-danger uppercase">Причина отказа</p>
+              <p className="mt-0.5 text-[13px] font-medium text-danger">{order.rejectReason}</p>
             </div>
           )}
 
@@ -189,7 +189,7 @@ function OrderDetails({ order, onCancel, onDownload }: { order: Order; onCancel:
               </Button>
             )}
             {!order.canCancel && !order.canDownload && (
-              <ButtonLink to="/requests/new" variant="tonal">
+              <ButtonLink to="/requests/new" variant="outline">
                 Подать новую заявку
               </ButtonLink>
             )}
@@ -236,8 +236,8 @@ function OrderDetails({ order, onCancel, onDownload }: { order: Order; onCancel:
           </dl>
         </Card>
 
-        <Card padding="md" className="bg-brand-soft/40">
-          <p className="flex items-center gap-1.5 text-[13px] font-bold text-brand-ink">
+        <Card padding="md" className="bg-surface-hover">
+          <p className="flex items-center gap-1.5 text-[13px] font-semibold text-brand">
             <ShieldCheck className="size-4" aria-hidden="true" /> Подлинность документа
           </p>
           <p className="mt-1 text-[12px] text-muted">
@@ -245,7 +245,7 @@ function OrderDetails({ order, onCancel, onDownload }: { order: Order; onCancel:
           </p>
           <Link
             to="/verify/ЗВ-2030-000012.demo"
-            className="mt-2 inline-flex min-h-9 items-center gap-1 text-[13px] font-semibold text-brand-ink hover:underline underline-offset-2"
+            className="mt-2 inline-flex min-h-9 items-center gap-1 text-[13px] font-semibold text-brand hover:underline underline-offset-2"
           >
             Пример страницы проверки
           </Link>

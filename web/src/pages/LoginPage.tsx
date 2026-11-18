@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowRight, CalendarDays, Eye, EyeOff, GraduationCap, KeyRound, Lock, ShieldCheck, UserRound } from 'lucide-react';
+import { ArrowRight, CalendarDays, Eye, EyeOff, KeyRound, Lock, ShieldCheck, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/Field';
 import { Skeleton } from '@/components/ui/Progress';
 import { Logo } from '@/components/Logo';
-import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+
 import { useToast } from '@/components/ui/Toast';
 import { useLogin } from '@/lib/auth';
 import { ApiError } from '@/lib/http';
@@ -132,48 +132,31 @@ function LoginScreen({ from, expired }: { from?: string; expired?: boolean }) {
 
   return (
     <div className="grid min-h-dvh bg-bg lg:grid-cols-[1.05fr_1fr]">
-      <aside className="relative hidden overflow-hidden bg-brand-strong p-10 text-white lg:flex lg:flex-col">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-24 -right-24 size-[420px] rounded-full border border-gold/30 bg-gold/10"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-32 -left-20 size-[380px] rounded-full border border-white/10"
-        />
-        <div className="relative flex items-center gap-2.5">
-          <span className="grid size-11 place-items-center rounded-[14px] bg-white/10 ring-1 ring-gold/40">
-            <GraduationCap className="size-6 text-gold" aria-hidden="true" />
-          </span>
-          <span>
-            <span className="block text-xl font-extrabold">Дедлайн</span>
-            <span className="block text-[11px] font-semibold tracking-[0.14em] text-white/70 uppercase">
-              цифровой деканат 2030
-            </span>
-          </span>
-        </div>
-        <div className="relative mt-auto max-w-[30ch]">
-          <h1 className="text-[34px] leading-[1.12] font-extrabold tracking-tight">
-            Расписание, рейтинг и справки — <span className="text-gold">в одном месте</span>
-          </h1>
-          <p className="mt-4 text-[15px] text-white/75">
-            Неопределённость «успею ли на автомат?» превращается в понятные ответы: сколько баллов осталось, когда
-            будет справка и что изменилось в расписании.
+      <aside
+        className="relative hidden flex-col justify-between bg-sidebar p-10 lg:flex"
+        style={{ borderRight: '1px solid var(--color-line)' }}
+      >
+        <Logo size="md" withSubtitle />
+        <div className="max-w-[34ch]">
+          <p className="text-2xl leading-[1.25] font-semibold tracking-[-0.02em] text-ink">
+            Расписание, рейтинг и справки <span className="text-brand">в одном месте</span>
           </p>
-          <ul className="mt-6 space-y-2.5 text-sm text-white/85">
-            {[
-              'Прогноз «автомата» по регламенту МГИМО',
-              'Заявки и справки с прогнозом готовности',
-              'Изменения в расписании с авторами правки',
-            ].map((text) => (
-              <li key={text} className="flex items-center gap-2">
-                <ShieldCheck className="size-4 shrink-0 text-gold" aria-hidden="true" />
-                {text}
-              </li>
-            ))}
+          <p className="mt-3 text-sm text-muted">
+            «Успею ли на автомат?» превращается в понятный ответ: сколько баллов осталось, когда будет справка и что
+            изменилось в расписании.
+          </p>
+          <ul className="mt-5 space-y-2 text-[13px] text-muted">
+            {['Прогноз «автомата» по регламенту МГИМО', 'Заявки и справки с прогнозом готовности', 'Изменения в расписании с авторами правки'].map(
+              (text) => (
+                <li key={text} className="flex items-center gap-2">
+                  <ShieldCheck className="size-4 shrink-0 text-quiet" strokeWidth={1.75} aria-hidden="true" />
+                  {text}
+                </li>
+              ),
+            )}
           </ul>
         </div>
-        <p className="relative mt-8 text-xs text-white/55">
+        <p className="text-[12px] leading-relaxed text-quiet">
           Концепт для конкурса VK Education. Неофициальный сервис МГИМО, все данные вымышлены.
         </p>
       </aside>
@@ -187,13 +170,13 @@ function LoginScreen({ from, expired }: { from?: string; expired?: boolean }) {
             </span>
           </div>
 
-          <h2 className="text-[26px] leading-tight font-extrabold tracking-tight text-ink">Вход в кабинет</h2>
+          <h2 className="text-2xl font-semibold text-ink">Вход в кабинет</h2>
           <p className="mt-1 text-sm text-muted">Логин и пароль выдаёт деканат. У демо-аккаунтов — общий пароль.</p>
 
           {expired && (
             <p
               role="status"
-              className="mt-4 rounded-xl border border-warn/35 bg-warn-soft px-3 py-2.5 text-[13px] font-medium text-warn-ink"
+              className="mt-4 rounded-[10px] border border-line bg-surface-hover px-3 py-2.5 text-[13px] font-medium text-ink"
             >
               Сессия истекла. Войдите снова — данные останутся на месте.
             </p>
@@ -201,7 +184,7 @@ function LoginScreen({ from, expired }: { from?: string; expired?: boolean }) {
           {error && (
             <p
               role="alert"
-              className="mt-4 rounded-xl border border-danger/35 bg-danger-soft px-3 py-2.5 text-[13px] font-semibold text-danger-ink"
+              className="mt-4 rounded-[10px] border border-line bg-surface-hover px-3 py-2.5 text-[13px] font-semibold text-danger"
             >
               {error}
             </p>
@@ -236,7 +219,7 @@ function LoginScreen({ from, expired }: { from?: string; expired?: boolean }) {
                   onClick={() => setShowPassword((value) => !value)}
                   aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
                   aria-pressed={showPassword}
-                  className="mr-0.5 grid size-10 cursor-pointer place-items-center rounded-lg text-muted hover:bg-line/50"
+                  className="mr-0.5 grid size-10 cursor-pointer place-items-center rounded-[8px] text-muted hover:bg-surface-hover"
                 >
                   {showPassword ? <EyeOff className="size-[18px]" aria-hidden="true" /> : <Eye className="size-[18px]" aria-hidden="true" />}
                 </button>
@@ -272,7 +255,7 @@ function LoginScreen({ from, expired }: { from?: string; expired?: boolean }) {
         </div>
 
         <div className="mx-auto mt-8 w-full max-w-[420px] space-y-3">
-          <ThemeSwitcher />
+          
           <p className="text-[11px] leading-relaxed text-muted">
             Концепт для конкурса VK Education «Кибербезопасность и ИИ в высшей школе — 2026». Неофициальный сервис
             МГИМО, не подключён к системам университета. Все данные вымышлены.
@@ -296,24 +279,24 @@ function DemoAccounts({ loading, failed, accounts, onPick, busy, pendingLogin }:
   return (
     <section
       aria-labelledby="demo-accounts"
-      className="mt-6 rounded-[18px] border border-gold/40 bg-gold-soft/50 p-3.5"
+      className="mt-6 rounded-[18px] border border-gold/40 bg-surface-hover/50 p-3.5"
     >
       <div className="flex items-center gap-2">
-        <KeyRound className="size-4 text-gold-ink" aria-hidden="true" />
-        <h2 id="demo-accounts" className="text-sm font-bold text-gold-ink">
+        <KeyRound className="size-4 text-brand" aria-hidden="true" />
+        <h2 id="demo-accounts" className="text-sm font-semibold text-brand">
           Демо-доступы для жюри
         </h2>
       </div>
-      <p className="mt-1 text-[13px] text-ink/75">Нажмите — и войдём под этот аккаунт сразу, без ввода пароля.</p>
+      <p className="mt-1 text-[13px] text-ink5">Нажмите — и войдём под этот аккаунт сразу, без ввода пароля.</p>
 
       {loading && (
         <div className="mt-3 space-y-2">
-          <Skeleton className="h-14 w-full rounded-xl" />
-          <Skeleton className="h-14 w-full rounded-xl" />
+          <Skeleton className="h-14 w-full rounded-[10px]" />
+          <Skeleton className="h-14 w-full rounded-[10px]" />
         </div>
       )}
       {failed && (
-        <p className="mt-3 text-[13px] font-medium text-warn-ink">
+        <p className="mt-3 text-[13px] font-medium text-ink">
           Не удалось получить список демо-аккаунтов. Введите логин вручную.
         </p>
       )}
@@ -325,10 +308,10 @@ function DemoAccounts({ loading, failed, accounts, onPick, busy, pendingLogin }:
                 type="button"
                 onClick={() => onPick(account)}
                 disabled={busy}
-                className="flex w-full min-h-[56px] cursor-pointer items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 text-left transition-colors hover:border-brand/40 hover:bg-brand-soft/50 disabled:cursor-wait disabled:opacity-70"
+                className="flex w-full min-h-[56px] cursor-pointer items-center gap-3 rounded-[10px] border border-line bg-surface px-3 py-2 text-left transition-colors hover:border-brand hover:bg-surface-hover disabled:cursor-wait disabled:opacity-70"
               >
                 <span
-                  className="grid size-9 shrink-0 place-items-center rounded-full bg-brand text-[13px] font-bold text-white"
+                  className="grid size-9 shrink-0 place-items-center rounded-full bg-brand text-[13px] font-semibold text-white"
                   aria-hidden="true"
                 >
                   {account.name
@@ -339,17 +322,17 @@ function DemoAccounts({ loading, failed, accounts, onPick, busy, pendingLogin }:
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-sm font-bold text-ink">{account.name}</span>
-                    <span className="rounded-full bg-line/60 px-1.5 text-[10px] font-bold tracking-wide text-muted uppercase">
+                    <span className="text-sm font-semibold text-ink">{account.name}</span>
+                    <span className="rounded-full bg-surface-hover px-1.5 text-[10px] font-semibold tracking-wide text-muted uppercase">
                       {account.role === 'staff' ? 'деканат' : 'студент'}
                     </span>
                   </span>
                   <span className="mt-0.5 block text-[12px] text-muted">{account.note}</span>
-                  <span className="mt-0.5 block font-mono text-[11px] text-ink/70">
+                  <span className="mt-0.5 block font-mono text-[11px] text-ink0">
                     {account.login} / {account.password}
                   </span>
                 </span>
-                <span className="shrink-0 text-xs font-bold text-brand-ink">
+                <span className="shrink-0 text-xs font-semibold text-brand">
                   {pendingLogin === account.login ? 'Входим…' : 'Войти как'}
                 </span>
               </button>

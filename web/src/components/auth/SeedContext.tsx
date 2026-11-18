@@ -30,9 +30,9 @@ export function SeedContextCard({ context, dataAsOf }: { context: SeedContextDat
   return (
     <section
       aria-labelledby="seed-context-title"
-      className="mt-5 rounded-2xl border border-line bg-surface p-4 shadow-[var(--shadow-card)]"
+      className="mt-5 rounded-[12px] border border-line bg-surface p-4 shadow-[var(--shadow-card)]"
     >
-      <h2 id="seed-context-title" className="flex items-center gap-2 text-sm font-bold text-ink">
+      <h2 id="seed-context-title" className="flex items-center gap-2 text-sm font-semibold text-ink">
         <History className="size-4 text-brand" aria-hidden="true" />
         Как кабинет выглядел при старте
       </h2>
@@ -44,7 +44,7 @@ export function SeedContextCard({ context, dataAsOf }: { context: SeedContextDat
       <button
         type="button"
         onClick={() => setOpen(initial?.name ?? null)}
-        className="mt-3 block w-full cursor-zoom-in overflow-hidden rounded-xl border border-line bg-bg"
+        className="mt-3 block w-full cursor-zoom-in overflow-hidden rounded-[10px] border border-line bg-bg"
         aria-label={`Открыть снимки экранов: ${screens.map((s) => s.title).join(', ')}`}
       >
         {initial && (
@@ -55,7 +55,7 @@ export function SeedContextCard({ context, dataAsOf }: { context: SeedContextDat
             className="max-h-[200px] w-full object-cover object-top"
           />
         )}
-        <span className="flex items-center justify-between gap-2 border-t border-line bg-surface px-3 py-2 text-[12.5px] font-semibold text-brand-ink">
+        <span className="flex items-center justify-between gap-2 border-t border-line bg-surface px-3 py-2 text-[12.5px] font-semibold text-brand">
           <span className="inline-flex items-center gap-1.5">
             <ImageIcon className="size-4" aria-hidden="true" />Смотреть {screens.length} экранов
           </span>
@@ -77,14 +77,14 @@ export function SeedContextCard({ context, dataAsOf }: { context: SeedContextDat
                 'min-h-[40px] shrink-0 cursor-pointer rounded-full border px-3 text-[12.5px] font-semibold transition-colors',
                 current?.name === screen.name
                   ? 'border-brand bg-brand text-white'
-                  : 'border-line bg-bg text-ink hover:border-brand/40',
+                  : 'border-line bg-bg text-ink hover:border-brand',
               )}
             >
               {screen.title}
             </button>
           ))}
         </div>
-        <div className="max-h-[62dvh] overflow-y-auto rounded-xl border border-line">
+        <div className="max-h-[62dvh] overflow-y-auto rounded-[10px] border border-line">
           {current && (
             <img
               src={`/api/seed-context/${current.name}.png`}

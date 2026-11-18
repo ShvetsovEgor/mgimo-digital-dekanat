@@ -58,10 +58,10 @@ export default function ProgressPage() {
 function ProgressSkeleton() {
   return (
     <div className="space-y-3" aria-busy="true">
-      <Skeleton className="h-48 w-full rounded-[22px]" />
-      <Skeleton className="h-10 w-full rounded-xl" />
-      <Skeleton className="h-20 w-full rounded-[16px]" />
-      <Skeleton className="h-20 w-full rounded-[16px]" />
+      <Skeleton className="h-48 w-full rounded-[12px]" />
+      <Skeleton className="h-10 w-full rounded-[10px]" />
+      <Skeleton className="h-20 w-full rounded-[12px]" />
+      <Skeleton className="h-20 w-full rounded-[12px]" />
     </div>
   );
 }
@@ -88,7 +88,7 @@ function SummaryCard({ data, onShowDisciplines }: { data: ProgressBundle; onShow
           }
         />
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-bold tracking-[0.06em] text-muted uppercase">Средний рейтинг</p>
+          <p className="text-[11px] font-semibold tracking-[0.06em] text-muted uppercase">Средний рейтинг</p>
           <p className="display-num mt-0.5 text-xl text-ink">
             {summary.avgLabel} <span className="text-[13px] font-semibold text-muted">за семестр</span>
           </p>
@@ -113,7 +113,7 @@ function SummaryCard({ data, onShowDisciplines }: { data: ProgressBundle; onShow
         <button
           type="button"
           onClick={onShowDisciplines}
-          className="mt-3 flex w-full cursor-pointer items-center gap-2 rounded-xl bg-warn-soft px-3 py-2.5 text-left text-[13px] font-semibold text-warn-ink hover:brightness-[0.98]"
+          className="mt-3 flex w-full cursor-pointer items-center gap-2 rounded-[10px] bg-surface-hover px-3 py-2.5 text-left text-[13px] font-semibold text-ink hover:brightness-[0.98]"
         >
           <AlertTriangle className="size-4 shrink-0" aria-hidden="true" />
           {summary.riskCount === 1 ? '1 дисциплина' : `${summary.riskCount} дисциплины`} под угрозой «автомата» — посмотрите, сколько баллов осталось
@@ -141,7 +141,7 @@ function DisciplinesTab({ data }: { data: ProgressBundle }) {
         <button
           type="button"
           onClick={() => setShowAll((value) => !value)}
-          className="cursor-pointer text-[13px] font-semibold text-brand-ink hover:underline underline-offset-2"
+          className="cursor-pointer text-[13px] font-semibold text-brand hover:underline underline-offset-2"
         >
           {showAll ? 'Только под угрозой' : 'Показать все'}
         </button>
@@ -195,7 +195,7 @@ function DisciplineItem({ item, defaultOpen }: { item: Discipline; defaultOpen?:
         <div>
           <div className="mb-1.5 flex items-baseline justify-between gap-2 text-[13px]">
             <span className="font-semibold text-ink">
-              Рейтинг <span className="nums text-[15px] font-extrabold">{Math.round(item.rating)}%</span>
+              Рейтинг <span className="nums text-sm font-semibold">{Math.round(item.rating)}%</span>
             </span>
             <span className="text-muted">
               {earned} из {max} баллов получено
@@ -213,17 +213,17 @@ function DisciplineItem({ item, defaultOpen }: { item: Discipline; defaultOpen?:
         </div>
 
         {item.autoReached ? (
-          <p className="flex items-center gap-1.5 rounded-xl bg-ok-soft px-3 py-2 text-[13px] font-semibold text-ok-ink">
+          <p className="flex items-center gap-1.5 rounded-[10px] bg-surface-hover px-3 py-2 text-[13px] font-semibold text-ink">
             <CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />
             «Автомат» уже заслужен: {Math.round(item.rating)}% ≥ {item.threshold}%
           </p>
         ) : item.toAuto !== null ? (
-          <p className="rounded-xl bg-brand-soft px-3 py-2 text-[13px] font-semibold text-brand-ink">
+          <p className="rounded-[10px] bg-surface-hover px-3 py-2 text-[13px] font-semibold text-brand">
             До «автомата» — {item.toAuto} {item.toAuto === 1 ? 'балл' : item.toAuto < 5 ? 'балла' : 'баллов'} из {max - earned} оставшихся
             {pending.length > 0 && ` · ещё ${pending.length} контрольны${pending.length === 1 ? 'х' : 'е'} впереди`}
           </p>
         ) : item.threshold === 0 ? (
-          <p className="rounded-xl bg-ok-soft px-3 py-2 text-[13px] font-semibold text-ok-ink">
+          <p className="rounded-[10px] bg-surface-hover px-3 py-2 text-[13px] font-semibold text-ink">
             Зачёт по посещаемости — порог баллов не применяется
           </p>
         ) : null}
@@ -232,9 +232,9 @@ function DisciplineItem({ item, defaultOpen }: { item: Discipline; defaultOpen?:
           <SectionTitle>Контрольные точки</SectionTitle>
           <ul className="space-y-1.5">
             {item.controlPoints.map((point) => (
-              <li key={point.label} className="flex items-center justify-between gap-2 rounded-lg bg-surface-2 px-2.5 py-1.5 text-[13px]">
+              <li key={point.label} className="flex items-center justify-between gap-2 rounded-[8px] bg-surface-2 px-2.5 py-1.5 text-[13px]">
                 <span className="min-w-0 truncate text-ink">{point.label}</span>
-                <span className={cx('nums shrink-0 font-bold', point.earned === null ? 'text-muted' : 'text-ink')}>
+                <span className={cx('nums shrink-0 font-semibold', point.earned === null ? 'text-muted' : 'text-ink')}>
                   {point.earned === null ? (
                     <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-muted">
                       <CircleDashed className="size-3" aria-hidden="true" /> не сдано
@@ -276,16 +276,16 @@ function RatingPill({ item }: { item: Discipline }) {
   if (item.autoReached) {
     return (
       <span className="inline-flex flex-col items-end">
-        <span className="nums text-[15px] font-extrabold text-ok-ink">{Math.round(item.rating)}%</span>
-        <span className="text-[10px] font-bold text-ok-ink">автомат</span>
+        <span className="nums text-sm font-semibold text-ink">{Math.round(item.rating)}%</span>
+        <span className="text-[10px] font-semibold text-ink">автомат</span>
       </span>
     );
   }
   return (
     <span className="inline-flex flex-col items-end">
-      <span className="nums text-[15px] font-extrabold text-ink">{Math.round(item.rating)}%</span>
+      <span className="nums text-sm font-semibold text-ink">{Math.round(item.rating)}%</span>
       {item.toAuto !== null ? (
-        <span className="text-[10px] font-bold text-warn-ink">−{item.toAuto} до {item.threshold}%</span>
+        <span className="text-[10px] font-semibold text-ink">−{item.toAuto} до {item.threshold}%</span>
       ) : (
         <span className="text-[10px] text-muted">без порога</span>
       )}

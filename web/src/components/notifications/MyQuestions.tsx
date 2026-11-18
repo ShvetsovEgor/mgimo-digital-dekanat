@@ -17,9 +17,9 @@ export function MyQuestions({ items }: { items: QuestionMessage[] }) {
   return (
     <ul className="space-y-2">
       {items.map((item) => (
-        <li key={item.id} className="rounded-xl border border-line px-3 py-2.5">
+        <li key={item.id} className="rounded-[10px] border border-line px-3 py-2.5">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-[14px] font-bold text-ink">{item.subject}</p>
+            <p className="text-[14px] font-semibold text-ink">{item.subject}</p>
             <Badge
               tone={item.status === 'answered' ? 'ok' : 'warn'}
               size="sm"
@@ -31,8 +31,8 @@ export function MyQuestions({ items }: { items: QuestionMessage[] }) {
           <p className="mt-1 line-clamp-2 text-[13px] text-muted">{item.body}</p>
           <p className="mt-1 text-[11px] text-muted">Отправлен {item.createdAtLabel}</p>
           {item.reply && (
-            <div className="mt-2 rounded-lg bg-brand-soft px-2.5 py-2">
-              <p className="text-[11px] font-bold tracking-wide text-brand-ink uppercase">Ответ деканата</p>
+            <div className="mt-2 rounded-[8px] bg-surface-hover px-2.5 py-2">
+              <p className="text-[11px] font-semibold tracking-wide text-brand uppercase">Ответ деканата</p>
               <p className="mt-0.5 text-[13px] text-ink">{item.reply}</p>
             </div>
           )}

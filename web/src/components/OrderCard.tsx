@@ -53,14 +53,14 @@ export function OrderCard({ order, to, badge }: OrderCardProps) {
           <StatusBadge status={order.status} label={order.statusLabel} size="sm" />
         </span>
       </div>
-      <h3 className="mt-1 text-[15px] leading-snug font-bold text-ink">{order.typeTitle}</h3>
+      <h3 className="mt-1 text-sm leading-snug font-semibold text-ink">{order.typeTitle}</h3>
       <p className="mt-1 line-clamp-2 text-[13px] text-muted">{statusContext(order)}</p>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-t border-line pt-2.5 text-[12px] text-muted">
         <span>
           Подана {order.createdAtLabel}
-          {order.isOverdue && <span className="font-semibold text-warn-ink"> · просрочено</span>}
+          {order.isOverdue && <span className="font-semibold text-ink"> · просрочено</span>}
         </span>
-        <span className="font-semibold text-brand-ink">{to ? 'Открыть' : 'Детали'}</span>
+        <span className="font-semibold text-brand">{to ? 'Открыть' : 'Детали'}</span>
       </div>
     </>
   );
