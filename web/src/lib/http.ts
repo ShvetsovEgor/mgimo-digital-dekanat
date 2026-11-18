@@ -140,18 +140,29 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   const headers: Record<string, string> = { Accept: 'application/json', ...options.headers };
   if (method !== 'GET') headers['Content-Type'] = 'application/json';
 
+  // Свой таймаут: на бесплатном хостинге сервис «просыпается» долго, но не бесконечно —
+  // через 45 с показываем понятную ошибку с «Повторить» вместо вечного скелетона.
+  const timeout = new AbortController();
+  const timer = window.setTimeout(() => timeout.abort('timeout'), 45_000);
+  const onAbort = () => timeout.abort('cancel');
+  options.signal?.addEventListener('abort', onAbort);
+
   let response: Response;
   try {
     response = await fetch(`/api${path}`, {
       method,
       credentials: 'same-origin',
       headers,
-      signal: options.signal,
+      signal: options.signal ? AbortSignal.any([options.signal, timeout.signal]) : timeout.signal,
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
     });
   } catch (err) {
-    if (err instanceof DOMException && err.name === 'AbortError') throw err;
+    if (options.signal?.aborted) throw err;
+    if (timeout.signal.aborted) throw new ApiError(0, 'NETWORK', 'Сервер долго не отвечает. Проверьте связь и попробуйте снова.');
     throw new ApiError(0, 'NETWORK', MESSAGES.NETWORK ?? '');
+  } finally {
+    window.clearTimeout(timer);
+    options.signal?.removeEventListener('abort', onAbort);
   }
 
   if (response.status === 204) return { data: undefined as T, response };

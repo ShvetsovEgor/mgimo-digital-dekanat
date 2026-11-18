@@ -41,6 +41,15 @@ function describe(error: unknown): { title: string; message: string; offline: bo
     if (error.code === 'NETWORK') {
       return { title: 'Нет связи с сервером', message: 'Проверьте интернет — кабинет попробует ещё раз.', offline: true };
     }
+    if (error.status === 401) {
+      return { title: 'Сессия истекла', message: 'Войдите снова — данные останутся на месте.', offline: false };
+    }
+    if (error.status === 403) {
+      return { title: 'Нет доступа к разделу', message: 'Раздел доступен другой роли. Вернитесь на главную.', offline: false };
+    }
+    if (error.status >= 500) {
+      return { title: 'Сервер не ответил', message: 'Проверьте связь и попробуйте снова.', offline: false };
+    }
     if (error.code === 'NOT_FOUND' || error.status === 404) {
       return { title: 'Не нашли эти данные', message: error.message, offline: false };
     }
