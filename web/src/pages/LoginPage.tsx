@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowRight, Eye, EyeOff, KeyRound, Lock, ShieldCheck, UserRound } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { ArrowRight, Eye, EyeOff, Lock, ShieldCheck, UserRound } from 'lucide-react';
 import { TextField } from '@/components/ui/Field';
-import { Skeleton } from '@/components/ui/Progress';
-import { Logo } from '@/components/Logo';
+import { Logo, LogoMark } from '@/components/Logo';
 
 import { useToast } from '@/components/ui/Toast';
 import { useLogin } from '@/lib/auth';
@@ -14,12 +12,37 @@ import { keys, resetUserCache, useMeta, useSession } from '@/lib/queries';
 import { getTabSession } from '@/lib/tab-session';
 import { api } from '@/lib/http';
 import { useQueryClient } from '@tanstack/react-query';
-import { SeedContextCard } from '@/components/auth/SeedContext';
+import { CompactLanguageButton, CompactThemeButton } from '@/components/auth/AuthChrome';
+import { DemoAccountsCard } from '@/components/auth/DemoAccountsCard';
+import { LoginBackdrop } from '@/components/auth/LoginBackdrop';
 import type { Meta, MetaAccount } from '@/lib/types';
 
 interface LocationState {
   from?: string;
   expired?: boolean;
+}
+
+/**
+ * «Оставаться в системе»: помним только логин на этом устройстве, чтобы не вводить его каждый раз.
+ * Пароль не сохраняем, срок сессии и cookie не меняем — это правило из docs/SECURITY.md.
+ */
+const REMEMBERED_LOGIN_KEY = 'dl.remembered-login';
+
+function getRememberedLogin(): string {
+  try {
+    return window.localStorage.getItem(REMEMBERED_LOGIN_KEY) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+function rememberLogin(login: string | null): void {
+  try {
+    if (login) window.localStorage.setItem(REMEMBERED_LOGIN_KEY, login);
+    else window.localStorage.removeItem(REMEMBERED_LOGIN_KEY);
+  } catch {
+    /* приватный режим — просто не запомним */
+  }
 }
 
 export default function LoginPage() {
@@ -62,7 +85,7 @@ function LoginScreen({
   const login = useLogin();
   const toast = useToast();
   const navigate = useNavigate();
-  const [loginValue, setLoginValue] = useState('');
+  const [loginValue, setLoginValue] = useState(() => getRememberedLogin());
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -71,6 +94,7 @@ function LoginScreen({
   const [fieldError, setFieldError] = useState<{ login?: string; password?: string }>({});
   const [slowHint, setSlowHint] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [staySignedIn, setStaySignedIn] = useState(() => Boolean(getRememberedLogin()));
   const meta = useMeta({ enabled: !resetting });
   const queryClient = useQueryClient();
   // «Холодный старт»: сервер мог пересобрать демо-данные (reset: true) — все прежние сессии недействительны.
@@ -112,6 +136,7 @@ function LoginScreen({
     setBusy(true);
     try {
       const result = await login(loginName.trim(), pass);
+      rememberLogin(staySignedIn ? loginName.trim() : null);
       setBusy(false);
       setPendingAccount(null);
       toast.success(result.role === 'staff' ? 'Вы вошли как сотрудник деканата' : 'Добро пожаловать!');
@@ -151,221 +176,186 @@ function LoginScreen({
   };
 
   return (
-    <div className="grid min-h-dvh bg-bg lg:grid-cols-[1.05fr_1fr]">
-      <aside
-        className="relative hidden flex-col justify-between bg-sidebar p-10 lg:flex"
-        style={{ borderRight: '1px solid var(--color-line)' }}
-      >
-        <Logo size="md" withSubtitle />
-        <div className="max-w-[34ch]">
-          <p className="text-2xl leading-[1.25] font-semibold tracking-[-0.02em] text-ink">
-            Расписание, рейтинг и справки <span className="text-brand">в одном месте</span>
-          </p>
-          <p className="mt-3 text-sm text-muted">
-            «Успею ли на автомат?» превращается в понятный ответ: сколько баллов осталось, когда будет справка и что
-            изменилось в расписании.
-          </p>
-          <ul className="mt-5 space-y-2 text-[13px] text-muted">
-            {['Прогноз «автомата» по регламенту МГИМО', 'Заявки и справки с прогнозом готовности', 'Изменения в расписании с авторами правки'].map(
-              (text) => (
+    <div className="relative min-h-dvh overflow-hidden bg-bg">
+      <LoginBackdrop />
+      <div className="relative grid min-h-dvh lg:grid-cols-[1.02fr_1fr]">
+        {/* Левая колонка: рассказ о кабинете поверх сменяющегося фона */}
+        <aside className="relative hidden flex-col justify-between p-10 lg:flex xl:p-14">
+          <Logo size="md" withSubtitle />
+          <div className="max-w-[36ch] rounded-[28px] border border-line bg-surface/80 p-7 backdrop-blur-md">
+            <p className="text-[26px] leading-[1.2] font-semibold tracking-[-0.02em] text-ink">
+              Расписание, рейтинг и справки <span className="text-brand">в одном месте</span>
+            </p>
+            <p className="mt-3 text-sm text-muted">
+              «Успею ли на автомат?» превращается в понятный ответ: сколько баллов осталось, когда будет справка и что
+              изменилось в расписании.
+            </p>
+            <ul className="mt-5 space-y-2 text-[13px] text-muted">
+              {[
+                'Прогноз «автомата» по регламенту МГИМО',
+                'Заявки и справки с прогнозом готовности',
+                'Изменения в расписании с авторами правки',
+              ].map((text) => (
                 <li key={text} className="flex items-center gap-2">
-                  <ShieldCheck className="size-4 shrink-0 text-quiet" strokeWidth={1.75} aria-hidden="true" />
+                  <ShieldCheck className="size-4 shrink-0 text-brand" strokeWidth={1.75} aria-hidden="true" />
                   {text}
                 </li>
-              ),
-            )}
-          </ul>
-        </div>
-      </aside>
-
-      <div className="flex flex-col px-4 pt-8 pb-6 sm:px-8 lg:justify-center">
-        <div className="mx-auto w-full max-w-[420px]">
-          <div className="mb-6 flex items-center justify-between gap-3 lg:hidden">
-            <Logo size="md" />
-            <span className="rounded-full border border-line bg-surface px-2.5 py-1 text-[11px] font-semibold text-muted">
-              концепт
-            </span>
+              ))}
+            </ul>
           </div>
+        </aside>
 
-          <h2 className="text-2xl font-semibold text-ink">Вход в кабинет</h2>
-          <p className="mt-1 text-sm text-muted">Логин и пароль выдаёт деканат. У демо-аккаунтов — общий пароль.</p>
+        {/* Правая колонка: виджет авторизации и демо-доступы */}
+        <div className="flex flex-col justify-center bg-bg/85 px-4 py-4 backdrop-blur-md sm:px-8 lg:bg-bg lg:py-6 lg:backdrop-blur-none">
+          <div className="mx-auto w-full max-w-[440px] space-y-4">
+            <section
+              aria-labelledby="auth-title"
+              className="rounded-[26px] border border-line bg-surface p-6 sm:p-7 lg:p-8"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className="flex items-center gap-2.5">
+                  <LogoMark size={38} className="text-brand" />
+                  <span className="flex flex-col leading-[1.15]">
+                    <span className="text-[13px] font-semibold tracking-[0.12em] text-ink uppercase">Дедлайн</span>
+                    <span className="text-[10px] font-medium tracking-[0.1em] whitespace-nowrap text-quiet uppercase">
+                      цифровой деканат
+                    </span>
+                  </span>
+                </span>
+                <span className="flex items-center gap-2">
+                  <CompactThemeButton />
+                  <CompactLanguageButton />
+                </span>
+              </div>
 
-          {signedInElsewhere && (
-            <p
-              role="status"
-              className="mt-4 rounded-[10px] border border-line bg-surface px-3 py-2.5 text-[13px] text-muted"
-            >
-              В другой вкладке этого браузера кабинет уже открыт. Можно войти здесь другим аккаунтом — та вкладка
-              останется под своим.{' '}
-              <Link to={from && from !== '/login' ? from : '/'} className="font-medium text-brand hover:underline">
-                Продолжить в кабинете
-              </Link>
-            </p>
-          )}
-          {expired && (
-            <p
-              role="status"
-              className="mt-4 rounded-[10px] border border-line bg-surface-hover px-3 py-2.5 text-[13px] font-medium text-ink"
-            >
-              Сессия истекла. Войдите снова — данные останутся на месте.
-            </p>
-          )}
-          {error && (
-            <p
-              role="alert"
-              className="mt-4 rounded-[10px] border border-line bg-surface-hover px-3 py-2.5 text-[13px] font-semibold text-danger"
-            >
-              {error}
-            </p>
-          )}
+              <div className="mt-7 mb-6 sm:mt-8">
+                <h1 id="auth-title" className="text-[26px] leading-tight font-semibold tracking-[-0.02em] text-ink">
+                  Авторизация
+                </h1>
+                <p className="mt-1 text-[13px] text-muted">
+                  студенческий портал <span className="font-medium text-brand">deadline.university</span>
+                </p>
+              </div>
 
-          <form className="mt-5 space-y-4" onSubmit={onSubmit} noValidate>
-            <TextField
-              label="Логин"
-              name="login"
-              autoComplete="username"
-              autoCapitalize="none"
-              spellCheck={false}
-              inputMode="text"
-              placeholder="например, a.ivanova"
-              value={loginValue}
-              onChange={(event) => setLoginValue(event.target.value)}
-              error={fieldError.login}
-              trailing={<UserRound className="mr-3 size-[18px] text-muted" aria-hidden="true" />}
-            />
-            <TextField
-              label="Пароль"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              placeholder="Введите пароль"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              error={fieldError.password}
-              trailing={
+              {signedInElsewhere && (
+                <p role="status" className="mb-4 rounded-[12px] border border-line bg-surface-hover px-3 py-2.5 text-[13px] text-muted">
+                  В другой вкладке этого браузера кабинет уже открыт. Можно войти здесь другим аккаунтом — та вкладка
+                  останется под своим.{' '}
+                  <Link to={from && from !== '/login' ? from : '/'} className="font-medium text-brand hover:underline">
+                    Продолжить в кабинете
+                  </Link>
+                </p>
+              )}
+              {expired && (
+                <p role="status" className="mb-4 rounded-[12px] border border-line bg-surface-hover px-3 py-2.5 text-[13px] font-medium text-ink">
+                  Сессия истекла. Войдите снова — данные останутся на месте.
+                </p>
+              )}
+              {error && (
+                <p role="alert" className="mb-4 rounded-[12px] border border-line bg-surface-hover px-3 py-2.5 text-[13px] font-semibold text-danger">
+                  {error}
+                </p>
+              )}
+
+              <form className="space-y-4" onSubmit={onSubmit} noValidate>
+                <TextField
+                  label="Логин"
+                  name="login"
+                  autoComplete="username"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  inputMode="text"
+                  placeholder="например, a.ivanova"
+                  value={loginValue}
+                  onChange={(event) => setLoginValue(event.target.value)}
+                  error={fieldError.login}
+                  leading={<UserRound className="size-[18px]" strokeWidth={1.75} aria-hidden="true" />}
+                />
+                <TextField
+                  label="Пароль"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  placeholder="Введите пароль"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  error={fieldError.password}
+                  leading={<Lock className="size-[18px]" strokeWidth={1.75} aria-hidden="true" />}
+                  trailing={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((value) => !value)}
+                      aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
+                      aria-pressed={showPassword}
+                      className="mr-0.5 grid size-10 cursor-pointer place-items-center rounded-[8px] text-muted hover:bg-surface-hover"
+                    >
+                      {showPassword ? <EyeOff className="size-[18px]" aria-hidden="true" /> : <Eye className="size-[18px]" aria-hidden="true" />}
+                    </button>
+                  }
+                />
+
+                <div className="flex items-center justify-between gap-3 pt-0.5">
+                  <label className="flex min-h-11 cursor-pointer items-center gap-2 whitespace-nowrap text-[13px] text-muted">
+                    <input
+                      type="checkbox"
+                      checked={staySignedIn}
+                      onChange={(event) => setStaySignedIn(event.target.checked)}
+                      className="size-4 accent-[var(--color-brand)]"
+                    />
+                    Оставаться в системе
+                  </label>
+                  <span className="hidden text-[11px] text-quiet sm:inline">пароль не сохраняем</span>
+                </div>
+
                 <button
-                  type="button"
-                  onClick={() => setShowPassword((value) => !value)}
-                  aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
-                  aria-pressed={showPassword}
-                  className="mr-0.5 grid size-10 cursor-pointer place-items-center rounded-[8px] text-muted hover:bg-surface-hover"
+                  type="submit"
+                  disabled={busy}
+                  className="mt-1 inline-flex h-[48px] w-full cursor-pointer items-center justify-center gap-2 rounded-[12px] bg-brand-fill px-4 text-[15px] font-semibold text-white transition-colors hover:bg-brand-strong disabled:cursor-wait disabled:opacity-75"
                 >
-                  {showPassword ? <EyeOff className="size-[18px]" aria-hidden="true" /> : <Eye className="size-[18px]" aria-hidden="true" />}
+                  <span className="grid size-6 place-items-center rounded-full bg-white/20" aria-hidden="true">
+                    {busy && !pendingAccount ? <Spinner /> : <ArrowRight className="size-3.5" />}
+                  </span>
+                  Войти
                 </button>
-              }
-            />
-            <Button type="submit" size="lg" fullWidth loading={busy && !pendingAccount} iconRight={<ArrowRight className="size-4" aria-hidden="true" />}>
-              Войти
-            </Button>
-            {slowHint && (
-              <p className="text-center text-[13px] text-muted" role="status">
-                Сервер отвечает дольше обычного — не обновляйте страницу.
+
+                {slowHint && (
+                  <p className="text-center text-[13px] text-muted" role="status">
+                    Сервер отвечает дольше обычного — не обновляйте страницу.
+                  </p>
+                )}
+              </form>
+
+              <p className="mt-4 flex items-start gap-2 text-[11px] leading-snug text-quiet">
+                <Lock className="mt-0.5 size-3 shrink-0" aria-hidden="true" />
+                Пароль хранится только в виде хеша, сессия — в защищённой cookie.
+                {mockEnabled() ? ' Демо-режим без сервера.' : ''}
               </p>
-            )}
-          </form>
+            </section>
 
-          <SeedContextCard context={meta.data?.context ?? null} dataAsOf={meta.data?.dataAsOf ?? null} />
+            <DemoAccountsCard
+              loading={meta.isLoading}
+              failed={meta.isError}
+              accounts={meta.data?.accounts ?? []}
+              onPick={useAccount}
+              onRetry={() => void meta.refetch()}
+              busy={busy}
+              pendingLogin={pendingAccount}
+            />
 
-          <DemoAccounts
-            loading={meta.isLoading}
-            accounts={meta.data?.accounts ?? []}
-            failed={meta.isError}
-            onPick={useAccount}
-            busy={busy}
-            pendingLogin={pendingAccount}
-          />
-
-          <p className="mt-5 flex items-start gap-2 text-xs leading-relaxed text-muted">
-            <Lock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-            Пароль передаётся только серверу и хранится в виде хеша. Сессия — в защищённой cookie, недоступной
-            JavaScript.
-            {mockEnabled() && ' Демо-режим без сервера: данные хранятся в браузере.'}
-          </p>
-        </div>
-
-        <div className="mx-auto mt-8 w-full max-w-[420px]">
-          <p className="text-[11px] text-quiet">Учебный проект · не официальный сервис</p>
+            <p className="px-1 text-[11px] text-quiet">Учебный проект · не официальный сервис университета</p>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-interface DemoAccountsProps {
-  loading: boolean;
-  failed: boolean;
-  accounts: MetaAccount[];
-  onPick: (account: MetaAccount) => void;
-  busy: boolean;
-  pendingLogin: string | null;
-}
-
-function DemoAccounts({ loading, failed, accounts, onPick, busy, pendingLogin }: DemoAccountsProps) {
+function Spinner() {
   return (
-    <section
-      aria-labelledby="demo-accounts"
-      className="mt-6 rounded-[18px] border border-gold/40 bg-surface-hover/50 p-3.5"
-    >
-      <div className="flex items-center gap-2">
-        <KeyRound className="size-4 text-brand" aria-hidden="true" />
-        <h2 id="demo-accounts" className="text-sm font-semibold text-brand">
-          Демо-доступы для жюри
-        </h2>
-      </div>
-      <p className="mt-1 text-[13px] text-ink5">Нажмите — и войдём под этот аккаунт сразу, без ввода пароля.</p>
-
-      {loading && (
-        <div className="mt-3 space-y-2">
-          <Skeleton className="h-14 w-full rounded-[10px]" />
-          <Skeleton className="h-14 w-full rounded-[10px]" />
-        </div>
-      )}
-      {failed && (
-        <p className="mt-3 text-[13px] font-medium text-ink">
-          Не удалось получить список демо-аккаунтов. Введите логин вручную.
-        </p>
-      )}
-      {!loading && !failed && (
-        <ul className="mt-3 space-y-2">
-          {accounts.map((account) => (
-            <li key={account.login}>
-              <button
-                type="button"
-                onClick={() => onPick(account)}
-                disabled={busy}
-                className="flex w-full min-h-[56px] cursor-pointer items-center gap-3 rounded-[10px] border border-line bg-surface px-3 py-2 text-left transition-colors hover:border-brand hover:bg-surface-hover disabled:cursor-wait disabled:opacity-70"
-              >
-                <span
-                  className="grid size-9 shrink-0 place-items-center rounded-full bg-brand text-[13px] font-semibold text-white"
-                  aria-hidden="true"
-                >
-                  {account.name
-                    .split(' ')
-                    .slice(0, 2)
-                    .map((part) => part.charAt(0))
-                    .join('')}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-sm font-semibold text-ink">{account.name}</span>
-                    <span className="rounded-full bg-surface-hover px-1.5 text-[10px] font-semibold tracking-wide text-muted uppercase">
-                      {account.role === 'staff' ? 'деканат' : 'студент'}
-                    </span>
-                  </span>
-                  <span className="mt-0.5 block text-[12px] text-muted">{account.note}</span>
-                  <span className="mt-0.5 block font-mono text-[11px] text-ink0">
-                    {account.login} / {account.password}
-                  </span>
-                </span>
-                <span className="shrink-0 text-xs font-semibold text-brand">
-                  {pendingLogin === account.login ? 'Входим…' : 'Войти как'}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-
-    </section>
+    <svg className="size-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.35" strokeWidth="3" />
+      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
   );
 }
+

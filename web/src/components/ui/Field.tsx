@@ -58,9 +58,11 @@ interface BaseFieldProps {
 
 export interface TextFieldProps extends BaseFieldProps, Omit<InputHTMLAttributes<HTMLInputElement>, 'id' | 'className'> {
   trailing?: ReactNode;
+  /** Иконка слева внутри поля (логин, пароль на экране входа). */
+  leading?: ReactNode;
 }
 
-export function TextField({ label, error, hint, className, trailing, required, valueLength, maxLength, ...rest }: TextFieldProps) {
+export function TextField({ label, error, hint, className, trailing, leading, required, valueLength, maxLength, ...rest }: TextFieldProps) {
   const id = useId();
   return (
     <FieldShell
@@ -81,11 +83,15 @@ export function TextField({ label, error, hint, className, trailing, required, v
             CONTROL,
             'h-11',
             Boolean(trailing) && 'pr-11',
-            error ? 'border-danger' : 'border-line-strong hover:border-line-strong/80',
+            Boolean(leading) && 'pl-10',
+            error ? 'border-danger' : 'border-line hover:border-quiet',
             className,
           )}
           {...rest}
         />
+        {leading && (
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-quiet">{leading}</span>
+        )}
         {trailing && <span className="absolute inset-y-0 right-0 flex items-center pr-1">{trailing}</span>}
       </div>
     </FieldShell>
