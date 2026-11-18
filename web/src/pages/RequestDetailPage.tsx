@@ -22,6 +22,7 @@ import { useToast } from '@/components/ui/Toast';
 import { StatusBadge } from '@/components/OrderCard';
 import { Timeline } from '@/components/requests/Timeline';
 import { documentUrl, isMock } from '@/lib/cx';
+import { downloadWithSession } from '@/lib/tab-session';
 import { ApiError, api } from '@/lib/http';
 import { mockRouteOf, useRequest } from '@/lib/queries';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
@@ -86,8 +87,14 @@ export default function RequestDetailPage() {
           order={query.data}
           onCancel={() => setConfirmOpen(true)}
           onDownload={() => {
-            if (isMock()) toast.show('В демо без сервера PDF не формируется — на рабочем сервере скачается документ с QR', 'info');
-            else window.location.assign(documentUrl(query.data?.id ?? numericId));
+            if (isMock()) {
+              toast.show('В демо без сервера PDF не формируется — на рабочем сервере скачается документ с QR', 'info');
+              return;
+            }
+            const id = query.data?.id ?? numericId;
+            void downloadWithSession(documentUrl(id), `document-${id}.pdf`).catch(() =>
+              toast.error('Не удалось скачать документ. Попробуйте ещё раз.'),
+            );
           }}
         />
       )}

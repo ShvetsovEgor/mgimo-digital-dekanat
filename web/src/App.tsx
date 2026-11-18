@@ -11,6 +11,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 const TodayPage = lazy(() => import('./pages/TodayPage'));
 const SchedulePage = lazy(() => import('./pages/SchedulePage'));
 const ProgressPage = lazy(() => import('./pages/ProgressPage'));
+const ScholarshipPage = lazy(() => import('./pages/ScholarshipPage'));
 const RequestsPage = lazy(() => import('./pages/RequestsPage'));
 const NewRequestPage = lazy(() => import('./pages/NewRequestPage'));
 const RequestDetailPage = lazy(() => import('./pages/RequestDetailPage'));
@@ -90,6 +91,7 @@ const router = createBrowserRouter([
                   { index: true, element: <SuspensePage><TodayPage /></SuspensePage> },
                   { path: 'schedule', element: <SuspensePage><SchedulePage /></SuspensePage> },
                   { path: 'progress', element: <SuspensePage><ProgressPage /></SuspensePage> },
+                  { path: 'scholarship', element: <SuspensePage><ScholarshipPage /></SuspensePage> },
                   { path: 'requests', element: <SuspensePage><RequestsPage /></SuspensePage> },
                   { path: 'requests/new', element: <SuspensePage><NewRequestPage /></SuspensePage> },
                   { path: 'requests/:id', element: <SuspensePage><RequestDetailPage /></SuspensePage> },

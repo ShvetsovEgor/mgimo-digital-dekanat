@@ -85,6 +85,11 @@ export function DemoBar() {
               <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-ok" aria-hidden="true" />
               Войдите как <b>dekanat</b> — кабинет сотрудника: обработка заявок и вопросов.
             </li>
+            <li className="flex items-start gap-1.5">
+              <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-ok" aria-hidden="true" />
+              Два студента сразу: откройте вторую вкладку и нажмите «Сменить аккаунт» в колонке — первая вкладка
+              останется под своим студентом.
+            </li>
           </ul>
           <div className="flex flex-wrap gap-2 pt-1">
             <Button size="sm" variant="outline" onClick={() => void toggleDemoDeadline()} iconLeft={<RotateCcw className="size-3.5" aria-hidden="true" />}>

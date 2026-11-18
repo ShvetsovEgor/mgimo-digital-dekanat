@@ -13,9 +13,10 @@ import {
 } from '../lib/auth.js';
 import { passwordChangeInput, profilePatchInput, twoFactorInput } from '../schemas.js';
 import { db } from '../db.js';
-import { toDeanery, toProfile, type DeaneryContact, type Profile } from '../lib/mappers.js';
+import { parseJson, toDeanery, toDiscipline, toProfile, type DeaneryContact, type Profile } from '../lib/mappers.js';
 import {
   departmentIdOfStudent,
+  enrollments,
   getFaculty,
   getProfileRow,
   isTwoFactor,
@@ -25,6 +26,7 @@ import {
 } from '../lib/repo.js';
 import { resolveNow } from '../today.js';
 import { formatDateLong } from '../lib/format.js';
+import { evaluateScholarship, SCHOLARSHIP_RULES, type ScholarshipResult } from '../lib/scholarship.js';
 
 export function createMeRouter(): Router {
   const meRouter = Router();
@@ -61,6 +63,42 @@ export function profileResponse(userId: number, now: Date): ProfileResponse {
 }
 
 /** ISO-строка времени из БД → «12 сентября». */
+export interface ScholarshipResponse {
+  funded: 'budget' | 'contract';
+  assigned: { title: string; amount: number } | null;
+  rules: typeof SCHOLARSHIP_RULES;
+  disciplines: { id: number; title: string; rating: number }[];
+  result: ScholarshipResult;
+}
+
+/**
+ * Прогноз считается по уже существующим рейтингам дисциплин текущего семестра.
+ * Назначенная стипендия берётся из профиля как есть и не меняется — это отдельный факт.
+ */
+export function scholarshipResponse(userId: number): ScholarshipResponse {
+  const row = getProfileRow(userId);
+  if (!row) throw new ApiError(404, 'NOT_FOUND', 'Профиль не найден');
+  const assignedJson = parseJson<{ title?: string; amount?: number }>(row.scholarship_json, {});
+  const assigned =
+    assignedJson.title && typeof assignedJson.amount === 'number'
+      ? { title: assignedJson.title, amount: assignedJson.amount }
+      : null;
+  // Рейтинг берём тем же маппером, что и экран «Учёба», — прогноз не разойдётся с оценками.
+  const disciplines = enrollments(userId).map((row) => {
+    const item = toDiscipline(row);
+    return { id: item.id, title: item.title, rating: item.rating };
+  });
+  const result = evaluateScholarship({ funded: row.funded, disciplines });
+  return {
+    funded: row.funded,
+    assigned,
+    rules: SCHOLARSHIP_RULES,
+    disciplines,
+    result,
+  };
+}
+
+
 function formatMonthDay(iso: string): string {
   const normalized = iso.trim().replace(' ', 'T');
   const withZone = /Z$|[+-]\d{2}:?\d{2}$/.test(normalized) ? normalized : `${normalized}Z`;
@@ -77,6 +115,14 @@ meRouter.get(
   asyncRoute(async (req, res) => {
     const { now } = resolveNow(req);
     sendOk(res, profileResponse(currentUser(req).id, now));
+  }),
+);
+
+// GET /api/me/scholarship — калькулятор академической стипендии (только свои данные)
+meRouter.get(
+  '/me/scholarship',
+  asyncRoute(async (req, res) => {
+    sendOk(res, scholarshipResponse(currentUser(req).id));
   }),
 );
 

@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/ui/Layout';
 import { RankCard } from '@/components/progress/RankCard';
 import { GradeScale } from '@/components/progress/GradeScale';
 import { SessionList, TranscriptTable } from '@/components/progress/Results';
+import { ScholarshipTeaser } from '@/components/scholarship/ScholarshipTeaser';
 import { cx } from '@/lib/cx';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { useProgress } from '@/lib/queries';
@@ -37,6 +38,7 @@ export default function ProgressPage() {
       {progress.data && (
         <div className="space-y-4">
           <SummaryCard data={progress.data} onShowDisciplines={() => setTab('disciplines')} />
+          <ScholarshipTeaser />
           <Segmented label="Разделы успеваемости" options={TABS} value={tab} onChange={setTab} />
           <div>
             {tab === 'disciplines' && <DisciplinesTab data={progress.data} />}

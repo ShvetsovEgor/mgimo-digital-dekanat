@@ -104,14 +104,13 @@ authRouter.post(
       db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(fresh, user.id);
     }
 
-    // Ротация сессии: старая cookie этого браузера отзывается.
-    const old = readSessionToken(req);
-    if (old) revokeSession(old);
     const token = createSession(user.id, req);
     setSessionCookie(res, token);
     clearThrottle(key);
     audit({ id: user.id, role: user.role, login }, 'login', 'user', user.id, ipHash(req));
-    sendOk(res, loginResultFor(user.id, login));
+    // Токен возвращаем и в ответе: вкладка запомнит его в sessionStorage и будет присылать
+    // заголовком, чтобы вход во второй вкладке не менял аккаунт в первой.
+    sendOk(res, { ...loginResultFor(user.id, login), tabToken: token });
   }),
 );
 
@@ -142,6 +141,20 @@ authRouter.get(
     const user = token ? getSessionUser(token) : null;
     if (!user) throw new ApiError(401, 'UNAUTHENTICATED', 'Требуется вход в систему');
     sendOk(res, loginResultFor(user.id, user.login));
+  }),
+);
+
+// POST /api/auth/tab — своя сессия для вкладки.
+// Новая вкладка наследует cookie браузера, но получает отдельную запись сессии:
+// тогда «Выйти» в ней не отзывает сессию соседней вкладки.
+authRouter.post(
+  '/auth/tab',
+  asyncRoute(async (req, res) => {
+    const current = readSessionToken(req);
+    const user = current ? getSessionUser(current) : null;
+    if (!user) throw new ApiError(401, 'UNAUTHENTICATED', 'Требуется вход в систему');
+    const token = createSession(user.id, req);
+    sendOk(res, { tabToken: token });
   }),
 );
 

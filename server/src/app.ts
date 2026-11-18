@@ -47,8 +47,8 @@ function isKnownApiPath(path: string): boolean {
 }
 
 const KNOWN_API_PATHS = new Set([
-  '/auth/logout', '/auth/me',
-  '/me/profile', '/me/password', '/me/logout-all', '/me/2fa',
+  '/auth/logout', '/auth/me', '/auth/tab',
+  '/me/profile', '/me/scholarship', '/me/password', '/me/logout-all', '/me/2fa',
   '/schedule/today', '/schedule/week', '/schedule/export.ics',
   '/progress', '/deadlines', '/requests/types', '/requests', '/notifications',
   '/notifications/read-all', '/announcements', '/messages',

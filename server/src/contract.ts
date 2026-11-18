@@ -72,6 +72,8 @@ export const deaneryContactSchema = z.object({
 
 export const loginResultSchema = z.object({
   student: studentRefSchema, // {login, name, group}
+  /** Токен сессии для этой вкладки (передаётся заголовком X-Tab-Session). */
+  tabToken: z.string(),
 });
 
 export const updateProfileInputSchema = z.object({
@@ -89,6 +91,9 @@ export const passwordChangeInputSchema = z.object({
     .regex(/[0-9]/, 'Добавьте хотя бы одну цифру'),
   confirm: z.string(),
 });
+
+/** Сессия вкладки: новый токен для уже вошедшего пользователя. */
+export const tabSessionSchema = z.object({ tabToken: z.string() });
 
 // ---------------------------------------------------------------------------
 // 2. Расписание
@@ -359,12 +364,39 @@ export const deadlineSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
+// 4a. Калькулятор стипендии
+// ---------------------------------------------------------------------------
+export const scholarshipSchema = z.object({
+  funded: z.enum(['budget', 'contract']),
+  /** Назначенная стипендия из профиля — отдельный факт, может не совпасть с прогнозом. */
+  assigned: z.object({ title: z.string(), amount: z.number() }).nullable(),
+  rules: z.object({
+    academicMin: z.number(),
+    increasedMin: z.number(),
+    academicAmount: z.number(),
+    increasedAmount: z.number(),
+    disclaimer: z.string(),
+  }),
+  /** Текущие дисциплины семестра: только балл, без контрольных точек. */
+  disciplines: z.array(z.object({ id: z.number(), title: z.string(), rating: z.number() })),
+  result: z.object({
+    tier: z.enum(['none', 'academic', 'increased']),
+    title: z.string(),
+    amount: z.number(),
+    gaps: z.array(
+      z.object({ id: z.number(), title: z.string(), rating: z.number(), need: z.number(), delta: z.number() }),
+    ),
+  }),
+});
+
+// ---------------------------------------------------------------------------
 // 5. Экспорт схем
 // ---------------------------------------------------------------------------
 export const schemas = {
   profileSchema,
   deaneryContactSchema,
   loginResultSchema,
+  tabSessionSchema,
   updateProfileInputSchema,
   passwordChangeInputSchema,
   weekEntrySchema,
@@ -385,4 +417,5 @@ export const schemas = {
   notificationSchema,
   announcementSchema,
   deadlineSchema,
+  scholarshipSchema,
 };

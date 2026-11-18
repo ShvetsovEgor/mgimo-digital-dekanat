@@ -493,3 +493,43 @@ export interface VerifyResult {
   number?: string;
   issuedAt?: string;
 }
+
+// --- Калькулятор академической стипендии -----------------------------------
+export type ScholarshipTier = 'none' | 'academic' | 'increased';
+
+export interface ScholarshipRules {
+  academicMin: number;
+  increasedMin: number;
+  academicAmount: number;
+  increasedAmount: number;
+  disclaimer: string;
+}
+
+export interface ScholarshipGap {
+  id: number;
+  title: string;
+  rating: number;
+  need: number;
+  delta: number;
+}
+
+export interface ScholarshipResult {
+  tier: ScholarshipTier;
+  title: string;
+  amount: number;
+  gaps: ScholarshipGap[];
+}
+
+export interface ScholarshipDiscipline {
+  id: number;
+  title: string;
+  rating: number;
+}
+
+export interface ScholarshipBundle {
+  funded: 'budget' | 'contract';
+  assigned: { title: string; amount: number } | null;
+  rules: ScholarshipRules;
+  disciplines: ScholarshipDiscipline[];
+  result: ScholarshipResult;
+}

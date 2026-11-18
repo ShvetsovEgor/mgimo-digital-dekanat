@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   AtSign,
+  ChevronRight,
   BadgeCheck,
   Building2,
   CalendarClock,
@@ -98,7 +99,15 @@ export default function ProfilePage() {
                   { label: 'Форма обучения', value: `${data.profile.degree} · ${data.profile.studyForm}` },
                   { label: '№ зачётки', value: <span className="nums">{data.profile.recordBookMasked}</span> },
                   { label: 'Финансирование', value: data.profile.fundedLabel },
-                  { label: 'Стипендия', value: data.profile.scholarship ?? 'Нет' },
+                  {
+                    label: 'Стипендия',
+                    value: (
+                      <Link to="/scholarship" className="inline-flex items-center gap-1 text-brand hover:underline">
+                        {data.profile.scholarship ?? 'Нет'}
+                        <ChevronRight className="size-3.5" aria-hidden="true" />
+                      </Link>
+                    ),
+                  },
                   { label: 'Общежитие', value: data.profile.dorm ?? 'Не предоставлено' },
                   { label: 'Куратор', value: data.profile.curator },
                 ]}

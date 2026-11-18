@@ -1,8 +1,8 @@
-import { useMemo, useState, type MouseEvent } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, Coffee } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
-import { AnchorButton, Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { IconButton } from '@/components/ui/Card';
 import { Segmented } from '@/components/ui/Segmented';
 import { Skeleton } from '@/components/ui/Progress';
@@ -15,6 +15,7 @@ import { LessonBlock, NextLessonCard } from '@/components/schedule/LessonCard';
 import { WeekCalendar } from '@/components/schedule/WeekGrid';
 import { relativeTimeLabel } from '@/components/schedule/meta';
 import { calendarUrl, cx, isMock } from '@/lib/cx';
+import { downloadWithSession } from '@/lib/tab-session';
 import { formatDateLong } from '@/lib/format';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { useNow, useToday, useWeek } from '@/lib/queries';
@@ -51,22 +52,23 @@ export default function SchedulePage() {
 
 function CalendarButton() {
   const toast = useToast();
-  const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (!isMock()) return;
-    event.preventDefault();
-    toast.show('В демо без сервера файл не создаётся — на рабочем сервере скачается .ics для календаря', 'info');
-  };
   return (
-    <AnchorButton
-      href={calendarUrl()}
-      download
+    <Button
       variant="outline"
       size="sm"
-      onClick={onClick}
+      onClick={() => {
+        if (isMock()) {
+          toast.show('В демо без сервера файл не создаётся — на рабочем сервере скачается .ics для календаря', 'info');
+          return;
+        }
+        void downloadWithSession(calendarUrl(), 'schedule.ics').catch(() =>
+          toast.error('Не удалось скачать календарь. Попробуйте ещё раз.'),
+        );
+      }}
       iconLeft={<CalendarPlus className="size-4" aria-hidden="true" />}
     >
       В календарь
-    </AnchorButton>
+    </Button>
   );
 }
 

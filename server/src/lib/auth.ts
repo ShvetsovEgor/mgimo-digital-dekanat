@@ -83,7 +83,17 @@ function cookieOptions(): CookieOptions {
   };
 }
 
+/**
+ * Токен сессии: сначала заголовок вкладки, потом cookie.
+ *
+ * Cookie одна на браузер, поэтому второй вход в соседней вкладке «выкидывал» из первой.
+ * Вкладка хранит свой токен в sessionStorage и присылает его заголовком `X-Tab-Session`;
+ * cookie остаётся основным HttpOnly-носителем для обычного сценария. Обе сессии — обычные
+ * записи в `sessions` (одинаковая проверка, отзыв, срок жизни), поэтому «выйти везде» работает.
+ */
 export function readSessionToken(req: Request): string | null {
+  const header = req.get('x-tab-session');
+  if (typeof header === 'string' && header.length > 0) return header;
   const cookies = (req as Request & { cookies?: Record<string, string> }).cookies;
   const token = cookies?.[config.sessionCookie];
   return typeof token === 'string' && token.length > 0 ? token : null;

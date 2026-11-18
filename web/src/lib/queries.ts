@@ -15,6 +15,7 @@ import type {
   ProgressBundle,
   RequestType,
   QuestionMessage,
+  ScholarshipBundle,
   ScheduleToday,
   ScheduleWeek,
   StaffMessage,
@@ -39,6 +40,7 @@ export const keys = {
   me: ['me'] as const,
   role: ['role'] as const,
   profile: ['profile'] as const,
+  scholarship: ['scholarship'] as const,
   today: ['schedule', 'today'] as const,
   week: (date: string | null) => ['schedule', 'week', date ?? 'current'] as const,
   progress: ['progress'] as const,
@@ -110,6 +112,14 @@ export function useProfile() {
   return useQuery({
     queryKey: keys.profile,
     queryFn: ({ signal }) => apiGet<ProfileBundle>('/me/profile', signal),
+  });
+}
+
+export function useScholarship() {
+  return useQuery({
+    queryKey: keys.scholarship,
+    queryFn: ({ signal }) => apiGet<ScholarshipBundle>('/me/scholarship', signal),
+    staleTime: 60_000,
   });
 }
 

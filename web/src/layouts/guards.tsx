@@ -3,7 +3,7 @@ import { ErrorState } from '@/components/ui/States';
 import { Skeleton } from '@/components/ui/Progress';
 import { Logo } from '@/components/Logo';
 import { useRole, useSession } from '@/lib/queries';
-import { useUnauthorizedGuard } from '@/lib/auth';
+import { useEnsureTabSession, useUnauthorizedGuard } from '@/lib/auth';
 import type { UserRole } from '@/lib/types';
 
 /** Экран ожидания проверки сессии — не «мигаем» формой входа. */
@@ -27,6 +27,7 @@ export function RequireAuth() {
   const location = useLocation();
   const session = useSession();
   useUnauthorizedGuard();
+  useEnsureTabSession();
 
   if (session.isLoading) return <Splash label="Проверяем сессию…" />;
   if (session.isError) {

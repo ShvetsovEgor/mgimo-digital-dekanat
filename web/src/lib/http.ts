@@ -2,6 +2,7 @@
 // Конверт `{ok:true,data}` / `{ok:false,error}`; понятные русские ошибки; 401 → /login.
 
 import type { ApiEnvelope, ApiErrorBody } from './types';
+import { getTabSession } from './tab-session';
 
 export type ApiErrorCode =
   | 'UNAUTHENTICATED'
@@ -138,6 +139,9 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   }
   const method = options.method ?? 'GET';
   const headers: Record<string, string> = { Accept: 'application/json', ...options.headers };
+  // Сессия этой вкладки: сервер предпочитает заголовок cookie, поэтому аккаунты не мешают друг другу.
+  const tabToken = getTabSession();
+  if (tabToken) headers['X-Tab-Session'] = tabToken;
   if (method !== 'GET') headers['Content-Type'] = 'application/json';
 
   // Свой таймаут: на бесплатном хостинге сервис «просыпается» долго, но не бесконечно —

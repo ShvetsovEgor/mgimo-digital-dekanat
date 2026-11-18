@@ -1,16 +1,46 @@
 // Аутентификация: вход/выход, обработка 401 (сброс кэша и переход на /login).
 
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setUnauthorizedHandler, api, type ApiError } from './http';
 import { keys, resetUserCache, mockRouteOf, type SessionState } from './queries';
+import { getTabSession, setTabSession } from './tab-session';
 import type { UserRole } from './types';
 
 export type { UserRole };
 
 interface LoginResponse {
   student: { login: string; name: string; group: string };
+  /** Токен этой вкладки: храним в sessionStorage, шлём заголовком X-Tab-Session. */
+  tabToken: string;
+}
+
+/**
+ * Новая вкладка наследует cookie, но не имеет своего токена. Просим сервер выдать отдельную
+ * сессию вкладки: так «Выйти» в одной вкладке не завершает сессию в соседней.
+ */
+export function useEnsureTabSession(): void {
+  useEffect(() => {
+    if (getTabSession()) return;
+    let cancelled = false;
+    void (async () => {
+      const authenticated = await window
+        .fetch('/api/auth/me', { credentials: 'same-origin' })
+        .then((r) => r.ok)
+        .catch(() => false);
+      if (!authenticated || cancelled) return;
+      try {
+        const result = await api.post<{ tabToken: string }>('/auth/tab');
+        if (!cancelled && result?.tabToken) setTabSession(result.tabToken);
+      } catch {
+        /* останется cookie-сессия */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 }
 
 /** Подключает глобальный обработчик 401 к роутеру и кэшу. Вызывается один раз в App. */
@@ -45,7 +75,13 @@ export function useLogin(): (login: string, password: string) => Promise<LoginRe
   return useCallback(
     async (login: string, password: string) => {
       client.clear();
-      await api.post<LoginResponse>('/auth/login', { login, password }, { mockRoute: mockRouteOf('/auth/login') });
+      const response = await api.post<LoginResponse>(
+        '/auth/login',
+        { login, password },
+        { mockRoute: mockRouteOf('/auth/login') },
+      );
+      // Своя сессия на вкладку: соседняя вкладка может быть под другим аккаунтом.
+      setTabSession(response.tabToken ?? null);
       client.setQueryData(keys.me, { authenticated: true } satisfies SessionState);
       await client.invalidateQueries({ queryKey: keys.me, refetchType: 'none' });
       const role = await client.fetchQuery({
@@ -68,6 +104,7 @@ export function useLogout(): (options?: { allDevices?: boolean }) => Promise<voi
           await api.post('/me/logout-all', undefined, { mockRoute: mockRouteOf('/me/logout-all') });
         }
         await api.post('/auth/logout', undefined, { mockRoute: mockRouteOf('/auth/logout') });
+        setTabSession(null);
       } catch {
         /* даже если сервер недоступен — локально выходим */
       }

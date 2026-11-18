@@ -6,6 +6,7 @@ import {
   FileText,
   GraduationCap,
   Home,
+  LogIn,
   UserRound,
   X,
 } from 'lucide-react';
@@ -17,6 +18,8 @@ import { LanguageMenu, ThemeMenu } from '@/components/ui/HeaderMenus';
 import { DemoBar } from '@/components/DemoBar';
 import { cx } from '@/lib/cx';
 import { useProfile, useRole, useUnreadCount } from '@/lib/queries';
+import { useLogout } from '@/lib/auth';
+import { useToast } from '@/components/ui/Toast';
 
 interface NavItem {
   to: string;
@@ -43,21 +46,22 @@ const STAFF_NAV: NavItem[] = [
   { to: '/staff?tab=announce', label: 'Объявления', short: 'Объявл.', icon: CalendarDays },
 ];
 
-const PAGE_TITLES: Record<string, { title: string; parent?: string }> = {
+const PAGE_TITLES: Record<string, { title: string; parent?: string; parentTo?: string }> = {
   '/': { title: 'Главная' },
   '/schedule': { title: 'Расписание' },
   '/progress': { title: 'Учёба' },
+  '/scholarship': { title: 'Калькулятор стипендии', parent: 'Учёба', parentTo: '/progress' },
   '/requests': { title: 'Заявки' },
-  '/requests/new': { title: 'Новая заявка', parent: 'Заявки' },
+  '/requests/new': { title: 'Новая заявка', parent: 'Заявки', parentTo: '/requests' },
   '/notifications': { title: 'Уведомления' },
   '/profile': { title: 'Профиль' },
   '/staff': { title: 'Кабинет деканата' },
 };
 
-function pageTitle(pathname: string): { title: string; parent?: string } {
+function pageTitle(pathname: string): { title: string; parent?: string; parentTo?: string } {
   if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
-  if (/^\/requests\/\d+$/.test(pathname)) return { title: 'Заявка', parent: 'Заявки' };
-  if (pathname.startsWith('/requests/')) return { title: 'Новая заявка', parent: 'Заявки' };
+  if (/^\/requests\/\d+$/.test(pathname)) return { title: 'Заявка', parent: 'Заявки', parentTo: '/requests' };
+  if (pathname.startsWith('/requests/')) return { title: 'Новая заявка', parent: 'Заявки', parentTo: '/requests' };
   if (pathname.startsWith('/staff')) return { title: 'Кабинет деканата' };
   return { title: 'Кабинет' };
 }
@@ -120,7 +124,13 @@ function UnreadBadge() {
   );
 }
 
-function TopBar({ current, onMenu }: { current: { title: string; parent?: string }; onMenu: () => void }) {
+function TopBar({
+  current,
+  onMenu,
+}: {
+  current: { title: string; parent?: string; parentTo?: string };
+  onMenu: () => void;
+}) {
   const profile = useProfile();
   const data = profile.data?.profile;
   return (
@@ -144,7 +154,7 @@ function TopBar({ current, onMenu }: { current: { title: string; parent?: string
         <nav aria-label="Хлебные крошки" className="hidden min-w-0 items-center gap-1.5 lg:flex">
           {current.parent && (
             <>
-              <Link to="/requests" className="text-[13px] text-muted hover:text-ink">
+              <Link to={current.parentTo ?? '/'} className="text-[13px] text-muted hover:text-ink">
                 {current.parent}
               </Link>
               <ChevronRight className="size-3.5 text-quiet" aria-hidden="true" />
@@ -313,20 +323,37 @@ function ExternalLinkGlyph() {
 
 function UserCard() {
   const profile = useProfile();
+  const logout = useLogout();
+  const toast = useToast();
   const data = profile.data?.profile;
   const navigate = useNavigate();
   return (
-    <button
-      type="button"
-      onClick={() => navigate('/profile')}
-      className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-[10px] px-1 py-1.5 text-left hover:bg-surface-hover"
-    >
-      <Avatar initials={data?.initials ?? '··'} size="sm" />
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-[13px] font-semibold text-ink">{data?.displayName ?? '…'}</span>
-        <span className="block truncate text-[12px] text-muted">{data?.group ?? ''}</span>
-      </span>
-    </button>
+    <div>
+      <button
+        type="button"
+        onClick={() => navigate('/profile')}
+        className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-[10px] px-1 py-1.5 text-left hover:bg-surface-hover"
+      >
+        <Avatar initials={data?.initials ?? '··'} size="sm" />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[13px] font-semibold text-ink">{data?.displayName ?? '…'}</span>
+          <span className="block truncate text-[12px] text-muted">{data?.group ?? ''}</span>
+        </span>
+      </button>
+      {/* Смена аккаунта только в этой вкладке: соседние вкладки остаются под своими студентами. */}
+      <button
+        type="button"
+        onClick={async () => {
+          await logout();
+          toast.success('Вкладка вышла из аккаунта');
+          navigate('/login', { replace: true });
+        }}
+        className="mt-1 flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-[10px] px-1 text-[12px] font-medium text-muted hover:bg-surface-hover hover:text-ink"
+      >
+        <LogIn className="size-4" strokeWidth={1.75} aria-hidden="true" />
+        Сменить аккаунт
+      </button>
+    </div>
   );
 }
 

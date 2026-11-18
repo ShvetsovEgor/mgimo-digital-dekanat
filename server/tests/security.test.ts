@@ -302,3 +302,43 @@ test('переопределение даты только для чтения: 
     'FORBIDDEN',
   );
 });
+
+test('две вкладки: разные аккаунты одновременно, каждая со своим X-Tab-Session', async () => {
+  // Вкладка A входит как Анна, вкладка B — как Дмитрий; cookie у браузера общая.
+  const tabA = api();
+  const tabB = api();
+  const a = expectOk<{ tabToken: string }>(await tabA.login('a.ivanova'));
+  const b = expectOk<{ tabToken: string }>(await tabB.login('d.smirnov'));
+  assert.ok(a.tabToken && b.tabToken);
+  const dmitryOrders = expectOk<{ id: number; student?: unknown }[]>(
+    await tabB.get('/api/requests', { 'X-Tab-Session': b.tabToken }),
+  );
+  const dmitryOrderId = dmitryOrders[0]?.id;
+  assert.notEqual(a.tabToken, b.tabToken);
+
+  const profileA = expectOk<{ profile: { group: string } }>(
+    await tabA.get('/api/me/profile', { 'X-Tab-Session': a.tabToken }),
+  );
+  const profileB = expectOk<{ profile: { group: string } }>(
+    await tabB.get('/api/me/profile', { 'X-Tab-Session': b.tabToken }),
+  );
+  assert.equal(profileA.profile.group, 'МО-2-3');
+  assert.equal(profileB.profile.group, 'МО-2-7');
+  assert.ok(dmitryOrderId);
+
+  // Заявка Дмитрия недоступна под токеном Анны: владелец проверяется по сессии вкладки.
+  const foreign = await tabA.get(`/api/requests/${dmitryOrderId}`, { 'X-Tab-Session': a.tabToken });
+  expectError(foreign, 404, 'NOT_FOUND');
+});
+
+test('выход во вкладке B не отзывает сессию вкладки A', async () => {
+  const tabA = api();
+  const tabB = api();
+  const a = expectOk<{ tabToken: string }>(await tabA.login('a.ivanova'));
+  const b = expectOk<{ tabToken: string }>(await tabB.login('d.smirnov'));
+
+  const logout = await tabB.post('/api/auth/logout', undefined, { 'X-Tab-Session': b.tabToken });
+  assert.equal(logout.status, 204);
+  expectError(await tabB.get('/api/me/profile', { 'X-Tab-Session': b.tabToken }), 401, 'UNAUTHENTICATED');
+  expectOk(await tabA.get('/api/me/profile', { 'X-Tab-Session': a.tabToken }));
+});

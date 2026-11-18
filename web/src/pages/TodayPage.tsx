@@ -23,6 +23,7 @@ import { LessonBlock, NextLessonCard } from '@/components/schedule/LessonCard';
 import { relativeTimeLabel } from '@/components/schedule/meta';
 import { DeadlinesList } from '@/components/DeadlinesList';
 import { NotificationList } from '@/components/NotificationList';
+import { ScholarshipAlertCard } from '@/components/scholarship/ScholarshipAlertCard';
 import { greeting } from '@/lib/format';
 import { daysUntil, humanDay, pluralize } from '@/lib/format';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
@@ -153,6 +154,7 @@ export default function TodayPage() {
         </div>
 
         <div className="space-y-4">
+          <ScholarshipAlertCard />
           <RequestsCard requests={requests.data} loading={requests.isLoading} error={requests.isError} onRetry={() => void requests.refetch()} />
           <Card padding="md">
             <CardHeader
