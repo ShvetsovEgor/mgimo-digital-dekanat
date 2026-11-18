@@ -36,6 +36,8 @@ COPY --from=build /app/server/package.json ./server/package.json
 COPY --from=build /app/server/dist ./server/dist
 COPY --from=build /app/server/assets ./server/assets
 COPY --from=build /app/web/dist ./web/dist
+# Исходники на машине разработчика бывают 600 — пользователю app их всё равно нужно читать.
+RUN chmod -R a+rX /app
 USER app
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||8080)+'/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"

@@ -14,7 +14,7 @@ export function StaffStats({ stats }: { stats: Stats }) {
   ];
   return (
     <Card padding="sm">
-      <ul className="grid grid-cols-3 gap-2 lg:grid-cols-5">
+      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
         {items.map((item) => (
           <li
             key={item.label}
@@ -27,7 +27,9 @@ export function StaffStats({ stats }: { stats: Stats }) {
               <item.icon className="size-3.5 text-muted" aria-hidden="true" />
               <span className="text-[11px] font-semibold tracking-wide text-muted uppercase">{item.label}</span>
             </div>
-            <p className="display-num mt-0.5 text-xl text-ink">{item.value}</p>
+            <p className={cx('display-num mt-0.5 text-xl', item.value === 0 ? 'text-quiet' : 'text-ink')}>
+              {item.value ?? 0}
+            </p>
           </li>
         ))}
       </ul>

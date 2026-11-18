@@ -10,14 +10,14 @@ import {
   UserRound,
   X,
 } from 'lucide-react';
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { Avatar } from '@/components/ui/Layout';
 import { Logo } from '@/components/Logo';
 import { ThemeMenu } from '@/components/ui/HeaderMenus';
 import { DemoBar } from '@/components/DemoBar';
 import { cx } from '@/lib/cx';
-import { useMeta, useProfile, useRole, useUnreadCount } from '@/lib/queries';
+import { useIdentity, useMeta, useProfile, useRole, useStaffStats, useUnreadCount } from '@/lib/queries';
 import { useLogout } from '@/lib/auth';
 import { useToast } from '@/components/ui/Toast';
 
@@ -26,7 +26,7 @@ interface NavItem {
   label: string;
   short: string;
   icon: typeof Home;
-  badge?: 'unread';
+  badge?: 'unread' | 'questions';
   /** Внешний переход (другая точка входа, вне кабинета). */
   href?: string;
   external?: boolean;
@@ -42,7 +42,7 @@ const STUDENT_NAV: NavItem[] = [
 
 const STAFF_NAV: NavItem[] = [
   { to: '/staff', label: 'Заявки', short: 'Заявки', icon: FileText },
-  { to: '/staff?tab=messages', label: 'Вопросы', short: 'Вопросы', icon: Bell },
+  { to: '/staff?tab=messages', label: 'Вопросы', short: 'Вопросы', icon: Bell, badge: 'questions' },
   { to: '/staff?tab=announce', label: 'Объявления', short: 'Объявл.', icon: CalendarDays },
 ];
 
@@ -70,10 +70,17 @@ function navPath(to: string): string {
   return to.split('?')[0] ?? to;
 }
 
-function isActivePath(pathname: string, to: string): boolean {
+function isActivePath(pathname: string, search: string, to: string): boolean {
   const base = navPath(to);
-  if (base === '/') return pathname === '/';
-  return pathname === base || pathname.startsWith(`${base}/`);
+  const pathOk = base === '/' ? pathname === '/' : pathname === base || pathname.startsWith(`${base}/`);
+  if (!pathOk) return false;
+  // У кабинета деканата разделы живут в query (?tab=): без этого все три пункта светились одновременно.
+  if (base === '/staff') {
+    const want = new URLSearchParams(to.split('?')[1] ?? '').get('tab') ?? 'requests';
+    const have = new URLSearchParams(search).get('tab') ?? 'requests';
+    return want === have;
+  }
+  return true;
 }
 
 /** Оболочка кадра: узкая колонка, шапка на холсте, поле 24 px, нижняя навигация на 360 px. */
@@ -82,6 +89,8 @@ export function AppLayout({ children }: { children?: ReactNode }) {
   const [drawer, setDrawer] = useState(false);
   const unread = useUnreadCount();
   const { isStaff } = useRole();
+  const staffStats = useStaffStats({ enabled: isStaff });
+  const questions = isStaff ? (staffStats.data?.newMessages ?? 0) : 0;
   const items = isStaff ? STAFF_NAV : STUDENT_NAV;
   const current = pageTitle(location.pathname);
 
@@ -97,10 +106,19 @@ export function AppLayout({ children }: { children?: ReactNode }) {
       >
         Перейти к содержимому
       </a>
-      <Sidebar items={items} unread={unread} open={drawer} onClose={() => setDrawer(false)} pathname={location.pathname} />
+      <Sidebar
+        items={items}
+        unread={unread}
+        questions={questions}
+        open={drawer}
+        onClose={() => setDrawer(false)}
+        pathname={location.pathname}
+        search={location.search}
+        isStaff={isStaff}
+      />
       <div className="lg:pl-[208px]">
         <div className="mx-auto w-full max-w-[1180px] px-4 lg:px-6">
-          <TopBar current={current} onMenu={() => setDrawer(true)} />
+          <TopBar current={current} onMenu={() => setDrawer(true)} isStaff={isStaff} />
           <main id="main" className="pb-28 lg:pb-8">
             {children}
             <Outlet />
@@ -109,9 +127,33 @@ export function AppLayout({ children }: { children?: ReactNode }) {
           </main>
         </div>
       </div>
-      <BottomNav items={items} unread={unread} onMore={() => setDrawer(true)} />
+      <BottomNav items={items} unread={unread} questions={questions} onMore={() => setDrawer(true)} />
     </div>
   );
+}
+
+/** ФИО, инициалы и подпись текущего пользователя: у сотрудника — из /auth/me. */
+function useCurrentUser() {
+  const { isStaff } = useRole();
+  const profile = useProfile({ enabled: !isStaff });
+  const identity = useIdentity();
+  const person = identity.data?.student;
+  const p = profile.data?.profile;
+
+  if (isStaff) {
+    const parts = (person?.name ?? '').split(/\s+/).filter(Boolean);
+    const displayName = parts.length >= 2 ? `${parts[1]} ${parts[0]}` : (person?.name ?? 'Сотрудник деканата');
+    const initials = parts.length >= 2 ? `${parts[1]![0]}${parts[0]![0]}` : (person?.name?.slice(0, 1) ?? '—');
+    return { displayName, initials, subtitle: person?.group ?? 'Деканат', login: person?.login };
+  }
+
+  const parts = (p?.displayName ?? person?.name ?? '').split(/\s+/).filter(Boolean);
+  return {
+    displayName: p?.displayName ?? person?.name ?? '',
+    initials: p?.initials ?? (parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? ''),
+    subtitle: p?.group ?? person?.group ?? '',
+    login: person?.login,
+  };
 }
 
 function UnreadBadge() {
@@ -127,12 +169,13 @@ function UnreadBadge() {
 function TopBar({
   current,
   onMenu,
+  isStaff,
 }: {
   current: { title: string; parent?: string; parentTo?: string };
   onMenu: () => void;
+  isStaff: boolean;
 }) {
-  const profile = useProfile();
-  const data = profile.data?.profile;
+  const me = useCurrentUser();
   return (
     <header className="safe-top flex items-center justify-between gap-3 py-3">
       <div className="flex min-w-0 items-center gap-1">
@@ -167,19 +210,21 @@ function TopBar({
       </div>
       <div className="flex shrink-0 items-center gap-1">
         <ThemeMenu />
+        {!isStaff && (
+          <Link
+            to="/notifications"
+            className="relative hidden size-11 place-items-center rounded-[10px] text-ink hover:bg-surface-hover lg:grid"
+          >
+            <Bell className="size-[18px]" strokeWidth={1.75} aria-hidden="true" />
+            <UnreadBadge />
+          </Link>
+        )}
         <Link
-          to="/notifications"
-          className="relative hidden size-11 place-items-center rounded-[10px] text-ink hover:bg-surface-hover lg:grid"
-        >
-          <Bell className="size-[18px]" strokeWidth={1.75} aria-hidden="true" />
-          <UnreadBadge />
-        </Link>
-        <Link
-          to="/profile"
-          aria-label={data ? `Профиль: ${data.displayName}` : 'Профиль'}
+          to={isStaff ? '/staff' : '/profile'}
+          aria-label={me.displayName ? `Профиль: ${me.displayName}` : 'Профиль'}
           className="ml-1 grid size-8 place-items-center rounded-full"
         >
-          <Avatar initials={data?.initials ?? '··'} size="sm" />
+          <Avatar initials={me.initials || '··'} size="sm" />
         </Link>
       </div>
     </header>
@@ -189,12 +234,15 @@ function TopBar({
 interface SidebarProps {
   items: NavItem[];
   unread: number;
+  questions: number;
   open: boolean;
   onClose: () => void;
   pathname: string;
+  search: string;
+  isStaff: boolean;
 }
 
-function Sidebar({ items, unread, open, onClose, pathname }: SidebarProps) {
+function Sidebar({ items, unread, questions, open, onClose, pathname, search, isStaff }: SidebarProps) {
   return (
     <>
       <div
@@ -228,17 +276,29 @@ function Sidebar({ items, unread, open, onClose, pathname }: SidebarProps) {
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3">
           <nav aria-label="Разделы кабинета" className="flex flex-col gap-2">
             {items.map((item) => (
-              <SideLink key={item.to} item={item} unread={unread} pathname={pathname} onNavigate={onClose} />
+              <SideLink
+                key={item.to}
+                item={item}
+                unread={unread}
+                questions={questions}
+                pathname={pathname}
+                search={search}
+                onNavigate={onClose}
+              />
             ))}
           </nav>
           <div className="my-3 border-t border-line" role="separator" />
           <nav aria-label="Профиль" className="flex flex-col gap-2">
-            <SideLink
-              item={{ to: '/profile', label: 'Профиль', short: 'Профиль', icon: UserRound }}
-              unread={0}
-              pathname={pathname}
-              onNavigate={onClose}
-            />
+            {!isStaff && (
+              <SideLink
+                item={{ to: '/profile', label: 'Профиль', short: 'Профиль', icon: UserRound }}
+                unread={0}
+                questions={0}
+                pathname={pathname}
+                search={search}
+                onNavigate={onClose}
+              />
+            )}
             <SideLink
               item={{
                 to: 'https://mgimo.ru/study/schedule/',
@@ -249,12 +309,14 @@ function Sidebar({ items, unread, open, onClose, pathname }: SidebarProps) {
                 external: true,
               }}
               unread={0}
+              questions={0}
               pathname={pathname}
+              search={search}
               onNavigate={onClose}
             />
           </nav>
           <div className="mt-auto pt-6 pb-3">
-            <UserCard />
+            <UserCard isStaff={isStaff} />
           </div>
         </div>
       </aside>
@@ -265,7 +327,14 @@ function Sidebar({ items, unread, open, onClose, pathname }: SidebarProps) {
 const SIDE_LINK_CLASS =
   'group flex min-h-11 items-center gap-3 rounded-[10px] px-2 text-sm transition-colors duration-150 hover:bg-surface-hover';
 
-function SideLink(props: { item: NavItem; unread: number; pathname: string; onNavigate: () => void }) {
+function SideLink(props: {
+  item: NavItem;
+  unread: number;
+  questions: number;
+  pathname: string;
+  search: string;
+  onNavigate: () => void;
+}) {
   const { item } = props;
   if (item.href) {
     return (
@@ -276,27 +345,25 @@ function SideLink(props: { item: NavItem; unread: number; pathname: string; onNa
       </a>
     );
   }
+  const active = isActivePath(props.pathname, props.search, item.to);
+  const badge = item.badge === 'unread' ? props.unread : item.badge === 'questions' ? props.questions : 0;
   return (
-    <NavLink
+    <Link
       to={item.to}
       onClick={props.onNavigate}
-      aria-current={isActivePath(props.pathname, item.to) ? 'page' : undefined}
-      className={SIDE_LINK_CLASS}
+      aria-current={active ? 'page' : undefined}
+      className={cx(SIDE_LINK_CLASS, active && 'bg-surface-hover/70')}
     >
-      {({ isActive }) => (
-        <>
-          <SideGlyph item={item} active={isActive} />
-          <span className={cx('flex-1 truncate', isActive ? 'font-semibold text-brand' : 'font-medium text-ink')}>
-            {item.label}
-          </span>
-          {item.badge === 'unread' && props.unread > 0 && (
-            <span className="nums inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1.5 text-[10px] font-bold text-white">
-              {props.unread > 9 ? '9+' : props.unread}
-            </span>
-          )}
-        </>
+      <SideGlyph item={item} active={active} />
+      <span className={cx('flex-1 truncate', active ? 'font-semibold text-brand' : 'font-medium text-ink')}>
+        {item.label}
+      </span>
+      {badge > 0 && (
+        <span className="nums inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1.5 text-[10px] font-bold text-white">
+          {badge > 9 ? '9+' : badge}
+        </span>
       )}
-    </NavLink>
+    </Link>
   );
 }
 
@@ -320,25 +387,33 @@ function ExternalLinkGlyph() {
   );
 }
 
-function UserCard() {
-  const profile = useProfile();
+function UserCard({ isStaff }: { isStaff: boolean }) {
+  const me = useCurrentUser();
   const logout = useLogout();
   const toast = useToast();
-  const data = profile.data?.profile;
   const navigate = useNavigate();
+  const content = (
+    <>
+      <Avatar initials={me.initials || '··'} size="sm" />
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[13px] font-semibold text-ink">{me.displayName || '…'}</span>
+        <span className="block truncate text-[12px] text-muted">{me.subtitle}</span>
+      </span>
+    </>
+  );
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => navigate('/profile')}
-        className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-[10px] px-1 py-1.5 text-left hover:bg-surface-hover"
-      >
-        <Avatar initials={data?.initials ?? '··'} size="sm" />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-[13px] font-semibold text-ink">{data?.displayName ?? '…'}</span>
-          <span className="block truncate text-[12px] text-muted">{data?.group ?? ''}</span>
-        </span>
-      </button>
+      {isStaff ? (
+        <div className="flex min-h-11 w-full items-center gap-2.5 rounded-[10px] px-1 py-1.5 text-left">{content}</div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => navigate('/profile')}
+          className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-[10px] px-1 py-1.5 text-left hover:bg-surface-hover"
+        >
+          {content}
+        </button>
+      )}
       {/* Смена аккаунта только в этой вкладке: соседние вкладки остаются под своими студентами. */}
       <button
         type="button"
@@ -356,7 +431,17 @@ function UserCard() {
   );
 }
 
-function BottomNav({ items, unread, onMore }: { items: NavItem[]; unread: number; onMore: () => void }) {
+function BottomNav({
+  items,
+  unread,
+  questions,
+  onMore,
+}: {
+  items: NavItem[];
+  unread: number;
+  questions: number;
+  onMore: () => void;
+}) {
   const location = useLocation();
   return (
     <nav
@@ -365,8 +450,9 @@ function BottomNav({ items, unread, onMore }: { items: NavItem[]; unread: number
     >
       <ul className="flex items-stretch justify-around px-1">
         {items.map((item, index) => {
-          const active = isActivePath(location.pathname, item.to);
+          const active = isActivePath(location.pathname, location.search, item.to);
           const isMore = item.badge === 'unread';
+          const count = item.badge === 'unread' ? unread : item.badge === 'questions' ? questions : 0;
           const content = (
             <>
               <span className="relative">
@@ -375,9 +461,9 @@ function BottomNav({ items, unread, onMore }: { items: NavItem[]; unread: number
                   strokeWidth={1.75}
                   aria-hidden="true"
                 />
-                {isMore && unread > 0 && (
+                {count > 0 && (
                   <span className="nums absolute -top-1.5 -right-2 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-brand px-1 text-[9px] leading-none font-bold text-white">
-                    {unread > 9 ? '9+' : unread}
+                    {count > 9 ? '9+' : count}
                   </span>
                 )}
               </span>
@@ -400,13 +486,13 @@ function BottomNav({ items, unread, onMore }: { items: NavItem[]; unread: number
           }
           return (
             <li key={item.to + index} className="flex-1">
-              <NavLink
+              <Link
                 to={item.to}
                 aria-current={active ? 'page' : undefined}
                 className="flex min-h-[54px] flex-col items-center justify-center gap-1"
               >
                 {content}
-              </NavLink>
+              </Link>
             </li>
           );
         })}

@@ -1,9 +1,9 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/Layout';
 import { Skeleton } from '@/components/ui/Progress';
-import { Segmented } from '@/components/ui/Segmented';
 import { Chip } from '@/components/ui/Badge';
 import { ErrorState, ListSkeleton } from '@/components/ui/States';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
@@ -14,6 +14,9 @@ import { StaffStats } from '@/components/staff/StaffStats';
 import { AnnouncementComposer } from '@/components/staff/AnnouncementComposer';
 
 type Tab = 'requests' | 'messages' | 'announce';
+
+const TABS: Tab[] = ['requests', 'messages', 'announce'];
+const tabFromParam = (value: string | null): Tab => (TABS.includes(value as Tab) ? (value as Tab) : 'requests');
 type StatusFilter = 'all' | 'pending' | 'in_progress' | 'ready' | 'rejected';
 
 const STATUS_OPTIONS = [
@@ -27,7 +30,9 @@ const STATUS_OPTIONS = [
 export default function StaffPage() {
   useDocumentTitle('Кабинет сотрудника — Дедлайн');
   const stats = useStaffStats();
-  const [tab, setTab] = useState<Tab>('requests');
+  // Раздел живёт в адресе (?tab=): навигация — только через сайдбар, без дублирующих вкладок.
+  const [params] = useSearchParams();
+  const tab = tabFromParam(params.get('tab'));
   const [status, setStatus] = useState<StatusFilter>('pending');
   const orders = useStaffRequests(status === 'all' ? null : status);
   const messages = useStaffMessages();
@@ -47,17 +52,7 @@ export default function StaffPage() {
       {stats.isError && <ErrorState error={stats.error} onRetry={() => void stats.refetch()} title="Данные кабинета не загрузились" compact />}
       {stats.data && <StaffStats stats={stats.data} />}
 
-      <Segmented
-        label="Разделы кабинета"
-        className="my-4"
-        value={tab}
-        onChange={setTab}
-        options={[
-          { value: 'requests', label: 'Заявки', badge: stats.data?.new ?? 0 },
-          { value: 'messages', label: 'Вопросы', badge: stats.data?.newMessages ?? 0 },
-          { value: 'announce', label: 'Объявление' },
-        ]}
-      />
+      <div className="mt-3" />
 
       {tab === 'requests' && (
         <Card padding="md">

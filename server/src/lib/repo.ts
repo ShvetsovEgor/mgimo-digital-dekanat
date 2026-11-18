@@ -2,6 +2,7 @@
 // и факультета (department_id). Всё «чужое» для API выглядит как отсутствующее.
 import { db } from '../db.js';
 import { countActiveSessions } from './auth.js';
+import { toLocalIso } from './time.js';
 import type {
   AnnouncementRow,
   DeadlineRow,
@@ -457,15 +458,22 @@ export function studentsOfDepartment(departmentId: number): Array<{ user_id: num
     .all(departmentId) as Array<{ user_id: number; login: string; name: string; group_code: string }>;
 }
 
-export function departmentStats(departmentId: number): Record<string, number> {
-  const one = (sql: string): number => (db.prepare(sql).get(departmentId) as { c: number }).c;
+export function departmentStats(departmentId: number, now: Date): Record<string, number> {
+  const count = (sql: string, ...extra: unknown[]): number =>
+    (db.prepare(sql).get(departmentId, ...extra) as { c: number }).c;
+  const today = toLocalIso(now).slice(0, 10);
   return {
-    pending: one("SELECT COUNT(*) AS c FROM requests WHERE department_id = ? AND status = 'pending'"),
-    inProgress: one("SELECT COUNT(*) AS c FROM requests WHERE department_id = ? AND status = 'in_progress'"),
-    ready: one("SELECT COUNT(*) AS c FROM requests WHERE department_id = ? AND status = 'ready'"),
-    rejected: one("SELECT COUNT(*) AS c FROM requests WHERE department_id = ? AND status = 'rejected'"),
-    newMessages: one("SELECT COUNT(*) AS c FROM messages WHERE department_id = ? AND status = 'new'"),
-    students: one('SELECT COUNT(*) AS c FROM profiles WHERE department_id = ?'),
+    new: count("SELECT COUNT(*) AS c FROM requests WHERE department_id = ? AND status = 'pending'"),
+    inProgress: count("SELECT COUNT(*) AS c FROM requests WHERE department_id = ? AND status = 'in_progress'"),
+    overdue: count(
+      "SELECT COUNT(*) AS c FROM requests WHERE department_id = ? AND status IN ('pending','in_progress') AND due_at < ?",
+      toLocalIso(now),
+    ),
+    readyToday: count(
+      "SELECT COUNT(*) AS c FROM requests WHERE department_id = ? AND status = 'ready' AND substr(ready_at, 1, 10) = ?",
+      today,
+    ),
+    newMessages: count("SELECT COUNT(*) AS c FROM messages WHERE department_id = ? AND status = 'new'"),
   };
 }
 

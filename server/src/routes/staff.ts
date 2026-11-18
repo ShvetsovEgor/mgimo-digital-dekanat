@@ -59,7 +59,8 @@ staffRouter.get(
   '/staff/stats',
   asyncRoute(async (req, res) => {
     const { departmentId } = staffDepartment(req);
-    sendOk(res, departmentStats(departmentId));
+    const { now } = resolveNow(req);
+    sendOk(res, departmentStats(departmentId, now));
   }),
 );
 

@@ -38,6 +38,7 @@ function apiGet<T>(path: string, signal?: AbortSignal, silent401 = false): Promi
 export const keys = {
   meta: ['meta'] as const,
   me: ['me'] as const,
+  identity: ['identity'] as const,
   role: ['role'] as const,
   profile: ['profile'] as const,
   scholarship: ['scholarship'] as const,
@@ -108,10 +109,11 @@ export function useRole(): { role: UserRole | 'unknown'; isStaff: boolean; isLoa
   return { role, isStaff: role === 'staff', isLoading: session.isLoading || (session.data?.authenticated === true && query.isLoading) };
 }
 
-export function useProfile() {
+export function useProfile(options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: keys.profile,
     queryFn: ({ signal }) => apiGet<ProfileBundle>('/me/profile', signal),
+    enabled: options.enabled ?? true,
   });
 }
 
@@ -208,11 +210,21 @@ export function useMessages() {
   });
 }
 
-export function useStaffStats() {
+export function useStaffStats(options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: keys.staffStats,
     queryFn: ({ signal }) => apiGet<StaffStats>('/staff/stats', signal),
     refetchInterval: 60_000,
+    enabled: options.enabled ?? true,
+  });
+}
+
+/** Кто вошёл: ФИО и подпись для шапки. Работает и для студента, и для сотрудника деканата. */
+export function useIdentity() {
+  return useQuery({
+    queryKey: keys.identity,
+    queryFn: ({ signal }) => apiGet<{ student: { login: string; name: string; group: string } }>('/auth/me', signal),
+    staleTime: 5 * 60_000,
   });
 }
 
