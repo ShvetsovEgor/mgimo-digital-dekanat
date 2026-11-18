@@ -29,6 +29,6 @@ export function downloadHint(mock: boolean): string | null {
   return mock ? 'В демо-PDF-файл не формируется: на рабочем сервере здесь откроется PDF с QR-подписью.' : null;
 }
 
-export function calendarUrl(date?: string): string {
-  return date ? `/api/schedule/export.ics?date=${date}` : '/api/schedule/export.ics';
+export function calendarUrl(weekOffset = 0): string {
+  return weekOffset ? `/api/schedule/export.ics?week=${weekOffset}` : '/api/schedule/export.ics';
 }

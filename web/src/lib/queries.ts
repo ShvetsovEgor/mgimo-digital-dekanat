@@ -42,7 +42,7 @@ export const keys = {
   profile: ['profile'] as const,
   scholarship: ['scholarship'] as const,
   today: ['schedule', 'today'] as const,
-  week: (date: string | null) => ['schedule', 'week', date ?? 'current'] as const,
+  week: (offset: string) => ['schedule', 'week', offset] as const,
   progress: ['progress'] as const,
   deadlines: ['deadlines'] as const,
   requests: ['requests'] as const,
@@ -131,10 +131,11 @@ export function useToday() {
   });
 }
 
-export function useWeek(date: string | null) {
-  const suffix = date ? `?date=${date}` : '';
+/** Неделя расписания по смещению от текущей: 0 — эта неделя, −1 — прошлая. */
+export function useWeek(offset = 0) {
+  const suffix = offset === 0 ? '' : `?week=${offset}`;
   return useQuery({
-    queryKey: keys.week(date),
+    queryKey: keys.week(String(offset)),
     queryFn: ({ signal }) => apiGet<ScheduleWeek>(`/schedule/week${suffix}`, signal),
     staleTime: 5 * 60_000,
   });

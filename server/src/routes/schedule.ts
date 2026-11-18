@@ -35,10 +35,11 @@ function context(req: Request): ScheduleContext {
 
 function weekOffset(req: Request): number {
   const raw = typeof req.query.week === 'string' ? req.query.week : '0';
-  if (!['-1', '0', '1'].includes(raw)) {
-    throw new ApiError(400, 'VALIDATION', 'week может быть -1, 0 или 1', { week: 'Недопустимое значение' });
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < -8 || value > 8) {
+    throw new ApiError(400, 'VALIDATION', 'week — целое смещение недели от -8 до 8', { week: 'Недопустимое значение' });
   }
-  return Number(raw);
+  return value;
 }
 
 // GET /api/schedule/today?date=

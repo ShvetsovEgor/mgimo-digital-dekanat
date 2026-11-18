@@ -25,8 +25,9 @@ type View = 'today' | 'week';
 
 export default function SchedulePage() {
   const [params, setParams] = useSearchParams();
-  const view: View = params.get('view') === 'week' ? 'week' : 'today';
-  const setView = (next: View) => setParams(next === 'today' ? {} : { view: next }, { replace: true });
+  // По умолчанию открываем неделю: студенту нужен обзор, а не только сегодняшний день.
+  const view: View = params.get('view') === 'today' ? 'today' : 'week';
+  const setView = (next: View) => setParams(next === 'week' ? {} : { view: next }, { replace: true });
   useDocumentTitle('Расписание — Дедлайн');
 
   return (
@@ -165,21 +166,16 @@ function startOfWeek(date: Date): Date {
   return d;
 }
 
-function toIso(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
 
 function WeekView() {
+  // Смещение недели, а не дата: дата в запросе подменяла бы «сегодня» и ломала подсветку текущего дня.
   const [offset, setOffset] = useState(0);
   const anchor = useMemo(() => {
     const monday = startOfWeek(new Date());
     monday.setDate(monday.getDate() + offset * 7);
     return monday;
   }, [offset]);
-  const week = useWeek(toIso(anchor));
+  const week = useWeek(offset);
 
   return (
     <div className="space-y-3">
