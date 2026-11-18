@@ -248,6 +248,11 @@
   .animate-overlay {
     animation: fade 160ms ease-out both;
   }
+
+  /* Смена поста в карусели на экране входа: лёгкий fade + slide */
+  .animate-post {
+    animation: post-in 350ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
 }
 
 @keyframes shimmer {
@@ -273,6 +278,17 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes post-in {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

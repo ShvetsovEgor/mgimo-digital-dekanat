@@ -15,7 +15,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { CompactLanguageButton, CompactThemeButton } from '@/components/auth/AuthChrome';
 import { RecentAccounts } from '@/components/auth/RecentAccounts';
 import { LoginBackdrop } from '@/components/auth/LoginBackdrop';
-import { NewsFeed } from '@/components/auth/NewsFeed';
+import { CampusCarousel } from '@/components/auth/CampusCarousel';
 import type { Meta, MetaAccount } from '@/lib/types';
 
 interface LocationState {
@@ -180,20 +180,14 @@ function LoginScreen({
     <div className="relative min-h-dvh overflow-hidden bg-bg lg:h-dvh">
       <LoginBackdrop />
       <div className="relative grid min-h-dvh lg:h-full lg:grid-cols-[1.02fr_1fr]">
-        {/* Левая колонка: новости деканата поверх сменяющегося фона кампуса */}
-        <aside className="relative hidden flex-col justify-between p-10 lg:flex xl:p-14">
-          <Logo size="md" withSubtitle />
-          <div className="no-scrollbar max-h-[calc(100dvh-190px)] w-full max-w-[420px] overflow-y-auto pr-1">
-            <NewsFeed news={meta.data?.news ?? []} limit={4} compact />
-          </div>
+        {/* Левая колонка: карусель постов канала кампуса поверх сменяющегося фона */}
+        <aside className="relative hidden items-end p-8 lg:flex xl:p-12">
+          <CampusCarousel className="max-w-[420px]" />
         </aside>
 
         {/* Правая колонка: виджет авторизации и демо-доступы */}
         <div className="flex flex-col justify-center bg-bg/35 px-4 py-4 backdrop-blur-[2px] sm:px-8 lg:bg-transparent lg:py-4 lg:backdrop-blur-none">
           <div className="mx-auto w-full max-w-[440px] space-y-4">
-            <div className="lg:hidden">
-              <NewsFeed news={meta.data?.news ?? []} limit={1} compact />
-            </div>
             <section
               aria-labelledby="auth-title"
               className="rounded-[26px] border border-line bg-surface p-6 sm:p-7 lg:p-7"
@@ -327,6 +321,10 @@ function LoginScreen({
                 {mockEnabled() ? ' Демо-режим без сервера.' : ''}
               </p>
             </section>
+
+            <div className="lg:hidden">
+              <CampusCarousel />
+            </div>
           </div>
         </div>
       </div>
