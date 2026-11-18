@@ -57,10 +57,11 @@ const KNOWN_API_PATHS = new Set([
 /** Динамические пути вида /requests/:id, /notifications/:id/read, /verify/:token */
 const KNOWN_API_DYNAMIC = [
   /^\/requests\/\d+$/,
-  /^\/requests\/\d+\/(cancel|document)$/,
+  /^\/requests\/\d+\/(cancel|document|messages)$/,
   /^\/notifications\/\d+\/read$/,
   /^\/deadlines\/\d+\/toggle$/,
   /^\/staff\/requests\/\d+$/,
+  /^\/staff\/requests\/\d+\/messages$/,
   /^\/staff\/messages\/\d+\/reply$/,
   /^\/verify\/[A-Za-z0-9._-]+$/,
 ];

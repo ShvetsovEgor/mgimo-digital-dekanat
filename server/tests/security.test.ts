@@ -77,6 +77,32 @@ test('IDOR: чужая заявка и чужой документ → 404 (не
   }
 });
 
+test('чат по заявке: чужой студент не читает и не пишет, сотрудник — только свой факультет', async () => {
+  const annaClient = await anna();
+  const annaIds = await ownRequestIds(annaClient);
+  const smirnovClient = await smirnov();
+  const target = annaIds[0]!;
+
+  // Владелец пишет и читает свою переписку.
+  expectOk(await annaClient.post(`/api/requests/${target}/messages`, { body: 'Тестовое сообщение в чат заявки' }), 201);
+  const thread = expectOk<Array<{ author: string; body: string }>>(await annaClient.get(`/api/requests/${target}/messages`));
+  assert.ok(thread.some((m) => m.body.includes('Тестовое сообщение')));
+  assert.equal(thread.at(-1)?.author, 'student');
+
+  // Чужой студент получает 404 и прочитать, и отправить.
+  expectError(await smirnovClient.get(`/api/requests/${target}/messages`), 404, 'NOT_FOUND');
+  expectError(await smirnovClient.post(`/api/requests/${target}/messages`, { body: 'Чужое сообщение' }), 404, 'NOT_FOUND');
+
+  // Сотрудник своего факультета видит переписку и отвечает.
+  const staffClient = await staff();
+  const staffThread = expectOk<Array<{ author: string }>>(await staffClient.get(`/api/staff/requests/${target}/messages`));
+  assert.ok(staffThread.length > 0);
+  expectOk(await staffClient.post(`/api/staff/requests/${target}/messages`, { body: 'Ответ деканата из теста' }), 201);
+  const after = expectOk<Array<{ author: string; body: string }>>(await annaClient.get(`/api/requests/${target}/messages`));
+  assert.equal(after.at(-1)?.author, 'staff');
+  assert.ok(after.at(-1)?.body.includes('Ответ деканата'));
+});
+
 test('PDF готовой заявки доступен только владельцу', async () => {
   const annaClient = await anna();
   const ready = expectOk<Array<{ id: number; status: string }>>(await annaClient.get('/api/requests')).find(

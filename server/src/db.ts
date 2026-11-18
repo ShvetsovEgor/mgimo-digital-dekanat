@@ -226,6 +226,17 @@ CREATE TABLE IF NOT EXISTS messages (
   replied_by TEXT
 );
 
+CREATE TABLE IF NOT EXISTS request_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  request_id INTEGER NOT NULL REFERENCES requests(id) ON DELETE CASCADE,
+  author_role TEXT NOT NULL CHECK (author_role IN ('student','staff')),
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  body TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_request_messages_request ON request_messages(request_id);
+
 CREATE TABLE IF NOT EXISTS deadlines (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   group_code TEXT NOT NULL,

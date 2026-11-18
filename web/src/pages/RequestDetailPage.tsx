@@ -13,6 +13,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { Button, ButtonLink } from '@/components/ui/Button';
+import { RequestThread } from '@/components/RequestThread';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { SectionTitle } from '@/components/ui/Layout';
 import { Skeleton } from '@/components/ui/Progress';
@@ -243,6 +244,17 @@ function OrderDetails({ order, onCancel, onDownload }: { order: Order; onCancel:
           </dl>
         </Card>
 
+        <Card padding="md">
+          <CardHeader
+            title="Чат по заявке"
+            icon={<MessageCircleQuestion className="size-[18px]" aria-hidden="true" />}
+          />
+          <p className="mb-2 text-[12px] text-muted">
+            Здесь можно уточнить детали: деканат ответит, а сообщение сразу появится в уведомлениях.
+          </p>
+          <RequestThread requestId={order.id} scope="student" />
+        </Card>
+
         <Card padding="md" className="bg-surface-hover">
           <p className="flex items-center gap-1.5 text-[13px] font-semibold text-brand">
             <ShieldCheck className="size-4" aria-hidden="true" /> Подлинность документа
@@ -262,19 +274,6 @@ function OrderDetails({ order, onCancel, onDownload }: { order: Order; onCancel:
           )}
         </Card>
 
-        <Card padding="md">
-          <p className="text-[13px] text-muted">Вопрос по заявке?</p>
-          <ButtonLink
-            to="/notifications?ask=1"
-            variant="outline"
-            size="sm"
-            fullWidth
-            className="mt-2"
-            iconLeft={<MessageCircleQuestion className="size-4" aria-hidden="true" />}
-          >
-            Спросить деканат
-          </ButtonLink>
-        </Card>
       </aside>
     </div>
   );

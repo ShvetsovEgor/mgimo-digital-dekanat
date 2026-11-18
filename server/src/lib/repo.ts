@@ -304,6 +304,45 @@ export function notificationsFor(userId: number): NotificationRow[] {
     .all(userId) as NotificationRow[];
 }
 
+export interface RequestMessageRow {
+  id: number;
+  author_role: 'student' | 'staff';
+  body: string;
+  created_at: string;
+  author_name: string | null;
+}
+
+/** Переписка по заявке: только сообщения, привязанные к конкретной заявке. */
+export function requestMessages(requestId: number): RequestMessageRow[] {
+  return db
+    .prepare(
+      `SELECT m.id, m.author_role, m.body, m.created_at,
+              COALESCE(sp.full_name, p.last_name || ' ' || p.first_name) AS author_name
+       FROM request_messages m
+       LEFT JOIN profiles p ON p.user_id = m.user_id
+       LEFT JOIN staff_profiles sp ON sp.user_id = m.user_id
+       WHERE m.request_id = ?
+       ORDER BY m.id`,
+    )
+    .all(requestId) as RequestMessageRow[];
+}
+
+export function addRequestMessage(input: {
+  requestId: number;
+  authorRole: 'student' | 'staff';
+  userId: number;
+  body: string;
+  createdAt: string;
+}): number {
+  const info = db
+    .prepare(
+      `INSERT INTO request_messages (request_id, author_role, user_id, body, created_at)
+       VALUES (?, ?, ?, ?, ?)`,
+    )
+    .run(input.requestId, input.authorRole, input.userId, input.body, input.createdAt);
+  return Number(info.lastInsertRowid);
+}
+
 export function addNotification(
   userId: number,
   type: NotificationType,

@@ -91,6 +91,10 @@ export const replyInput = z.object({
   reply: z.string().trim().min(2, 'Ответ — не короче 2 символов').max(2000, 'Ответ — не длиннее 2000 символов'),
 });
 
+export const requestMessageInput = z.object({
+  body: z.string().trim().min(2, 'Сообщение — не короче 2 символов').max(1000, 'Сообщение — не длиннее 1000 символов'),
+});
+
 export const announcementInput = z.object({
   title: z.string().trim().min(3, 'Заголовок — не короче 3 символов').max(160, 'Заголовок — не длиннее 160 символов'),
   body: z.string().trim().min(10, 'Текст — не короче 10 символов').max(4000, 'Текст — не длиннее 4000 символов'),

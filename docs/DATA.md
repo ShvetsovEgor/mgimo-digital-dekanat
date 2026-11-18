@@ -33,6 +33,7 @@ request_types(id, code, title, audience 'student'|'staff'|'all', category 'certi
 requests(id, number UNIQUE, user_id, type_code, status 'pending'|'in_progress'|'ready'|'rejected'|'cancelled',
          payload_json, comment, reject_reason, created_at, updated_at, due_at, ready_at, processed_by, history_json)
 messages(id, user_id, department_id, subject, body, reply, status 'new'|'answered', created_at, replied_at, replied_by)
+request_messages(id, request_id, author_role 'student'|'staff', user_id, body, created_at)  -- чат по заявке
 jobs_queue(id, kind, payload_json, run_at, created_at)  -- имитация фонового ИИ-агента
 audit_log(id, actor_user_id, actor_role, action, entity, entity_id, ip_hash, created_at)
 verification(when opening /verify/:token — сверка HMAC)
@@ -72,6 +73,7 @@ verification(when opening /verify/:token — сверка HMAC)
 - `POST /api/requests` `{typeCode, payload}` → заявка
 - `GET /api/requests/:id` → своя заявка (403/404 для чужой)
 - `POST /api/requests/:id/cancel` → своя заявка в `pending`/`in_progress`
+- `GET /api/requests/:id/messages`; `POST /api/requests/:id/messages` `{body}` → чат по заявке
 - `GET /api/requests/:id/document` → PDF (только владелец, только `ready`)
 - `GET /api/notifications` → лента; `POST /api/notifications/read` `{ids?}`; `POST /api/notifications/:id/read`
 - `GET /api/announcements` → объявления
@@ -85,6 +87,7 @@ verification(when opening /verify/:token — сверка HMAC)
 - `GET /api/staff/requests` → заявки моего деканата
 - `PATCH /api/staff/requests/:id` `{status, comment?, rejectReason?}` → PATCH
 - `GET /api/staff/messages`; `POST /api/staff/messages/:id/reply` `{reply}`
+- `GET /api/staff/requests/:id/messages`; `POST /api/staff/requests/:id/messages` `{body}` → чат по заявке
 - `POST /api/staff/announcements` `{title, body, category, pinned, priority}`
 - `GET /api/staff/stats` → счетчики
 

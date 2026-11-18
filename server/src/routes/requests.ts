@@ -4,13 +4,14 @@ import type { Request } from 'express';
 import { asyncRoute, ApiError, sendOk, validationError } from '../http.js';
 import { currentUser, requireAuth } from '../middleware.js';
 import { audit, ipHash, type AuthUser } from '../lib/auth.js';
-import { createRequestInput, idParam } from '../schemas.js';
+import { createRequestInput, idParam, requestMessageInput } from '../schemas.js';
 import { resolveNow } from '../today.js';
 import { db } from '../db.js';
 import { publicBaseUrl } from '../config.js';
 import {
   orderFields,
   parseJson,
+  toRequestMessage,
   toOrder,
   toRequestType,
   type FormFieldJson,
@@ -20,6 +21,8 @@ import {
   type RequestStatus,
 } from '../lib/mappers.js';
 import {
+  addRequestMessage,
+  requestMessages,
   requestByIdForUser,
   requestTypeByCode,
   requestTypes,
@@ -157,6 +160,39 @@ function cancelOrder(id: number, user: AuthUser, now: Date, ip: string): void {
   ).run(iso, JSON.stringify(history), id, user.id);
   audit(user, 'request_cancel', 'request', id, ip);
 }
+
+// GET /api/requests/:id/messages — переписка по своей заявке
+requestsRouter.get(
+  '/requests/:id/messages',
+  asyncRoute(async (req, res) => {
+    const user = currentUser(req);
+    const row = requestByIdForUser(parseId(req), user.id);
+    if (!row) throw new ApiError(404, 'NOT_FOUND', 'Заявка не найдена');
+    sendOk(res, requestMessages(row.id).map(toRequestMessage));
+  }),
+);
+
+// POST /api/requests/:id/messages — вопрос или уточнение по своей заявке
+requestsRouter.post(
+  '/requests/:id/messages',
+  asyncRoute(async (req, res) => {
+    const user = currentUser(req);
+    const parsed = requestMessageInput.safeParse(req.body);
+    if (!parsed.success) throw validationError(parsed.error);
+    const row = requestByIdForUser(parseId(req), user.id);
+    if (!row) throw new ApiError(404, 'NOT_FOUND', 'Заявка не найдена');
+    const { now } = resolveNow(req);
+    addRequestMessage({
+      requestId: row.id,
+      authorRole: 'student',
+      userId: user.id,
+      body: parsed.data.body,
+      createdAt: toLocalIso(now),
+    });
+    audit(user, 'request_message', 'request', row.id, ipHash(req));
+    sendOk(res, requestMessages(row.id).map(toRequestMessage), 201);
+  }),
+);
 
 // GET /api/requests/:id/document — PDF только владельцу и только для готовой заявки
 requestsRouter.get(

@@ -619,6 +619,23 @@ export function orderFields(row: RequestRow, fields: FormFieldJson[]): Array<{ l
   return out;
 }
 
+/** Сообщение переписки по заявке: без персональных данных, только роль и текст. */
+export function toRequestMessage(row: {
+  id: number;
+  author_role: 'student' | 'staff';
+  body: string;
+  created_at: string;
+  author_name: string | null;
+}): { id: number; author: 'student' | 'staff'; authorName: string; body: string; createdAtLabel: string } {
+  return {
+    id: row.id,
+    author: row.author_role,
+    authorName: row.author_name ?? (row.author_role === 'staff' ? 'Деканат' : 'Студент'),
+    body: row.body,
+    createdAtLabel: dateTimeLabel(row.created_at),
+  };
+}
+
 export function toOrder(row: RequestRow, ctx: OrderInputContext): Order {
   const history = parseJson<OrderHistory[]>(row.history_json, []);
   const ready = row.status === 'ready';

@@ -4,12 +4,14 @@ import type { Request } from 'express';
 import { asyncRoute, ApiError, sendOk, validationError } from '../http.js';
 import { currentUser, requireRole } from '../middleware.js';
 import { audit, ipHash } from '../lib/auth.js';
-import { announcementInput, idParam, replyInput, staffRequestsQuery, staffStatusInput } from '../schemas.js';
+import { announcementInput, idParam, replyInput, requestMessageInput, staffRequestsQuery, staffStatusInput } from '../schemas.js';
 import { resolveNow } from '../today.js';
 import { toLocalIso } from '../lib/time.js';
-import { formOf, toAnnouncement, toOrder } from '../lib/mappers.js';
+import { formOf, toAnnouncement, toOrder, toRequestMessage } from '../lib/mappers.js';
 import {
   addNotification,
+  addRequestMessage,
+  requestMessages,
   announcementById,
   departmentStats,
   getFaculty,
@@ -74,6 +76,51 @@ staffRouter.get(
     const { now } = resolveNow(req);
     const rows = requestsForDepartment(departmentId, parsed.data.status);
     sendOk(res, rows.map((r) => staffOrder(r, now)));
+  }),
+);
+
+// GET /api/staff/requests/:id/messages — переписка по заявке своего факультета
+staffRouter.get(
+  '/staff/requests/:id/messages',
+  asyncRoute(async (req, res) => {
+    const idParsed = idParam.safeParse(req.params);
+    if (!idParsed.success) throw validationError(idParsed.error);
+    const staff = staffDepartment(req);
+    const row = requestByIdForDepartment(idParsed.data.id, staff.departmentId);
+    if (!row) throw new ApiError(404, 'NOT_FOUND', 'Заявка не найдена');
+    sendOk(res, requestMessages(row.id).map(toRequestMessage));
+  }),
+);
+
+// POST /api/staff/requests/:id/messages — ответ студенту по заявке
+staffRouter.post(
+  '/staff/requests/:id/messages',
+  asyncRoute(async (req, res) => {
+    const idParsed = idParam.safeParse(req.params);
+    if (!idParsed.success) throw validationError(idParsed.error);
+    const parsed = requestMessageInput.safeParse(req.body);
+    if (!parsed.success) throw validationError(parsed.error);
+    const staff = staffDepartment(req);
+    const row = requestByIdForDepartment(idParsed.data.id, staff.departmentId);
+    if (!row) throw new ApiError(404, 'NOT_FOUND', 'Заявка не найдена');
+    const { now } = resolveNow(req);
+    addRequestMessage({
+      requestId: row.id,
+      authorRole: 'staff',
+      userId: currentUser(req).id,
+      body: parsed.data.body,
+      createdAt: toLocalIso(now),
+    });
+    addNotification(
+      row.user_id,
+      'request',
+      `Новое сообщение по заявке ${row.number}`,
+      `${staff.shortName}: ${parsed.data.body}`.slice(0, 200),
+      `/requests/${row.id}`,
+      toLocalIso(now),
+    );
+    audit(currentUser(req), 'request_message', 'request', row.id, ipHash(req));
+    sendOk(res, requestMessages(row.id).map(toRequestMessage), 201);
   }),
 );
 

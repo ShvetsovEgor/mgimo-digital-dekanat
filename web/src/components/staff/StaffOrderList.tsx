@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, CheckCircle2, ChevronDown, Send, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ChevronDown, MessageCircle, Send, XCircle } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { TextAreaField } from '../ui/Field';
@@ -8,6 +8,7 @@ import { Sheet } from '../ui/Sheet';
 import { EmptyState } from '../ui/States';
 import { useToast } from '../ui/Toast';
 import { StatusBadge } from '../OrderCard';
+import { RequestThread } from '../RequestThread';
 import { ApiError, api } from '@/lib/http';
 import { mockRouteOf } from '@/lib/queries';
 import { cx } from '@/lib/cx';
@@ -134,6 +135,24 @@ function OrderActions({ order, onChange }: { order: StaffOrder; onChange: () => 
           <p className="text-[12px] text-muted">Заявка завершена — действий не требуется.</p>
         )}
       </div>
+
+      {/* Чат по заявке доступен всегда: сверху — текущая заявка, ниже — переписка со студентом. */}
+      <section aria-label="Чат по заявке" className="border-t border-line px-3 pt-3 pb-3">
+        <p className="mb-1.5 flex items-center gap-1.5 text-[12px] font-semibold text-ink">
+          <MessageCircle className="size-4 text-brand" strokeWidth={1.75} aria-hidden="true" />
+          Чат по заявке
+          <span className="font-normal text-muted">· доступен всегда</span>
+        </p>
+        <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-[8px] bg-surface-2 px-2.5 py-2">
+          <span className="nums text-[11px] font-semibold text-muted">{order.number}</span>
+          <span className="text-[12px] font-semibold text-ink">{order.typeTitle}</span>
+          <StatusBadge status={order.status} label={order.statusLabel} size="sm" />
+          <span className="ml-auto truncate text-[11px] text-muted">
+            {order.student.name} · {order.student.group}
+          </span>
+        </div>
+        <RequestThread requestId={order.id} scope="staff" compact />
+      </section>
 
       <Sheet
         open={rejectOpen}

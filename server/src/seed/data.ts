@@ -1397,6 +1397,21 @@ export function seedAll(db: DB, now: Date = new Date()): void {
       next += 1;
     }
 
+    // Переписка по заявкам: уточнения по готовой справке и по справке-вызову.
+    const requestMessageInsert = db.prepare(
+      `INSERT INTO request_messages (request_id, author_role, user_id, body, created_at) VALUES (?, ?, ?, ?, ?)`,
+    );
+    const [readyRequest, inProgressRequest, callRequest] = seededIds;
+    if (readyRequest) {
+      requestMessageInsert.run(readyRequest, 'staff', staffId, 'Справка готова. Забрать можно в деканате, ауд. 214, до 17:00 — или скачайте PDF в кабинете.', at(today, 1, 12, 10));
+      requestMessageInsert.run(readyRequest, 'student', userIds.ivanova, 'Спасибо, скачала PDF. Подскажите, нужна ли печать для посольства?', at(today, 1, 12, 26));
+    }
+    if (callRequest) {
+      requestMessageInsert.run(callRequest, 'staff', staffId, 'Проверяем данные принимающей стороны — уточните, пожалуйста, даты поездки.', at(today, 0, 10, 15));
+    }
+    void inProgressRequest;
+
+
     // Сообщения деканату
     const msgInsert = db.prepare(
       `INSERT INTO messages (user_id, department_id, subject, body, status, reply, created_at, replied_at, replied_by)

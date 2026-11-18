@@ -477,6 +477,14 @@ export interface StaffOrder extends Order {
   student: { name: string; group: string; login: string };
 }
 
+export interface RequestMessage {
+  id: number;
+  author: 'student' | 'staff';
+  authorName: string;
+  body: string;
+  createdAtLabel: string;
+}
+
 export interface StaffMessage {
   id: number;
   subject: string;

@@ -6,6 +6,7 @@ import { mockEnabled } from './mode';
 import { fetchRole } from './auth';
 import { api } from './http';
 import type {
+  RequestMessage,
   Announcement,
   DeadlineItem,
   Meta,
@@ -56,6 +57,7 @@ export const keys = {
   staffRequests: ['staff', 'requests'] as const,
   staffMessages: ['staff', 'messages'] as const,
   verify: (token: string) => ['verify', token] as const,
+  requestThread: (scope: string, id: number) => ['request-thread', scope, id] as const,
 };
 
 export function useMeta(options: { enabled?: boolean } = {}) {
@@ -233,6 +235,14 @@ export function useStaffRequests(status: string | null) {
   return useQuery({
     queryKey: [...keys.staffRequests, status ?? 'all'],
     queryFn: ({ signal }) => apiGet<StaffOrder[]>(`/staff/requests${query}`, signal),
+  });
+}
+
+export function useRequestThread(requestId: number, scope: 'student' | 'staff') {
+  const base = scope === 'staff' ? `/staff/requests/${requestId}/messages` : `/requests/${requestId}/messages`;
+  return useQuery({
+    queryKey: keys.requestThread(scope, requestId),
+    queryFn: ({ signal }) => apiGet<RequestMessage[]>(base, signal),
   });
 }
 
