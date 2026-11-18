@@ -323,6 +323,8 @@ export const orderSchema = z.object({
   isOverdue: z.boolean(),
   canCancel: z.boolean(),
   canDownload: z.boolean(),
+  /** Подписанный токен для страницы проверки подлинности (есть только у готовых документов). */
+  verifyToken: z.string().nullable(),
   fields: z.array(z.object({ label: z.string(), value: z.string() })),
   rejectReason: z.string().nullable(),
   history: z.array(requestHistorySchema),

@@ -302,6 +302,7 @@ export const MOCK_STAFF_ORDERS: StaffOrder[] = [
     statusLabel: 'Ожидает проверки',
     canCancel: false,
     canDownload: false,
+    verifyToken: "eyJuIjoi0JfQki0yMDMwLTAwMDAwMSIsInQiOjE3NjMyODQyMDB9.ZGVtby1tb2NrLXNpZ25hdHVyZQ",
     student: { name: 'Анна Иванова', group: 'МО-2-3', login: 'a.ivanova' },
   },
   {
@@ -315,6 +316,7 @@ export const MOCK_STAFF_ORDERS: StaffOrder[] = [
     statusLabel: 'Ожидает проверки',
     canCancel: false,
     canDownload: false,
+    verifyToken: "eyJuIjoi0JfQki0yMDMwLTAwMDAwMSIsInQiOjE3NjMyODQyMDB9.ZGVtby1tb2NrLXNpZ25hdHVyZQ",
     student: { name: 'Дмитрий Смирнов', group: 'МО-2-7', login: 'd.smirnov' },
   },
   {
@@ -328,6 +330,7 @@ export const MOCK_STAFF_ORDERS: StaffOrder[] = [
     statusLabel: 'В работе',
     canCancel: false,
     canDownload: false,
+    verifyToken: "eyJuIjoi0JfQki0yMDMwLTAwMDAwMSIsInQiOjE3NjMyODQyMDB9.ZGVtby1tb2NrLXNpZ25hdHVyZQ",
     dueAt: d(-1),
     dueLabel: '16 ноя',
     isOverdue: true,
@@ -344,6 +347,7 @@ export const MOCK_STAFF_ORDERS: StaffOrder[] = [
     statusLabel: 'В работе',
     canCancel: false,
     canDownload: false,
+    verifyToken: "eyJuIjoi0JfQki0yMDMwLTAwMDAwMSIsInQiOjE3NjMyODQyMDB9.ZGVtby1tb2NrLXNpZ25hdHVyZQ",
     student: { name: 'Дмитрий Смирнов', group: 'МО-2-7', login: 'd.smirnov' },
   },
   {
@@ -357,6 +361,7 @@ export const MOCK_STAFF_ORDERS: StaffOrder[] = [
     statusLabel: 'Готово',
     canCancel: false,
     canDownload: true,
+    verifyToken: "eyJuIjoi0JfQki0yMDMwLTAwMDAwMSIsInQiOjE3NjMyODQyMDB9.ZGVtby1tb2NrLXNpZ25hdHVyZQ",
     readyAtLabel: '16 ноя',
     student: { name: 'Анна Иванова', group: 'МО-2-3', login: 'a.ivanova' },
   },

@@ -793,6 +793,7 @@ const MOCK_ORDERS: Order[] = [
     isOverdue: false,
     canCancel: false,
     canDownload: true,
+    verifyToken: null,
     fields: [
       { label: 'Куда нужна справка', value: 'Военный комиссариат' },
       { label: 'Количество копий', value: '2 копии' },
@@ -817,6 +818,7 @@ const MOCK_ORDERS: Order[] = [
     isOverdue: false,
     canCancel: true,
     canDownload: false,
+    verifyToken: null,
     fields: [
       { label: 'Период', value: 'За семестр' },
       { label: 'Куда нужна справка', value: 'В банк «Демо»' },
@@ -841,6 +843,7 @@ const MOCK_ORDERS: Order[] = [
     isOverdue: false,
     canCancel: true,
     canDownload: false,
+    verifyToken: null,
     fields: [
       { label: 'Страна поездки', value: 'Франция' },
       { label: 'Посольство / консульство', value: 'Посольство Франции' },
@@ -866,6 +869,7 @@ const MOCK_ORDERS: Order[] = [
     isOverdue: false,
     canCancel: false,
     canDownload: false,
+    verifyToken: null,
     fields: [
       { label: 'Дисциплина', value: 'История России' },
       { label: 'Причина', value: 'Хочу улучшить рейтинг перед зачётной неделей' },
@@ -929,6 +933,7 @@ function createOrder(typeCode: string, values: RequestValues): Order {
     isOverdue: false,
     canCancel: !instant,
     canDownload: instant,
+    verifyToken: null,
     fields,
     rejectReason: null,
     history: historyFor(instant ? 'ready' : 'pending', 'только что', dueLabel),

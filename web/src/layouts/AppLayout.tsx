@@ -17,7 +17,7 @@ import { Logo } from '@/components/Logo';
 import { LanguageMenu, ThemeMenu } from '@/components/ui/HeaderMenus';
 import { DemoBar } from '@/components/DemoBar';
 import { cx } from '@/lib/cx';
-import { useProfile, useRole, useUnreadCount } from '@/lib/queries';
+import { useMeta, useProfile, useRole, useUnreadCount } from '@/lib/queries';
 import { useLogout } from '@/lib/auth';
 import { useToast } from '@/components/ui/Toast';
 
@@ -417,9 +417,11 @@ function BottomNav({ items, unread, onMore }: { items: NavItem[]; unread: number
 }
 
 function Footer() {
+  const meta = useMeta();
+  const demoToken = meta.data?.demoDocument?.token;
   return (
     <footer className="mt-6 border-t border-line pt-3 text-[12px] text-quiet">
-      <Link to="/verify/demo" className="text-brand hover:underline">
+      <Link to={demoToken ? `/verify/${demoToken}` : '/verify'} className="text-brand hover:underline">
         Проверка подлинности документа
       </Link>
     </footer>

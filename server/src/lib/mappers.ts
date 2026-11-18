@@ -3,6 +3,7 @@ import type { z } from 'zod';
 import type { schemas } from '../contract.js';
 import { dateTimeLabel, daysRelativeLabel, dayMonthLabel, relativeDateTimeLabel, shortDueLabel } from './format.js';
 import { formatClock, parseLocal } from './time.js';
+import { signDocumentToken } from './doc-sign.js';
 
 // Типы ответов берём из zod-схем контракта — фронтенд ждёт именно их.
 export type Profile = z.infer<typeof schemas.profileSchema>;
@@ -643,6 +644,7 @@ export function toOrder(row: RequestRow, ctx: OrderInputContext): Order {
     isOverdue: overdue,
     canCancel,
     canDownload: ready,
+    verifyToken: ready ? signDocumentToken(row.number, Math.floor(parseLocal(row.ready_at ?? row.created_at).getTime() / 1000)) : null,
     fields: orderFields(row, ctx.formFields),
     rejectReason: row.reject_reason,
     history,

@@ -63,6 +63,14 @@ const router = createBrowserRouter([
     ),
   },
   {
+    path: '/verify',
+    element: (
+      <SuspensePage>
+        <VerifyPage />
+      </SuspensePage>
+    ),
+  },
+  {
     path: '/verify/:token',
     element: (
       <SuspensePage>

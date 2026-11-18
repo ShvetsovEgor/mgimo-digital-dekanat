@@ -250,12 +250,16 @@ function OrderDetails({ order, onCancel, onDownload }: { order: Order; onCancel:
           <p className="mt-1 text-[12px] text-muted">
             В PDF встроен QR-код со ссылкой на публичную проверку подписи. Проверка показывает только номер и дату — без персональных данных.
           </p>
-          <Link
-            to="/verify/ЗВ-2030-000012.demo"
-            className="mt-2 inline-flex min-h-9 items-center gap-1 text-[13px] font-semibold text-brand hover:underline underline-offset-2"
-          >
-            Пример страницы проверки
-          </Link>
+          {order.verifyToken ? (
+            <Link
+              to={`/verify/${order.verifyToken}`}
+              className="mt-2 inline-flex min-h-9 items-center gap-1 text-[13px] font-semibold text-brand hover:underline underline-offset-2"
+            >
+              Открыть страницу проверки
+            </Link>
+          ) : (
+            <p className="mt-2 text-[12px] text-muted">Ссылка появится, когда документ будет готов.</p>
+          )}
         </Card>
 
         <Card padding="md">

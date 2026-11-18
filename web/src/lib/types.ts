@@ -52,6 +52,8 @@ export interface Meta {
   reset?: boolean;
   /** Публичные объявления деканатов для ленты на экране входа. */
   news?: NewsItem[];
+  /** Пример подлинного документа для публичной проверки подписи. */
+  demoDocument?: { number: string; token: string } | null;
 }
 
 export interface NewsItem {
@@ -394,6 +396,8 @@ export interface Order {
   isOverdue: boolean;
   canCancel: boolean;
   canDownload: boolean;
+  /** Подписанный токен страницы проверки — только у готовых документов. */
+  verifyToken: string | null;
   fields: RequestFieldValue[];
   rejectReason: string | null;
   history: RequestTimelineStep[];

@@ -2,6 +2,7 @@
 import { config } from './config.js';
 import { db } from './db.js';
 import { DEMO_RESET_HOURS, getSeedMeta } from './lib/demo-lifecycle.js';
+import { signDocumentToken } from './lib/doc-sign.js';
 import { readSeedContext, type SeedContext } from './seed/context-screens.js';
 import { relativePastLabel } from './lib/format.js';
 import { getToday, type TodayResult } from './today.js';
@@ -67,6 +68,8 @@ export interface MetaResponse {
   context: SeedContext | null;
   /** Публичные новости деканата для экрана входа: только заголовки и тексты, без персональных данных. */
   news: NewsItem[];
+  /** Пример подлинного документа: подписанный токен для публичной страницы проверки. */
+  demoDocument: { number: string; token: string } | null;
 }
 
 export interface NewsItem {
@@ -119,6 +122,16 @@ export function publicNews(limit = 3): NewsItem[] {
     }));
 }
 
+/** Первый готовый документ демо-базы: по нему открывается настоящая страница проверки. */
+export function demoDocument(): { number: string; token: string } | null {
+  const row = db
+    .prepare(`SELECT number, ready_at FROM requests WHERE status = 'ready' ORDER BY id LIMIT 1`)
+    .get() as { number: string; ready_at: string | null } | undefined;
+  if (!row) return null;
+  const issued = row.ready_at ? Math.floor(new Date(row.ready_at.replace(' ', 'T')).getTime() / 1000) : undefined;
+  return { number: row.number, token: signDocumentToken(row.number, issued) };
+}
+
 export function buildMeta(today: TodayResult): MetaResponse {
   return {
     demo: true,
@@ -131,6 +144,7 @@ export function buildMeta(today: TodayResult): MetaResponse {
     today,
     // «Холодный старт»: снимки экранов и время, к которому относятся текущие демо-данные.
     news: publicNews(4),
+    demoDocument: demoDocument(),
     dataAsOf: getSeedMeta('last_seed_at') ?? null,
     demoResetHours: DEMO_RESET_HOURS,
     context: readSeedContext(),
