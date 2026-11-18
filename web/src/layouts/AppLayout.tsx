@@ -418,7 +418,7 @@ function BottomNav({ items, unread, onMore }: { items: NavItem[]; unread: number
 
 function Footer() {
   return (
-    <footer className="mt-8 border-t border-line pt-4 text-[12px] text-quiet">
+    <footer className="mt-6 border-t border-line pt-3 text-[12px] text-quiet">
       <Link to="/verify/demo" className="text-brand hover:underline">
         Проверка подлинности документа
       </Link>

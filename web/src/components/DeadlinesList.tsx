@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle2, Circle, Hourglass } from 'lucide-react';
+import { CheckCircle2, Circle } from 'lucide-react';
 import { Badge } from './ui/Badge';
 import { ActionLink } from './ui/ActionLink';
 import { Skeleton } from './ui/Progress';
@@ -16,10 +16,12 @@ interface DeadlinesListProps {
   items?: DeadlineItem[];
   loading?: boolean;
   limit?: number;
+  /** На главной сданные задачи не показываем — они только шумят. */
+  hideDone?: boolean;
 }
 
 /** Ближайшие дедлайны с чекбоксами «сделано» (оптимистично). */
-export function DeadlinesList({ items, loading, limit }: DeadlinesListProps) {
+export function DeadlinesList({ items, loading, limit, hideDone = false }: DeadlinesListProps) {
   const query = useDeadlines();
   const client = useQueryClient();
   const toast = useToast();
@@ -57,82 +59,63 @@ export function DeadlinesList({ items, loading, limit }: DeadlinesListProps) {
     );
   }
 
-  const visible = limit ? source.slice(0, limit) : source;
+  const relevant = hideDone ? source.filter((item) => !item.done) : source;
+  const visible = limit ? relevant.slice(0, limit) : relevant;
 
-  if (source.length === 0) {
+  if (relevant.length === 0) {
     return (
-      <div className="rounded-[10px] border border-dashed border-line-strong px-3 py-4 text-center">
-        <p className="text-sm font-semibold text-ink">Дедлайнов нет</p>
-        <p className="mt-0.5 text-[13px] text-muted">Новых контрольных точек пока не публиковали.</p>
-      </div>
+      <p className="py-2 text-[13px] text-muted">
+        {source.length > 0 ? 'Всё сдано — новых дедлайнов нет.' : 'Новых контрольных точек пока не публиковали.'}
+      </p>
     );
   }
 
   return (
     <div>
-      <ul className="space-y-2">
+      <ul className="divide-y divide-line">
         {visible.map((item) => {
           const days = daysUntil(item.dueAt);
           const urgent = !item.done && days <= 1;
           return (
-            <li key={item.id}>
-              <div
-                className={cx(
-                  'flex items-start gap-3 rounded-[10px] border px-3 py-2.5 transition-colors',
-                  item.done ? 'border-line bg-surface-2' : urgent ? 'border-line bg-surface-hover/50' : 'border-line bg-surface',
-                )}
+            <li key={item.id} className="flex items-center gap-2.5 py-1.5">
+              <button
+                type="button"
+                onClick={() => toggle.mutate(item.id)}
+                disabled={pending === item.id}
+                aria-pressed={item.done}
+                aria-label={item.done ? `Снять отметку: ${item.title}` : `Отметить выполненным: ${item.title}`}
+                className="-ml-1 grid size-9 shrink-0 cursor-pointer place-items-center rounded-[8px] hover:bg-surface-hover disabled:opacity-60"
               >
-                <button
-                  type="button"
-                  onClick={() => toggle.mutate(item.id)}
-                  disabled={pending === item.id}
-                  aria-pressed={item.done}
-                  aria-label={item.done ? `Снять отметку: ${item.title}` : `Отметить выполненным: ${item.title}`}
-                  className="-m-1 grid size-11 shrink-0 cursor-pointer place-items-center rounded-[8px] hover:bg-surface-hover disabled:opacity-60"
-                >
-                  {item.done ? (
-                    <CheckCircle2 className="size-5 text-ok" aria-hidden="true" />
-                  ) : (
-                    <Circle className="size-5 text-muted" aria-hidden="true" />
-                  )}
-                </button>
-                <div className="min-w-0 flex-1 pt-0.5">
-                  <p className={cx('text-[14px] leading-snug font-semibold', item.done ? 'text-muted line-through' : 'text-ink')}>{item.title}</p>
-                  <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-muted">
-                    <span className="sm:hidden">
-                      <span className={urgent && !item.done ? 'font-semibold text-ink' : ''}>{item.relative}</span>
-                      {' · '}
-                    </span>
-                    <span className="hidden sm:inline">{item.course}</span>
-                    <span className="hidden sm:inline" aria-hidden="true">·</span>
-                    <span className="nums">{item.dueLabel}</span>
-                    <span aria-hidden="true">·</span>
-                    <span>{item.points}</span>
-                  </p>
-                </div>
-                <div className="hidden shrink-0 pt-0.5 sm:block">
-                  {item.done ? (
-                    <Badge tone="ok" size="sm" icon={<CheckCircle2 className="size-3" aria-hidden="true" />}>
-                      сдано
-                    </Badge>
-                  ) : (
-                    <Badge
-                      tone={urgent ? 'warn' : days <= 5 ? 'gold' : 'neutral'}
-                      size="sm"
-                      icon={<Hourglass className="size-3" aria-hidden="true" />}
-                    >
-                      {item.relative}
-                    </Badge>
-                  )}
-                </div>
+                {item.done ? (
+                  <CheckCircle2 className="size-[18px] text-ok" aria-hidden="true" />
+                ) : (
+                  <Circle className={urgent ? 'size-[18px] text-now' : 'size-[18px] text-quiet'} aria-hidden="true" />
+                )}
+              </button>
+              <div className="min-w-0 flex-1">
+                <p className={cx('line-clamp-2 text-[13px] leading-snug font-medium', item.done ? 'text-muted line-through' : 'text-ink')}>
+                  {item.title}
+                </p>
+                <p className="mt-0.5 truncate text-[11.5px] text-quiet">
+                  {item.course}
+                  <span aria-hidden="true"> · </span>
+                  <span>{item.points}</span>
+                </p>
               </div>
+              <Badge
+                tone={item.done ? 'neutral' : urgent ? 'danger' : 'neutral'}
+                size="sm"
+                className="shrink-0 whitespace-nowrap self-start"
+              >
+                {item.relative}
+              </Badge>
             </li>
           );
         })}
       </ul>
-      {limit && source.length > limit && (
+      {limit && relevant.length > limit && (
         <div className="mt-2 flex justify-end">
-          <ActionLink to="/notifications?tab=deadlines">Все дедлайны ({source.length})</ActionLink>
+          <ActionLink to="/notifications?tab=deadlines">Все дедлайны ({relevant.length})</ActionLink>
         </div>
       )}
     </div>
