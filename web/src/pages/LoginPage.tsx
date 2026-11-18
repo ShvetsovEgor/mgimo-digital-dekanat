@@ -327,10 +327,6 @@ function LoginScreen({
                 {mockEnabled() ? ' Демо-режим без сервера.' : ''}
               </p>
             </section>
-
-            <p className="mx-auto w-fit rounded-full border border-line bg-surface/85 px-3 py-1 text-[11px] text-muted backdrop-blur-sm">
-              Учебный проект · не официальный сервис университета
-            </p>
           </div>
         </div>
       </div>
