@@ -98,7 +98,7 @@ export function AppLayout({ children }: { children?: ReactNode }) {
         Перейти к содержимому
       </a>
       <Sidebar items={items} unread={unread} open={drawer} onClose={() => setDrawer(false)} pathname={location.pathname} />
-      <div className="lg:pl-[176px]">
+      <div className="lg:pl-[208px]">
         <div className="mx-auto w-full max-w-[1180px] px-4 lg:px-6">
           <TopBar current={current} onMenu={() => setDrawer(true)} />
           <main id="main" className="pb-28 lg:pb-8">
@@ -208,7 +208,7 @@ function Sidebar({ items, unread, open, onClose, pathname }: SidebarProps) {
       />
       <aside
         className={cx(
-          'fixed inset-y-0 left-0 z-50 flex w-[248px] flex-col border-r border-line bg-sidebar transition-transform duration-200 lg:w-[176px] lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 flex w-[248px] flex-col border-r border-line bg-sidebar transition-transform duration-200 lg:w-[208px] lg:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
         aria-label="Основная навигация"
@@ -244,7 +244,7 @@ function Sidebar({ items, unread, open, onClose, pathname }: SidebarProps) {
               item={{
                 to: 'https://mgimo.ru/study/schedule/',
                 href: 'https://mgimo.ru/study/schedule/',
-                label: 'Расписание МГИМО',
+                label: 'Сайт расписания',
                 short: 'Расписание',
                 icon: CalendarDays,
                 external: true,

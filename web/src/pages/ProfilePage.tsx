@@ -5,6 +5,7 @@ import {
   AtSign,
   ChevronRight,
   BadgeCheck,
+  Pencil,
   Building2,
   CalendarClock,
   DoorOpen,
@@ -26,9 +27,8 @@ import { Skeleton } from '@/components/ui/Progress';
 import { Sheet } from '@/components/ui/Sheet';
 import { Toggle } from '@/components/ui/Field';
 import { ErrorState } from '@/components/ui/States';
-import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { PasswordForm } from '@/components/profile/PasswordForm';
-import { ContactForm } from '@/components/profile/ContactForm';
+import { ContactEditorSheet } from '@/components/profile/ContactForm';
 import { useLogout } from '@/lib/auth';
 import { mockRouteOf, keys, useProfile } from '@/lib/queries';
 import { api, ApiError } from '@/lib/http';
@@ -46,6 +46,7 @@ export default function ProfilePage() {
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [logoutAllOpen, setLogoutAllOpen] = useState(false);
   const [twoFactorBusy, setTwoFactorBusy] = useState(false);
+  const [contactsOpen, setContactsOpen] = useState(false);
 
   const data = profile.data;
 
@@ -84,21 +85,19 @@ export default function ProfilePage() {
       )}
       {profile.isError && <ErrorState error={profile.error} onRetry={() => void profile.refetch()} title="Профиль не загрузился" />}
       {data && (
-        <div className="grid gap-3 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-          <div className="space-y-3">
-            <StudentCard data={data} />
-            <Card padding="md">
+        <div className="grid items-stretch gap-3 lg:grid-cols-2">
+          <div className="flex flex-col gap-3">
+            <StudentCard data={data} onEditContacts={() => setContactsOpen(true)} />
+            <Card padding="md" className="flex flex-1 flex-col">
               <CardHeader title="Учёба" icon={<GraduationCap className="size-[18px]" aria-hidden="true" />} />
               <DefinitionList
                 columns={2}
+                className="flex-1 content-between"
                 items={[
                   { label: 'Программа', value: `${data.profile.program} · ${data.profile.programCode}` },
-                  { label: 'Факультет', value: data.profile.faculty },
-                  { label: 'Курс и группа', value: `${data.profile.courseOrdinal} · ${data.profile.group}${data.profile.subgroup ? `, подгр. ${data.profile.subgroup}` : ''}` },
                   { label: 'Семестр', value: data.profile.semesterLabel },
                   { label: 'Форма обучения', value: `${data.profile.degree} · ${data.profile.studyForm}` },
                   { label: '№ зачётки', value: <span className="nums">{data.profile.recordBookMasked}</span> },
-                  { label: 'Финансирование', value: data.profile.fundedLabel },
                   {
                     label: 'Стипендия',
                     value: (
@@ -113,22 +112,15 @@ export default function ProfilePage() {
                 ]}
               />
             </Card>
-            <ContactForm data={data} />
           </div>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <DeaneryCard data={data} />
             <Card padding="md">
               <CardHeader title="Безопасность" icon={<ShieldCheck className="size-[18px]" aria-hidden="true" />} />
               <div className="space-y-3">
-                <div className="flex items-start gap-2 rounded-[10px] bg-surface-hover px-3 py-2">
-                  <BadgeCheck className="mt-0.5 size-4 shrink-0 text-ink" aria-hidden="true" />
-                  <p className="text-[12px] text-ink">
-                    {data.profile.verification.label} · {data.profile.verification.note}
-                  </p>
-                </div>
                 <Toggle
                   label="Двухфакторная защита"
-                  description="Код из приложения при входе. Прототип: переключатель сохраняется на сервере."
+                  description="Код из приложения при входе."
                   checked={data.profile.security.twoFactor}
                   onChange={(value) => void toggle2fa(value)}
                   disabled={twoFactorBusy}
@@ -151,14 +143,11 @@ export default function ProfilePage() {
                 </div>
               </div>
             </Card>
-            <Card padding="md">
-              <CardHeader title="Тема" />
-              <ThemeSwitcher />
-            </Card>
           </div>
         </div>
       )}
 
+      {data && <ContactEditorSheet data={data} open={contactsOpen} onClose={() => setContactsOpen(false)} />}
       <PasswordForm open={passwordOpen} onClose={() => setPasswordOpen(false)} />
       <Sheet
         open={logoutAllOpen}
@@ -183,10 +172,10 @@ export default function ProfilePage() {
   );
 }
 
-function StudentCard({ data }: { data: ProfileBundle }) {
+function StudentCard({ data, onEditContacts }: { data: ProfileBundle; onEditContacts: () => void }) {
   const p = data.profile;
   return (
-    <Card padding="lg">
+    <Card padding="lg" className="relative">
       <div className="flex items-center gap-3.5">
         <Avatar initials={p.initials} name={p.displayName} size="lg" />
         <div className="min-w-0">
@@ -204,12 +193,23 @@ function StudentCard({ data }: { data: ProfileBundle }) {
           </div>
         </div>
       </div>
-      <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-line pt-3.5 sm:grid-cols-3">
+      <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3">
+        <p className="text-[11px] font-semibold tracking-wide text-muted uppercase">Контакты</p>
+        <button
+          type="button"
+          onClick={onEditContacts}
+          className="inline-flex min-h-8 cursor-pointer items-center gap-1 rounded-[8px] px-1 text-[12px] font-medium text-brand transition-colors hover:underline"
+        >
+          <Pencil className="size-3.5" aria-hidden="true" />
+          Изменить
+        </button>
+      </div>
+      <dl className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div>
           <dt className="text-[11px] font-semibold tracking-wide text-muted uppercase">E-mail</dt>
-          <dd className="mt-0.5 flex items-center gap-1 truncate text-[13px] font-semibold text-ink">
-            <Mail className="size-3.5 shrink-0 text-muted" aria-hidden="true" />
-            <span className="truncate">{p.email}</span>
+          <dd className="mt-0.5 flex items-start gap-1 text-[13px] font-semibold text-ink">
+            <Mail className="mt-0.5 size-3.5 shrink-0 text-muted" aria-hidden="true" />
+            <span className="break-all">{p.email}</span>
           </dd>
         </div>
         <div>

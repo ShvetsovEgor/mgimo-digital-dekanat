@@ -179,15 +179,15 @@ function LoginScreen({
   return (
     <div className="relative min-h-dvh overflow-hidden bg-bg lg:h-dvh">
       <LoginBackdrop />
-      <div className="relative grid min-h-dvh lg:h-full lg:grid-cols-[1.02fr_1fr]">
-        {/* Левая колонка: карусель постов канала кампуса поверх сменяющегося фона */}
-        <aside className="relative hidden items-end p-8 lg:flex xl:p-12">
-          <CampusCarousel className="max-w-[420px]" />
-        </aside>
+      <div className="relative flex min-h-dvh items-center justify-center px-4 py-6 sm:px-8">
+        <div className="grid w-full max-w-[1060px] grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-[minmax(0,540px)_440px] lg:items-center lg:justify-center lg:gap-12 xl:gap-16">
+          {/* Карусель канала кампуса: на десктопе — слева, того же размера, что и форма */}
+          <div className="order-2 mx-auto w-full max-w-[440px] lg:order-1 lg:mx-0 lg:max-w-none">
+            <CampusCarousel />
+          </div>
 
-        {/* Правая колонка: виджет авторизации и демо-доступы */}
-        <div className="flex flex-col justify-center bg-bg/35 px-4 py-4 backdrop-blur-[2px] sm:px-8 lg:bg-transparent lg:py-4 lg:backdrop-blur-none">
-          <div className="mx-auto w-full max-w-[440px] space-y-4">
+          {/* Виджет авторизации */}
+          <div className="order-1 mx-auto w-full max-w-[440px] lg:order-2 lg:mx-0 lg:max-w-none">
             <section
               aria-labelledby="auth-title"
               className="rounded-[26px] border border-line bg-surface p-6 sm:p-7 lg:p-7"
@@ -321,10 +321,6 @@ function LoginScreen({
                 {mockEnabled() ? ' Демо-режим без сервера.' : ''}
               </p>
             </section>
-
-            <div className="lg:hidden">
-              <CampusCarousel />
-            </div>
           </div>
         </div>
       </div>

@@ -93,12 +93,9 @@ export function CampusCarousel({ className }: { className?: string }) {
           </span>
         </header>
 
-        <img
-          src={post.cover}
-          alt={post.coverAlt}
-          loading="lazy"
-          className="mt-3 h-[156px] w-full rounded-[12px] object-cover"
-        />
+        <div className="mt-3 h-[210px] overflow-hidden rounded-[12px]">
+          <img src={post.cover} alt={post.coverAlt} loading="lazy" className="size-full object-cover" />
+        </div>
 
         <h3 className="mt-3 line-clamp-2 min-h-[2.6em] text-[15px] leading-[1.3] font-semibold text-ink">{post.title}</h3>
         <p className="mt-1 line-clamp-2 min-h-[2.6em] text-[12.5px] leading-[1.35] text-muted">{post.text}</p>
