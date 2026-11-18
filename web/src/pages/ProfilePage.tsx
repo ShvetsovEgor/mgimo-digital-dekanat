@@ -8,7 +8,6 @@ import {
   CalendarClock,
   DoorOpen,
   GraduationCap,
-  Info,
   KeyRound,
   LogOut,
   Mail,
@@ -146,16 +145,6 @@ export default function ProfilePage() {
             <Card padding="md">
               <CardHeader title="Тема" />
               <ThemeSwitcher />
-            </Card>
-            <Card padding="md" className="bg-surface-2">
-              <p className="flex items-center gap-1.5 text-[13px] font-semibold text-ink">
-                <Info className="size-4 text-muted" aria-hidden="true" />
-                Концепт для конкурса
-              </p>
-              <p className="mt-1 text-[12px] leading-relaxed text-muted">
-                «Дедлайн» — прототип для конкурса VK Education. Неофициальный сервис МГИМО, не подключён к системам
-                университета. Все персональные данные вымышлены.
-              </p>
             </Card>
           </div>
         </div>

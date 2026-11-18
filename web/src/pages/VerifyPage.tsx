@@ -74,8 +74,7 @@ export default function VerifyPage() {
         <div className="mt-6 space-y-3">
           <ThemeSwitcher />
           <p className="text-[11px] leading-relaxed text-muted">
-            «Дедлайн» — концепт для конкурса VK Education. Неофициальный сервис МГИМО, не подключён к системам
-            университета. Данные вымышлены. Подпись документа — HMAC-SHA-256, проверка не раскрывает персональные данные.
+            Подпись документа — HMAC-SHA-256, проверка не раскрывает персональные данные.
           </p>
         </div>
       </div>

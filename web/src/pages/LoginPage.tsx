@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowRight, CalendarDays, Eye, EyeOff, KeyRound, Lock, ShieldCheck, UserRound } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, KeyRound, Lock, ShieldCheck, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/Field';
 import { Skeleton } from '@/components/ui/Progress';
@@ -159,9 +159,6 @@ function LoginScreen({ from, expired }: { from?: string; expired?: boolean }) {
             )}
           </ul>
         </div>
-        <p className="text-[12px] leading-relaxed text-quiet">
-          Концепт для конкурса VK Education. Неофициальный сервис МГИМО, все данные вымышлены.
-        </p>
       </aside>
 
       <div className="flex flex-col px-4 pt-8 pb-6 sm:px-8 lg:justify-center">
@@ -257,12 +254,8 @@ function LoginScreen({ from, expired }: { from?: string; expired?: boolean }) {
           </p>
         </div>
 
-        <div className="mx-auto mt-8 w-full max-w-[420px] space-y-3">
-          
-          <p className="text-[11px] leading-relaxed text-muted">
-            Концепт для конкурса VK Education «Кибербезопасность и ИИ в высшей школе — 2026». Неофициальный сервис
-            МГИМО, не подключён к системам университета. Все данные вымышлены.
-          </p>
+        <div className="mx-auto mt-8 w-full max-w-[420px]">
+          <p className="text-[11px] text-quiet">Учебный проект · не официальный сервис</p>
         </div>
       </div>
     </div>
@@ -343,10 +336,7 @@ function DemoAccounts({ loading, failed, accounts, onPick, busy, pendingLogin }:
           ))}
         </ul>
       )}
-      <p className="mt-3 flex items-center gap-1.5 text-[11px] text-muted">
-        <CalendarDays className="size-3.5" aria-hidden="true" />
-        Данные вымышлены. Прототип не связан с системами университета.
-      </p>
+
     </section>
   );
 }

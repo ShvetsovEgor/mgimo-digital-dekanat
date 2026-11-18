@@ -391,16 +391,10 @@ function BottomNav({ items, unread, onMore }: { items: NavItem[]; unread: number
 
 function Footer() {
   return (
-    <footer className="mt-8 border-t border-line pt-4 text-[12px] leading-relaxed text-quiet">
-      <p className="max-w-[72ch]">
-        «Дедлайн» — концепт для конкурса VK Education «Кибербезопасность и ИИ в высшей школе — 2026». Неофициальный
-        сервис МГИМО, не подключён к системам университета. Все данные вымышлены.
-      </p>
-      <p className="mt-1">
-        <Link to="/verify/demo" className="text-brand hover:underline">
-          Проверка подлинности документа
-        </Link>
-      </p>
+    <footer className="mt-8 border-t border-line pt-4 text-[12px] text-quiet">
+      <Link to="/verify/demo" className="text-brand hover:underline">
+        Проверка подлинности документа
+      </Link>
     </footer>
   );
 }

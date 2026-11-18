@@ -70,7 +70,7 @@ export function DemoBar() {
       {open && (
         <div className="mt-3 space-y-2">
           <p className="text-muted">
-            Данные вымышлены, сервер не подключён. Ниже — шпаргалка по сценариям для жюри.
+            Ниже — шпаргалка по сценариям для жюри.
           </p>
           <ul className="space-y-1.5 text-ink">
             <li className="flex items-start gap-1.5">
