@@ -14,7 +14,6 @@ RUN npm ci --no-audit --no-fund
 RUN npm rebuild better-sqlite3 --build-from-source --no-audit --no-fund \
     || npm rebuild better-sqlite3 || true
 
-COPY tsconfig.base.json* ./
 COPY server server
 COPY web web
 RUN npm run build

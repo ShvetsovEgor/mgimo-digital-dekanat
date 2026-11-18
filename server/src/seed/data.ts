@@ -2,6 +2,7 @@
 // расписание, объявления, дедлайны, заявки, сообщения, уведомления.
 // Все ФИО, номера зачёток, телефоны и e-mail — вымышленные. Даты расписания привязаны
 // к текущей неделе, чтобы «сегодня» всегда было расписание.
+import { createHash } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import type BetterSqlite3 from 'better-sqlite3';
 import { BCRYPT_ROUNDS } from '../lib/auth.js';
@@ -1115,6 +1116,26 @@ export function seedAll(db: DB, now: Date = new Date()): void {
     }
     const staffInfo = userInsert.run('staff', 'dekanat', hash, at(today, 200, 9));
     const staffId = Number(staffInfo.lastInsertRowid);
+
+    // Две «другие» сессии Анны (ноутбук и телефон) — чтобы счётчик активных сессий был реалистичным (3 с текущей).
+    const sessionInsert = db.prepare(
+      `INSERT INTO sessions (token_hash, user_id, created_at, expires_at, user_agent, ip_hash)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+    );
+    const nowMs = now.getTime();
+    for (const [label, hoursAgo] of [
+      ['MacBook · Safari · Москва', 26],
+      ['iPhone · Safari · Москва', 5],
+    ] as const) {
+      sessionInsert.run(
+        createHash('sha256').update(`seed-session:${label}:${nowMs}`).digest('hex'),
+        userIds.ivanova,
+        nowMs - hoursAgo * 3_600_000,
+        nowMs + 30 * 86_400_000,
+        label,
+        null,
+      );
+    }
 
     // Профили
     const profileInsert = db.prepare(

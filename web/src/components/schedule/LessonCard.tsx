@@ -52,7 +52,7 @@ export function LessonBlock({
       )}
     >
       <span className="flex items-center gap-1 text-[11px] leading-[1.3] font-medium tabular-nums">
-        <span className="nums">
+        <span className="nums whitespace-nowrap">
           {entry.start}–{entry.end}
         </span>
         <span>{kindBracket(entry.kind)}</span>
@@ -61,9 +61,16 @@ export function LessonBlock({
       <span className={cx('line-clamp-1 text-[12px] leading-[1.25] font-semibold', status === 'cancelled' && 'line-through')}>
         {entry.subject}
       </span>
-      <span className="truncate text-[11px] leading-[1.3] font-medium opacity-80">
-        {entry.room}
-        {entry.change && status !== 'cancelled' ? ` · ${changeMark(entry.change.kind)}` : ''}
+      <span className="flex items-center gap-1 text-[11px] leading-[1.3] font-medium opacity-80">
+        <span className="truncate">
+          {entry.room}
+          {entry.change && status !== 'cancelled' ? ` · ${changeMark(entry.change.kind)}` : ''}
+        </span>
+        {status === 'cancelled' && (
+          <span className="ml-auto shrink-0 rounded-full bg-surface px-1.5 text-[9px] font-bold tracking-[0.02em] text-now uppercase">
+            отменено
+          </span>
+        )}
       </span>
     </Tag>
   );

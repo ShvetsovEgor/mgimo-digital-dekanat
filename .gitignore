@@ -18,3 +18,7 @@ web/.preview/
 
 # исходные полноразмерные фоны (в веб-сборке — сжатые копии в web/public/backdrops)
 /static/
+
+# SSH-ключ деплоя (приватный). Не коммитить.
+ssh-key-*
+.ssh-deploy/

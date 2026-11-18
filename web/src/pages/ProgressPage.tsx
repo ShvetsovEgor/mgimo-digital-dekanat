@@ -71,7 +71,6 @@ function ProgressSkeleton() {
 function SummaryCard({ data, onShowDisciplines }: { data: ProgressBundle; onShowDisciplines: () => void }) {
   const { summary, disciplines } = data;
   const total = disciplines.length;
-  const tone = summary.riskCount > 0 ? 'warn' : 'ok';
   return (
     <Card padding="lg" className="bg-surface">
       <div className="flex items-center gap-4 sm:gap-6">
@@ -98,9 +97,11 @@ function SummaryCard({ data, onShowDisciplines }: { data: ProgressBundle; onShow
             <Badge tone="ok" icon={<CheckCircle2 className="size-3" aria-hidden="true" />}>
               «Автоматов»: {summary.autoCount} из {total}
             </Badge>
-            <Badge tone={tone} icon={<AlertTriangle className="size-3" aria-hidden="true" />}>
-              В зоне риска: {summary.riskCount}
-            </Badge>
+            <span title="Критичный риск — когда даже все оставшиеся баллы не доведут дисциплину до «автомата»">
+              <Badge tone={summary.riskCount > 0 ? 'danger' : 'neutral'} icon={<AlertTriangle className="size-3" aria-hidden="true" />}>
+                Критичный риск: {summary.riskCount}
+              </Badge>
+            </span>
           </div>
         </div>
       </div>
@@ -108,7 +109,12 @@ function SummaryCard({ data, onShowDisciplines }: { data: ProgressBundle; onShow
       <div className="mt-4 grid grid-cols-3 gap-2 border-t border-line pt-3.5">
         <Stat label="Засчитано" value={`${summary.creditsEarnedYear} / ${summary.creditsPlanYear}`} hint="зачётных единиц" />
         <Stat label="Место в группе" value={`${data.rank.placeGroup} / ${data.rank.outOfGroup}`} hint="по рейтингу" />
-        <Stat label="Средний по потоку" value={`${data.rank.cohortAvg}%`} hint={`у вас ${data.rank.myAvg}%`} tone={data.rank.myAvg >= data.rank.cohortAvg ? 'ok' : 'warn'} />
+        <Stat
+          label="Средний по потоку"
+          value={`${data.rank.cohortAvg}%`}
+          hint={`прошлый семестр: ${data.rank.myAvg}%`}
+          tone={data.rank.myAvg >= data.rank.cohortAvg ? 'ok' : 'warn'}
+        />
       </div>
 
       {summary.riskCount > 0 && (
@@ -138,7 +144,7 @@ function DisciplinesTab({ data }: { data: ProgressBundle }) {
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <SectionTitle className="mb-0">
-          {showAll ? 'Все дисциплины' : 'Требуют внимания'} · {data.disciplines.length}
+          {showAll ? `Дисциплины семестра · ${data.disciplines.length}` : `Требуют внимания · ${sorted.length}`}
         </SectionTitle>
         <button
           type="button"

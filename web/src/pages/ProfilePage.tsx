@@ -204,17 +204,19 @@ function StudentCard({ data, onEditContacts }: { data: ProfileBundle; onEditCont
           Изменить
         </button>
       </div>
-      <dl className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <dl className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-[1.6fr_0.9fr_1fr]">
         <div>
           <dt className="text-[11px] font-semibold tracking-wide text-muted uppercase">E-mail</dt>
-          <dd className="mt-0.5 flex items-start gap-1 text-[13px] font-semibold text-ink">
-            <Mail className="mt-0.5 size-3.5 shrink-0 text-muted" aria-hidden="true" />
-            <span className="break-all">{p.email}</span>
+          <dd className="mt-0.5 flex items-center gap-1 text-[12px] font-semibold text-ink">
+            <Mail className="size-3.5 shrink-0 text-muted" aria-hidden="true" />
+            <span className="whitespace-nowrap" title={p.email}>
+              {p.email}
+            </span>
           </dd>
         </div>
         <div>
           <dt className="text-[11px] font-semibold tracking-wide text-muted uppercase">Телефон</dt>
-          <dd className="mt-0.5 flex items-center gap-1 text-[13px] font-semibold text-ink">
+          <dd className="mt-0.5 flex items-center gap-1 text-[12px] font-semibold whitespace-nowrap text-ink">
             <Phone className="size-3.5 shrink-0 text-muted" aria-hidden="true" />
             {p.phone ?? 'не указан'}
           </dd>

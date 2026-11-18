@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { Check, Globe, Moon, Sun } from 'lucide-react';
+import { useState } from 'react';
+import { Globe, Moon, Sun } from 'lucide-react';
 import { cx } from '@/lib/cx';
 import { getStoredTheme, setStoredTheme, type ThemeMode } from '@/lib/theme';
 
@@ -31,70 +31,19 @@ export function CompactThemeButton() {
   );
 }
 
-/** Компактная кнопка языка: глобус + RU, меню с пометкой «скоро» у английского. */
+/**
+ * Компактная кнопка языка: переводов пока нет, поэтому кнопка неактивна и подсказывает «EN — скоро».
+ * Так у жюри не возникает ощущения сломанной кнопки.
+ */
 export function CompactLanguageButton() {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
-    };
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
-
   return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label="Язык интерфейса: русский"
-        onClick={() => setOpen((value) => !value)}
-        className="grid h-11 cursor-pointer place-items-center rounded-[12px] px-0.5 transition-colors hover:bg-surface-hover"
-      >
-        <span className={cx(OUTLINE, 'h-9 gap-1.5 px-2.5 text-[13px] font-medium')} aria-hidden="true">
-          <Globe className="size-4 text-muted" strokeWidth={1.75} />
-          RU
-        </span>
-      </button>
-      {open && (
-        <div
-          role="menu"
-          aria-label="Язык интерфейса"
-          className="animate-fade absolute right-0 z-50 mt-1 w-44 rounded-[12px] border border-line bg-surface p-1"
-        >
-          <button
-            type="button"
-            role="menuitemradio"
-            aria-checked
-            onClick={() => setOpen(false)}
-            className="flex min-h-10 w-full items-center justify-between gap-2 rounded-[8px] px-2.5 text-left text-sm text-ink hover:bg-surface-hover"
-          >
-            Русский
-            <Check className="size-4 text-brand" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            role="menuitemradio"
-            aria-checked={false}
-            disabled
-            className="flex min-h-10 w-full cursor-not-allowed items-center justify-between gap-2 rounded-[8px] px-2.5 text-left text-sm text-quiet"
-          >
-            English
-            <span className="text-[11px]">скоро</span>
-          </button>
-        </div>
-      )}
-    </div>
+    <span
+      aria-disabled="true"
+      title="EN — скоро"
+      className={cx(OUTLINE, 'h-9 cursor-default gap-1.5 px-2.5 text-[13px] font-medium opacity-60')}
+    >
+      <Globe className="size-4 text-muted" strokeWidth={1.75} aria-hidden="true" />
+      RU
+    </span>
   );
 }

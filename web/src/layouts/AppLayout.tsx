@@ -14,7 +14,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import type { ReactNode } from 'react';
 import { Avatar } from '@/components/ui/Layout';
 import { Logo } from '@/components/Logo';
-import { LanguageMenu, ThemeMenu } from '@/components/ui/HeaderMenus';
+import { ThemeMenu } from '@/components/ui/HeaderMenus';
 import { DemoBar } from '@/components/DemoBar';
 import { cx } from '@/lib/cx';
 import { useMeta, useProfile, useRole, useUnreadCount } from '@/lib/queries';
@@ -166,7 +166,6 @@ function TopBar({
         </nav>
       </div>
       <div className="flex shrink-0 items-center gap-1">
-        <LanguageMenu />
         <ThemeMenu />
         <Link
           to="/notifications"
