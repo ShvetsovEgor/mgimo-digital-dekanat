@@ -13,7 +13,7 @@ import { getTabSession } from '@/lib/tab-session';
 import { api } from '@/lib/http';
 import { useQueryClient } from '@tanstack/react-query';
 import { CompactLanguageButton, CompactThemeButton } from '@/components/auth/AuthChrome';
-import { DemoAccountsCard } from '@/components/auth/DemoAccountsCard';
+import { RecentAccounts } from '@/components/auth/RecentAccounts';
 import { LoginBackdrop } from '@/components/auth/LoginBackdrop';
 import { NewsFeed } from '@/components/auth/NewsFeed';
 import type { Meta, MetaAccount } from '@/lib/types';
@@ -311,22 +311,22 @@ function LoginScreen({
                 )}
               </form>
 
+              <RecentAccounts
+                loading={meta.isLoading}
+                failed={meta.isError}
+                accounts={meta.data?.accounts ?? []}
+                onPick={useAccount}
+                onRetry={() => void meta.refetch()}
+                busy={busy}
+                pendingLogin={pendingAccount}
+              />
+
               <p className="mt-4 flex items-start gap-2 text-[11px] leading-snug text-quiet">
                 <Lock className="mt-0.5 size-3 shrink-0" aria-hidden="true" />
                 Пароль хранится только в виде хеша, сессия — в защищённой cookie.
                 {mockEnabled() ? ' Демо-режим без сервера.' : ''}
               </p>
             </section>
-
-            <DemoAccountsCard
-              loading={meta.isLoading}
-              failed={meta.isError}
-              accounts={meta.data?.accounts ?? []}
-              onPick={useAccount}
-              onRetry={() => void meta.refetch()}
-              busy={busy}
-              pendingLogin={pendingAccount}
-            />
 
             <p className="mx-auto w-fit rounded-full border border-line bg-surface/85 px-3 py-1 text-[11px] text-muted backdrop-blur-sm">
               Учебный проект · не официальный сервис университета
