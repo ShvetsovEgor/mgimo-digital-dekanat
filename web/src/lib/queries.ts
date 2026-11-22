@@ -3,6 +3,7 @@
 import { useQuery, type QueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { mockEnabled } from './mode';
+import { demoScheduleQuery, toDemoDate, useDemoClock } from './demo-time';
 import { fetchRole } from './auth';
 import { api } from './http';
 import type {
@@ -128,18 +129,24 @@ export function useScholarship() {
 }
 
 export function useToday() {
+  const [demoClock] = useDemoClock();
+  const query = demoScheduleQuery(demoClock);
   return useQuery({
-    queryKey: keys.today,
-    queryFn: ({ signal }) => apiGet<ScheduleToday>('/schedule/today', signal),
+    queryKey: [...keys.today, query],
+    queryFn: ({ signal }) => apiGet<ScheduleToday>(`/schedule/today${query ? `?${query}` : ''}`, signal),
     staleTime: 60_000,
   });
 }
 
 /** Неделя расписания по смещению от текущей: 0 — эта неделя, −1 — прошлая. */
 export function useWeek(offset = 0) {
-  const suffix = offset === 0 ? '' : `?week=${offset}`;
+  const [demoClock] = useDemoClock();
+  const demoQuery = demoScheduleQuery(demoClock);
+  const params = new URLSearchParams(demoQuery);
+  if (offset !== 0) params.set('week', String(offset));
+  const suffix = params.size > 0 ? `?${params.toString()}` : '';
   return useQuery({
-    queryKey: keys.week(String(offset)),
+    queryKey: keys.week(`${offset}:${demoQuery}`),
     queryFn: ({ signal }) => apiGet<ScheduleWeek>(`/schedule/week${suffix}`, signal),
     staleTime: 5 * 60_000,
   });
@@ -283,11 +290,17 @@ export function resetUserCache(client: QueryClient): void {
 
 /** Тикающий «сейчас» — раз в минуту, для обратного отсчёта. */
 export function useNow(intervalMs = 60_000): Date {
-  const [now, setNow] = useState(() => new Date());
+  const [demoClock] = useDemoClock();
+  const [now, setNow] = useState(() => toDemoDate(demoClock));
   useEffect(() => {
+    if (demoClock) {
+      setNow(toDemoDate(demoClock));
+      return;
+    }
+    setNow(new Date());
     const id = window.setInterval(() => setNow(new Date()), intervalMs);
     return () => window.clearInterval(id);
-  }, [intervalMs]);
+  }, [demoClock, intervalMs]);
   return now;
 }
 

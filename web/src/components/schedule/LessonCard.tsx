@@ -1,4 +1,4 @@
-import { Clock, UserRound } from 'lucide-react';
+import { CircleAlert, Clock, UserRound } from 'lucide-react';
 import { cx } from '@/lib/cx';
 import { fillForSubject } from '@/lib/eventColor';
 import type { TodayLecture, WeekEntry } from '@/lib/types';
@@ -56,6 +56,11 @@ export function LessonBlock({
           {entry.start}–{entry.end}
         </span>
         <span>{kindBracket(entry.kind)}</span>
+        {entry.change && (
+          <span className="inline-flex shrink-0 text-now" title="В расписании есть изменение">
+            <CircleAlert className="size-3.5" strokeWidth={2} aria-label="В расписании есть изменение" />
+          </span>
+        )}
         {status === 'now' && <span className="ml-auto rounded-full bg-ink/85 px-1.5 text-[9px] font-semibold text-white">сейчас</span>}
       </span>
       <span className={cx('line-clamp-1 text-[12px] leading-[1.25] font-semibold', status === 'cancelled' && 'line-through')}>
@@ -64,7 +69,6 @@ export function LessonBlock({
       <span className="flex items-center gap-1 text-[11px] leading-[1.3] font-medium opacity-80">
         <span className="truncate">
           {entry.room}
-          {entry.change && status !== 'cancelled' ? ` · ${changeMark(entry.change.kind)}` : ''}
         </span>
         {status === 'cancelled' && (
           <span className="ml-auto shrink-0 rounded-full bg-surface px-1.5 text-[9px] font-bold tracking-[0.02em] text-now uppercase">
@@ -74,23 +78,6 @@ export function LessonBlock({
       </span>
     </Tag>
   );
-}
-
-function changeMark(kind: NonNullable<WeekEntry['change']>['kind']): string {
-  switch (kind) {
-    case 'cancelled':
-      return 'отменено';
-    case 'moved':
-      return 'перенос';
-    case 'added':
-      return 'добавлено';
-    case 'room':
-      return 'нов. ауд.';
-    case 'time':
-      return 'нов. время';
-    default:
-      return '';
-  }
 }
 
 /** Карточка «следующая пара» для главной: белая, иконка акцента, факт первой строкой. */

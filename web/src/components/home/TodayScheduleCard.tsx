@@ -1,9 +1,11 @@
 import { CalendarDays } from 'lucide-react';
+import { useState } from 'react';
 import { useWeek } from '@/lib/queries';
 import { ActionLink } from '@/components/ui/ActionLink';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/States';
 import { cx } from '@/lib/cx';
+import { EntryDetailsSheet } from '@/components/schedule/EntryDetailsSheet';
 import { fillForSubject } from '@/lib/eventColor';
 import type { ScheduleToday } from '@/lib/types';
 
@@ -62,7 +64,7 @@ const DAY_HEIGHT = ((DAY_END - DAY_START) / 60) * HOUR_HEIGHT;
 const HOURS = Array.from({ length: (DAY_END - DAY_START) / 60 + 1 }, (_, i) => DAY_START / 60 + i);
 
 /** Таймлайн дня: блок пары стоит на своём времени, поэтому карточка сразу читается как расписание. */
-function DayTimeline({ entries, now, liveId, liveMark }: { entries: Entry[]; now: Date; liveId: number | null; liveMark: 'now' | 'next' | null }) {
+function DayTimeline({ entries, now, liveId, liveMark, onOpenEntry }: { entries: Entry[]; now: Date; liveId: number | null; liveMark: 'now' | 'next' | null; onOpenEntry: (entry: Entry) => void }) {
   const minutesNow = now.getHours() * 60 + now.getMinutes();
   const showNow = minutesNow >= DAY_START && minutesNow <= DAY_END;
 
@@ -83,30 +85,41 @@ function DayTimeline({ entries, now, liveId, liveMark }: { entries: Entry[]; now
           const height = Math.max(44, ((entry.endMin - entry.startMin) / 60) * HOUR_HEIGHT - 4);
           const cancelled = entry.change?.kind === 'cancelled';
           const mark = liveId === entry.id ? liveMark : null;
+          const elapsed = Math.min(1, Math.max(0, (minutesNow - entry.startMin) / (entry.endMin - entry.startMin)));
           return (
-            <div
+            <button
               key={entry.id}
+              type="button"
+              onClick={() => onOpenEntry(entry)}
+              aria-label={`${entry.subject}, ${entry.start}–${entry.end}. Открыть детали`}
               className={cx(
-                'absolute inset-x-0 overflow-hidden rounded-[8px] px-2 py-1.5',
+                'absolute inset-x-0 cursor-pointer overflow-hidden rounded-[8px] px-2 py-1.5 text-left transition-[filter] hover:brightness-[1.06]',
                 cancelled ? 'bg-surface-hover text-muted' : fillForSubject(entry.subjectCode, entries.map((item) => item.subjectCode)),
                 mark && 'ring-2 ring-brand',
               )}
               style={{ top, height }}
             >
-              <p className="flex items-center gap-1.5 text-[10px] leading-none font-medium tabular-nums">
+              {elapsed > 0 && !cancelled && (
+                <span
+                  className="pointer-events-none absolute inset-x-0 top-0 bg-ink/42 dark:bg-black/45"
+                  style={{ height: `${elapsed * 100}%` }}
+                  aria-hidden="true"
+                />
+              )}
+              <p className="relative z-10 flex items-center gap-1.5 text-[10px] leading-none font-medium tabular-nums">
                 <span>
                   {entry.start}–{entry.end}
                 </span>
                 {mark && <span className="rounded-full bg-ink px-1 py-0.5 text-[9px] font-bold text-white uppercase">{mark === 'now' ? 'Сейчас' : 'Следующая'}</span>}
                 {cancelled && <span className="rounded-full bg-surface px-1 py-0.5 text-[9px] font-bold text-now uppercase">Отменено</span>}
               </p>
-              <p className={cx('mt-0.5 line-clamp-1 text-[12px] leading-tight font-semibold', cancelled && 'line-through')}>{entry.subject}</p>
-              <p className="line-clamp-1 text-[10.5px] leading-tight opacity-80">
+              <p className={cx('relative z-10 mt-0.5 line-clamp-1 text-[12px] leading-tight font-semibold', cancelled && 'line-through')}>{entry.subject}</p>
+              <p className="relative z-10 line-clamp-1 text-[10.5px] leading-tight opacity-80">
                 {entry.room}
                 {' · '}
                 {cancelled ? (entry.change?.note ?? 'отменено') : entry.teacher}
               </p>
-            </div>
+            </button>
           );
         })}
 
@@ -122,6 +135,7 @@ function DayTimeline({ entries, now, liveId, liveMark }: { entries: Entry[]; now
 
 /** «Сегодня в расписании» с живым статусом в шапке карточки. */
 export function TodayScheduleCard({ today, now }: { today: ScheduleToday; now: Date }) {
+  const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
   const live = liveState(today, now);
   const week = useWeek(0);
   const todayIndex = week.data?.days.findIndex((day) => day.isToday) ?? -1;
@@ -129,9 +143,9 @@ export function TodayScheduleCard({ today, now }: { today: ScheduleToday; now: D
   const tomorrowFirst = tomorrow?.entries[0];
 
   return (
-    <Card padding="md" className="flex flex-1 flex-col">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <h2 className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-sm font-semibold text-ink">
+    <Card padding="lg" className="flex flex-1 flex-col">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-lg text-ink">
           <CalendarDays className="size-[18px] shrink-0 text-brand" strokeWidth={1.75} aria-hidden="true" />
           <span>Сегодня в расписании</span>
           <LiveBadge live={live} />
@@ -149,7 +163,7 @@ export function TodayScheduleCard({ today, now }: { today: ScheduleToday; now: D
           compact
         />
       ) : (
-        <DayTimeline entries={today.entries} now={now} liveId={live.highlightId} liveMark={live.badge} />
+        <DayTimeline entries={today.entries} now={now} liveId={live.highlightId} liveMark={live.badge} onOpenEntry={setSelectedEntry} />
       )}
       {tomorrowFirst && (
         <div className="mt-auto pt-3">
@@ -162,6 +176,7 @@ export function TodayScheduleCard({ today, now }: { today: ScheduleToday; now: D
           </p>
         </div>
       )}
+      <EntryDetailsSheet entry={selectedEntry} onClose={() => setSelectedEntry(null)} />
     </Card>
   );
 }

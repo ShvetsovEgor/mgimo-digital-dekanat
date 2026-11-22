@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { BellRing, CheckCheck, Hourglass, Megaphone, MessageCircle, Pin, Send } from 'lucide-react';
+import { BellRing, CheckCheck, Megaphone, MessageCircle, Pin, Send } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader } from '@/components/ui/Card';
@@ -21,7 +21,7 @@ import type { Announcement, AnnouncementCategory, Notification } from '@/lib/typ
 type Tab = 'all' | 'announcements' | 'deadlines';
 
 const TABS = [
-  { value: 'all' as const, label: 'Уведомления' },
+  { value: 'all' as const, label: 'Все' },
   { value: 'announcements' as const, label: 'Объявления' },
   { value: 'deadlines' as const, label: 'Дедлайны' },
 ];
@@ -45,7 +45,6 @@ export default function NotificationsPage() {
     <div className="animate-fade">
       <PageHeader
         title="Уведомления"
-        description="События кабинета: расписание, оценки, заявки и сообщения деканата."
         actions={
           <Button variant="outline" size="sm" onClick={() => setAsk(true)} iconLeft={<MessageCircle className="size-4" aria-hidden="true" />}>
             Новый вопрос
@@ -63,7 +62,6 @@ export default function NotificationsPage() {
       {tab === 'announcements' && <AnnouncementsTab />}
       {tab === 'deadlines' && (
         <Card padding="md">
-          <CardHeader title="Дедлайны" icon={<Hourglass className="size-[18px]" aria-hidden="true" />} />
           <DeadlinesList />
           <p className="mt-2 text-[12px] text-muted">Отметьте выполненное — отметка сохранится и на других устройствах.</p>
         </Card>

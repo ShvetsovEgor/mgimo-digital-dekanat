@@ -17,7 +17,7 @@ import { Logo } from '@/components/Logo';
 import { ThemeMenu } from '@/components/ui/HeaderMenus';
 import { DemoBar } from '@/components/DemoBar';
 import { cx } from '@/lib/cx';
-import { useIdentity, useMeta, useProfile, useRole, useStaffStats, useUnreadCount } from '@/lib/queries';
+import { useIdentity, useProfile, useRole, useStaffStats, useUnreadCount } from '@/lib/queries';
 import { useLogout } from '@/lib/auth';
 import { useToast } from '@/components/ui/Toast';
 
@@ -31,7 +31,6 @@ interface NavItem {
   href?: string;
   external?: boolean;
 }
-
 const STUDENT_NAV: NavItem[] = [
   { to: '/', label: 'Главная', short: 'Главная', icon: Home },
   { to: '/schedule', label: 'Расписание', short: 'Пары', icon: CalendarDays },
@@ -117,12 +116,11 @@ export function AppLayout({ children }: { children?: ReactNode }) {
         isStaff={isStaff}
       />
       <div className="lg:pl-[208px]">
-        <div className="mx-auto w-full max-w-[1180px] px-4 lg:px-6">
+        <div className="mx-auto w-full max-w-[1240px] px-4 sm:px-5 lg:px-8">
           <TopBar current={current} onMenu={() => setDrawer(true)} isStaff={isStaff} />
-          <main id="main" className="pb-28 lg:pb-8">
+          <main id="main" className="pb-28 lg:pb-10">
             {children}
             <Outlet />
-            <Footer />
             <DemoBar />
           </main>
         </div>
@@ -194,19 +192,14 @@ function TopBar({
         <Link to="/" className="mr-1 lg:hidden" aria-label="Дедлайн — на главную">
           <Logo size="sm" />
         </Link>
-        <nav aria-label="Хлебные крошки" className="hidden min-w-0 items-center gap-1.5 lg:flex">
-          {current.parent && (
-            <>
-              <Link to={current.parentTo ?? '/'} className="text-[13px] text-muted hover:text-ink">
-                {current.parent}
-              </Link>
-              <ChevronRight className="size-3.5 text-quiet" aria-hidden="true" />
-            </>
-          )}
-          <h1 className="truncate text-sm font-semibold text-ink" aria-current="page">
-            {current.title}
-          </h1>
-        </nav>
+        {current.parent && (
+          <nav aria-label="Хлебные крошки" className="hidden min-w-0 items-center gap-1.5 lg:flex">
+            <Link to={current.parentTo ?? '/'} className="text-[13px] text-muted hover:text-ink">
+              {current.parent}
+            </Link>
+            <ChevronRight className="size-3.5 text-quiet" aria-hidden="true" />
+          </nav>
+        )}
       </div>
       <div className="flex shrink-0 items-center gap-1">
         <ThemeMenu />
@@ -299,21 +292,6 @@ function Sidebar({ items, unread, questions, open, onClose, pathname, search, is
                 onNavigate={onClose}
               />
             )}
-            <SideLink
-              item={{
-                to: 'https://mgimo.ru/study/schedule/',
-                href: 'https://mgimo.ru/study/schedule/',
-                label: 'Сайт расписания',
-                short: 'Расписание',
-                icon: CalendarDays,
-                external: true,
-              }}
-              unread={0}
-              questions={0}
-              pathname={pathname}
-              search={search}
-              onNavigate={onClose}
-            />
           </nav>
           <div className="mt-auto pt-6 pb-3">
             <UserCard isStaff={isStaff} />
@@ -498,17 +476,5 @@ function BottomNav({
         })}
       </ul>
     </nav>
-  );
-}
-
-function Footer() {
-  const meta = useMeta();
-  const demoToken = meta.data?.demoDocument?.token;
-  return (
-    <footer className="mt-6 border-t border-line pt-3 text-[12px] text-quiet">
-      <Link to={demoToken ? `/verify/${demoToken}` : '/verify'} className="text-brand hover:underline">
-        Проверка подлинности документа
-      </Link>
-    </footer>
   );
 }

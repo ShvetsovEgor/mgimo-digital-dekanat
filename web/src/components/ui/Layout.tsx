@@ -58,13 +58,13 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, eyebrow, actions, back }: PageHeaderProps) {
   return (
-    <header className="mb-4">
-      {back && <div className="mb-2">{back}</div>}
-      {eyebrow && <p className="mb-1 text-[11px] font-semibold tracking-[0.06em] text-quiet uppercase">{eyebrow}</p>}
+    <header className="mb-6 sm:mb-7">
+      {back && <div className="mb-3">{back}</div>}
+      {eyebrow && <p className="academic-kicker mb-2 text-quiet">{eyebrow}</p>}
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="min-w-0">
-          <h1 className="text-2xl font-semibold text-ink">{title}</h1>
-          {description && <p className="mt-1 max-w-[62ch] text-[13px] text-muted">{description}</p>}
+          <h1 className="text-[32px] leading-[1.08] text-ink sm:text-[38px]">{title}</h1>
+          {description && <p className="mt-2 max-w-[62ch] text-[14px] leading-relaxed text-muted">{description}</p>}
         </div>
         {actions && <div className="flex shrink-0 flex-wrap items-center gap-3">{actions}</div>}
       </div>

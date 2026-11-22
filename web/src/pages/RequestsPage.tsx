@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { FilePlus2, FolderOpen, History } from 'lucide-react';
+import { FilePlus2, FolderOpen, History, ShieldCheck } from 'lucide-react';
 import { ButtonLink } from '@/components/ui/Button';
 import { ActionLink } from '@/components/ui/ActionLink';
 import { Card } from '@/components/ui/Card';
@@ -37,13 +37,23 @@ export default function RequestsPage() {
     <div className="animate-fade">
       <PageHeader
         title="Заявки"
-        description="Заказ без визита в деканат: статус обновляется сам, готовый документ — PDF с QR-подписью."
         actions={
           <ButtonLink to="/requests/new" variant="primary" iconLeft={<FilePlus2 className="size-4" aria-hidden="true" />}>
             Новая заявка
           </ButtonLink>
         }
       />
+
+      <Card padding="sm" className="mb-4 flex flex-wrap items-center justify-between gap-3 bg-surface-hover">
+        <div className="flex items-start gap-2">
+          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-brand" aria-hidden="true" />
+          <div>
+            <p className="text-[13px] font-semibold text-ink">Проверить справку</p>
+            <p className="text-[12px] text-muted">Отсканируйте QR-код из готовой справки или вставьте ссылку.</p>
+          </div>
+        </div>
+        <ActionLink to="/verify">Проверить</ActionLink>
+      </Card>
 
       {requests.isLoading && <ListSkeleton count={3} />}
       {requests.isError && (

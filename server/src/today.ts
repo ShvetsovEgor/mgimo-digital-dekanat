@@ -60,6 +60,7 @@ export function universityDay(d: Date): UniversityDay {
 }
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 
 function isValidDateString(s: string): boolean {
   if (!DATE_RE.test(s)) return false;
@@ -76,15 +77,21 @@ function isValidDateString(s: string): boolean {
 export function resolveNow(req?: Request): { now: Date; overridden: boolean } {
   const real = new Date();
   const q = req?.query?.date;
+  const time = req?.query?.time;
   const override = typeof q === 'string' && q.length > 0 ? q : process.env.DEMO_TODAY || null;
-  if (!override) return { now: real, overridden: false };
-  if (!isValidDateString(override)) {
+  const timeOverride = typeof time === 'string' && time.length > 0 ? time : null;
+  if (!override && !timeOverride) return { now: real, overridden: false };
+  if (override && !isValidDateString(override)) {
     throw new ApiError(400, 'VALIDATION', 'Дата должна быть в формате YYYY-MM-DD', {
       date: 'Неверный формат даты',
     });
   }
-  const d = parseLocal(override);
-  d.setHours(real.getHours(), real.getMinutes(), real.getSeconds(), 0);
+  if (timeOverride && !TIME_RE.test(timeOverride)) {
+    throw new ApiError(400, 'VALIDATION', 'Время должно быть в формате HH:MM', { time: 'Неверный формат времени' });
+  }
+  const d = parseLocal(override ?? toDateString(real));
+  const [hours, minutes] = (timeOverride ?? `${String(real.getHours()).padStart(2, '0')}:${String(real.getMinutes()).padStart(2, '0')}`).split(':').map(Number);
+  d.setHours(hours ?? real.getHours(), minutes ?? real.getMinutes(), real.getSeconds(), 0);
   return { now: d, overridden: true };
 }
 
@@ -111,8 +118,8 @@ export function getToday(req?: Request): TodayResult {
 
 /** Переопределение даты — только для чтения: не-GET-запросы с ?date отклоняются. */
 export function assertReadOnlyDateOverride(req: Request): void {
-  const q = req.query?.date;
-  if (typeof q === 'string' && q && req.method !== 'GET' && req.method !== 'HEAD') {
+  const hasOverride = (typeof req.query?.date === 'string' && req.query.date) || (typeof req.query?.time === 'string' && req.query.time);
+  if (hasOverride && req.method !== 'GET' && req.method !== 'HEAD') {
     throw new ApiError(403, 'FORBIDDEN', 'Переопределение даты доступно только для чтения');
   }
 }

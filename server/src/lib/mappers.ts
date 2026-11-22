@@ -464,7 +464,7 @@ export function toAcademicRank(row: RankRow, groupCode: string): AcademicRank {
   };
 }
 
-/** Шкала перевода баллов (регламент МГИМО для демо). */
+/** Демонстрационная шкала перевода баллов. */
 export const GRADE_SCALE: GradeScaleRow[] = [
   { range: '90–100 %', five: 'Отлично', ects: 'A' },
   { range: '82–89 %', five: 'Отлично', ects: 'B' },

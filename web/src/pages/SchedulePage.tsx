@@ -9,8 +9,9 @@ import { Skeleton } from '@/components/ui/Progress';
 import { EmptyState, ErrorState } from '@/components/ui/States';
 import { PageHeader } from '@/components/ui/Layout';
 import { useToast } from '@/components/ui/Toast';
-import { ChangeCard } from '@/components/schedule/ChangeCard';
 import { DayPanel } from '@/components/schedule/DayPanel';
+import { DemoTimeControl } from '@/components/schedule/DemoTimeControl';
+import { EntryDetailsSheet } from '@/components/schedule/EntryDetailsSheet';
 import { LessonBlock, NextLessonCard } from '@/components/schedule/LessonCard';
 import { WeekCalendar } from '@/components/schedule/WeekGrid';
 import { relativeTimeLabel } from '@/components/schedule/meta';
@@ -19,7 +20,7 @@ import { downloadWithSession } from '@/lib/tab-session';
 import { formatDateLong } from '@/lib/format';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { useNow, useToday, useWeek } from '@/lib/queries';
-import type { ScheduleWeek } from '@/lib/types';
+import type { ScheduleWeek, WeekEntry } from '@/lib/types';
 
 type View = 'today' | 'week';
 
@@ -46,6 +47,9 @@ export default function SchedulePage() {
           { value: 'week', label: 'Неделя' },
         ]}
       />
+      <div className="mb-4">
+        <DemoTimeControl />
+      </div>
       {view === 'today' ? <TodayView /> : <WeekView />}
     </div>
   );
@@ -79,6 +83,7 @@ function CalendarButton() {
 function TodayView() {
   const today = useToday();
   const now = useNow();
+  const [selectedEntry, setSelectedEntry] = useState<WeekEntry | null>(null);
 
   if (today.isLoading) {
     return (
@@ -129,7 +134,7 @@ function TodayView() {
           <ol className="space-y-1.5">
             {data.entries.map((entry) => (
               <li key={entry.id}>
-                <LessonBlock entry={entry} codes={data.entries.map((item) => item.subjectCode)} status={entry.status} />
+                <LessonBlock entry={entry} codes={data.entries.map((item) => item.subjectCode)} status={entry.status} onClick={() => setSelectedEntry(entry)} />
                 {entry.change && <p className="mt-1 pl-2 text-[12px] text-muted">{entry.change.note}</p>}
               </li>
             ))}
@@ -137,20 +142,7 @@ function TodayView() {
         )}
       </section>
 
-      {data.changes.length > 0 && (
-        <section aria-labelledby="today-changes">
-          <h2 id="today-changes" className="mb-2.5 text-sm font-semibold text-ink">
-            Изменения на неделе
-          </h2>
-          <ul className="space-y-2">
-            {data.changes.map((change) => (
-              <li key={`${change.entryId}-${change.kind}`}>
-                <ChangeCard change={change} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <EntryDetailsSheet entry={selectedEntry} onClose={() => setSelectedEntry(null)} />
     </div>
   );
 }
@@ -212,9 +204,9 @@ function WeekView() {
 
 function WeekBody({ week }: { week: ScheduleWeek }) {
   const now = useNow();
-  const toast = useToast();
   const todayIndex = week.days.findIndex((day) => day.isToday);
   const [selected, setSelected] = useState(() => (todayIndex >= 0 ? todayIndex : 0));
+  const [selectedEntry, setSelectedEntry] = useState<WeekEntry | null>(null);
   const day = week.days[selected] ?? week.days[0];
 
   return (
@@ -246,40 +238,22 @@ function WeekBody({ week }: { week: ScheduleWeek }) {
             );
           })}
         </div>
-        {day && <DayPanel day={day} />}
+        {day && <DayPanel day={day} onOpenEntry={setSelectedEntry} />}
       </div>
 
       <div className="hidden lg:block">
         <WeekCalendar
           days={week.days}
           now={now}
-          onOpenChange={(entryId) => {
-            const change = week.changes.find((item) => item.entryId === entryId);
-            if (change) toast.show(`${change.kindLabel}: ${change.note}`, 'info');
-          }}
+          onOpenEntry={setSelectedEntry}
         />
       </div>
 
-      {week.changes.length > 0 && (
-        <section aria-labelledby="week-changes">
-          <h2 id="week-changes" className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-ink">
-            Изменения на неделе
-            <span className="nums rounded-full bg-surface-hover px-2 py-0.5 text-xs font-semibold text-muted">{week.changes.length}</span>
-          </h2>
-          <ul className="grid gap-2 sm:grid-cols-2">
-            {week.changes.map((change) => (
-              <li key={`${change.entryId}-${change.kind}`}>
-                <ChangeCard change={change} compact />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
       <p className="flex items-center gap-1.5 text-xs text-muted">
         <CalendarDays className="size-3.5" aria-hidden="true" />
-        {week.parityLabel} · {week.weekLabel}. Изменения публикует деканат — они появляются сразу.
+        {week.parityLabel} · {week.weekLabel}. Значок на паре означает изменение — откройте карточку, чтобы узнать детали.
       </p>
+      <EntryDetailsSheet entry={selectedEntry} onClose={() => setSelectedEntry(null)} />
     </div>
   );
 }

@@ -5,9 +5,9 @@ type CardPadding = 'none' | 'sm' | 'md' | 'lg';
 
 const PADDING: Record<CardPadding, string> = {
   none: '',
-  sm: 'p-3',
-  md: 'p-4',
-  lg: 'p-4 sm:p-5',
+  sm: 'p-3.5',
+  md: 'p-4 sm:p-5',
+  lg: 'p-5 sm:p-6',
 };
 
 interface CardProps {
@@ -57,7 +57,7 @@ interface CardHeaderProps {
  */
 export function CardHeader({ title, count, action, icon, className, id }: CardHeaderProps) {
   return (
-    <div className={cx('mb-2 flex items-center justify-between gap-3', className)}>
+    <div className={cx('mb-3 flex items-center justify-between gap-3', className)}>
       <h2 id={id} className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-ink">
         {icon && <span className="shrink-0 text-brand">{icon}</span>}
         <span className="truncate">{title}</span>

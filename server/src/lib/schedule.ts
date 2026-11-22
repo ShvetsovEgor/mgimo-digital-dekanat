@@ -283,7 +283,7 @@ export function buildIcs(rows: EntryRow[], ctx: ScheduleContext, weekOffset: num
   const lines: string[] = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Dedline Digital Dekanat 2030//MGIMO demo//RU',
+    'PRODID:-//Deadline Digital Dekanat 2030//Demo University//RU',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     `X-WR-CALNAME:Расписание ${ctx.group} — Дедлайн`,

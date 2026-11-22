@@ -75,7 +75,7 @@ export default function ProfilePage() {
 
   return (
     <div className="animate-fade">
-      <PageHeader title="Профиль" description="Личные данные, деканат и безопасность аккаунта." />
+      <PageHeader title="Профиль" />
       {profile.isLoading && (
         <div className="space-y-3" aria-busy="true">
           <Skeleton className="h-32 w-full rounded-[12px]" />
@@ -85,8 +85,8 @@ export default function ProfilePage() {
       )}
       {profile.isError && <ErrorState error={profile.error} onRetry={() => void profile.refetch()} title="Профиль не загрузился" />}
       {data && (
-        <div className="grid items-stretch gap-3 lg:grid-cols-2">
-          <div className="flex flex-col gap-3">
+        <div className="grid items-stretch gap-5 lg:grid-cols-2 lg:gap-6">
+          <div className="flex flex-col gap-5">
             <StudentCard data={data} onEditContacts={() => setContactsOpen(true)} />
             <Card padding="md" className="flex flex-1 flex-col">
               <CardHeader title="Учёба" icon={<GraduationCap className="size-[18px]" aria-hidden="true" />} />
@@ -113,7 +113,7 @@ export default function ProfilePage() {
               />
             </Card>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-5">
             <DeaneryCard data={data} />
             <Card padding="md">
               <CardHeader title="Безопасность" icon={<ShieldCheck className="size-[18px]" aria-hidden="true" />} />

@@ -50,7 +50,7 @@ export function ScholarshipLadder({
             key={step.tier}
             aria-current={current ? 'step' : undefined}
             className={cx(
-              'flex items-center gap-3 rounded-[12px] border px-4 py-3',
+              'flex items-center gap-3 rounded-[12px] border px-3 py-2.5',
               current ? 'border-brand bg-surface' : 'border-line bg-surface',
             )}
           >
@@ -81,7 +81,7 @@ export function ScholarshipLadder({
         );
       })}
       {funded === 'contract' && (
-        <li className="rounded-[12px] border border-line bg-surface px-4 py-3 text-[13px] text-muted">
+        <li className="rounded-[12px] border border-line bg-surface px-3 py-2.5 text-[13px] text-muted">
           На договорном месте академическая стипендия не назначается — лестница показывает общий регламент.
         </li>
       )}

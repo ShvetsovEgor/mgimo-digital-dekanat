@@ -49,7 +49,7 @@ function Calculator({ bundle }: { bundle: NonNullable<ReturnType<typeof useSchol
   const dirty = disciplines.some((item) => (draft[item.id] ?? item.rating) !== item.rating);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <ScholarshipNumbers assigned={assigned} forecast={result} rules={rules} />
 
       <section aria-labelledby="scholarship-disciplines">
@@ -80,7 +80,7 @@ function Calculator({ bundle }: { bundle: NonNullable<ReturnType<typeof useSchol
             action={<ActionLink to="/progress">Открыть успеваемость</ActionLink>}
           />
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-1.5">
             {disciplines.map((item) => (
               <DisciplineSlider
                 key={item.id}
@@ -93,17 +93,17 @@ function Calculator({ bundle }: { bundle: NonNullable<ReturnType<typeof useSchol
         )}
       </section>
 
-      <Card padding="md">
-        <CardHeader title="Что поднять" />
+      <Card padding="sm">
+        <CardHeader title="Что поднять" className="mb-2" />
         <ScholarshipGaps result={result} funded={funded} />
       </Card>
 
-      <Card padding="md">
-        <CardHeader title="Лестница стипендий" />
+      <Card padding="sm">
+        <CardHeader title="Лестница стипендий" className="mb-2" />
         <ScholarshipLadder result={result} rules={rules} funded={funded} />
       </Card>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-line bg-surface px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-line bg-surface px-3.5 py-2.5">
         <p className="text-[13px] text-muted">Справка о стипендии — бесплатно, 2 рабочих дня.</p>
         <ActionLink to="/requests/new?type=certificate-scholarship">Заказать справку о стипендии</ActionLink>
       </div>

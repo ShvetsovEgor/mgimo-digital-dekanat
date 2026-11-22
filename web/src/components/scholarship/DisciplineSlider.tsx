@@ -20,7 +20,7 @@ export function DisciplineSlider({
   const clamp = (next: number) => Math.min(100, Math.max(0, Math.round(Number.isFinite(next) ? next : 0)));
 
   return (
-    <li className="rounded-[12px] border border-line bg-surface px-4 py-3">
+    <li className="rounded-[12px] border border-line bg-surface px-3.5 py-2.5">
       <div className="flex items-baseline justify-between gap-3">
         <label id={labelId} htmlFor={`${id}-range`} className="min-w-0 text-sm font-medium text-ink">
           {discipline.title}
@@ -50,7 +50,7 @@ export function DisciplineSlider({
         aria-labelledby={labelId}
         aria-valuetext={`${value} из 100`}
         onChange={(event) => onChange(clamp(event.target.valueAsNumber))}
-        className="mt-2 h-11 w-full cursor-pointer accent-[var(--color-brand)]"
+        className="mt-1 h-11 w-full cursor-pointer accent-[var(--color-brand)]"
       />
       <div className={cx('flex justify-between text-[11px] text-quiet')} aria-hidden="true">
         <span>0</span>

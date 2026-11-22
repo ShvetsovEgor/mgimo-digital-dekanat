@@ -255,24 +255,26 @@ function OrderDetails({ order, onCancel, onDownload }: { order: Order; onCancel:
           <RequestThread requestId={order.id} scope="student" />
         </Card>
 
-        <Card padding="md" className="bg-surface-hover">
-          <p className="flex items-center gap-1.5 text-[13px] font-semibold text-brand">
-            <ShieldCheck className="size-4" aria-hidden="true" /> Подлинность документа
-          </p>
-          <p className="mt-1 text-[12px] text-muted">
-            В PDF встроен QR-код со ссылкой на публичную проверку подписи. Проверка показывает только номер и дату — без персональных данных.
-          </p>
-          {order.verifyToken ? (
-            <Link
-              to={`/verify/${order.verifyToken}`}
-              className="mt-2 inline-flex min-h-9 items-center gap-1 text-[13px] font-semibold text-brand hover:underline underline-offset-2"
-            >
-              Открыть страницу проверки
-            </Link>
-          ) : (
-            <p className="mt-2 text-[12px] text-muted">Ссылка появится, когда документ будет готов.</p>
-          )}
-        </Card>
+        {order.category === 'certificate' && (
+          <Card padding="md" className="bg-surface-hover">
+            <p className="flex items-center gap-1.5 text-[13px] font-semibold text-brand">
+              <ShieldCheck className="size-4" aria-hidden="true" /> Подлинность справки
+            </p>
+            <p className="mt-1 text-[12px] text-muted">
+              В PDF встроен QR-код со ссылкой на публичную проверку подписи. Проверка показывает только номер и дату — без персональных данных.
+            </p>
+            {order.verifyToken ? (
+              <Link
+                to={`/verify/${order.verifyToken}`}
+                className="mt-2 inline-flex min-h-9 items-center gap-1 text-[13px] font-semibold text-brand hover:underline underline-offset-2"
+              >
+                Открыть страницу проверки
+              </Link>
+            ) : (
+              <p className="mt-2 text-[12px] text-muted">Ссылка появится, когда справка будет готова.</p>
+            )}
+          </Card>
+        )}
 
       </aside>
     </div>

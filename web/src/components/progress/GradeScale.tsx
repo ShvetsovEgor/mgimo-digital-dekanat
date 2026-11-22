@@ -2,7 +2,7 @@ import { Info } from 'lucide-react';
 import { AccordionItem } from '../ui/Layout';
 import type { GradeScaleRow } from '@/lib/types';
 
-/** «Как читать баллы»: шкала МГИМО 100-балльная / 5-балльная / ECTS. */
+/** «Как читать баллы»: 100-балльная / 5-балльная / ECTS шкала. */
 export function GradeScale({ rows, compact }: { rows: GradeScaleRow[]; compact?: boolean }) {
   if (rows.length === 0) return null;
   return (

@@ -3,10 +3,10 @@ import { EmptyState } from '../ui/States';
 import { LessonBlock } from './LessonCard';
 import { cx } from '@/lib/cx';
 import { useMemo } from 'react';
-import type { WeekDay } from '@/lib/types';
+import type { WeekDay, WeekEntry } from '@/lib/types';
 
 /** Мобильный вид недели: дни-чипы над днями, выбранный день — пастельными блоками по времени. */
-export function DayPanel({ day }: { day: WeekDay }) {
+export function DayPanel({ day, onOpenEntry }: { day: WeekDay; onOpenEntry?: (entry: WeekEntry) => void }) {
   const codes = useMemo(() => day.entries.map((entry) => entry.subjectCode), [day]);
   return (
     <section aria-label={`${day.weekdayLabel}, ${day.dayLabel} ${day.monthLabel}`} className="mt-3">
@@ -23,7 +23,7 @@ export function DayPanel({ day }: { day: WeekDay }) {
         <ol className="space-y-1.5">
           {day.entries.map((entry) => (
             <li key={entry.id}>
-              <LessonBlock entry={entry} codes={codes} status={entry.change?.kind === 'cancelled' ? 'cancelled' : undefined} />
+              <LessonBlock entry={entry} codes={codes} status={entry.change?.kind === 'cancelled' ? 'cancelled' : undefined} onClick={onOpenEntry ? () => onOpenEntry(entry) : undefined} />
               {entry.change && (
                 <p className={cx('mt-1 pl-2 text-[12px]', entry.change.kind === 'cancelled' ? 'text-now' : 'text-muted')}>
                   {entry.change.note}

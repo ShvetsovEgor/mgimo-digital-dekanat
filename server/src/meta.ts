@@ -9,10 +9,10 @@ import { getToday, type TodayResult } from './today.js';
 
 export const APP_NAME = 'Дедлайн';
 export const APP_SUBTITLE = 'Цифровой деканат 2030';
-export const CONTEST = { name: 'Кибербезопасность и ИИ в высшей школе — 2026', year: 2026 };
-export const UNIVERSITY = 'МГИМО МИД России (концепт, неофициальный сервис)';
+export const CONTEST = { name: 'Конкурс цифровых сервисов', year: 2026 };
+export const UNIVERSITY = 'Демонстрационный университет';
 export const DISCLAIMER =
-  'Демонстрационный прототип для конкурса VK Education. Не является официальным сервисом университета, ' +
+  'Демонстрационный прототип для конкурса цифровых сервисов. Не является официальным сервисом университета, ' +
   'не подключён к системам вуза. Все ФИО, номера и контакты вымышлены.';
 
 export interface DemoAccount {

@@ -32,11 +32,11 @@ export default function ProgressPage() {
 
   return (
     <div>
-      <PageHeader title="Успеваемость" description="Накопительный рейтинг, прогноз «автомата» и сессия — по регламенту МГИМО." />
+      <PageHeader title="Успеваемость" />
       {progress.isLoading && <ProgressSkeleton />}
       {progress.isError && <ErrorState error={progress.error} onRetry={() => void progress.refetch()} title="Успеваемость не загрузилась" />}
       {progress.data && (
-        <div className="space-y-4">
+        <div className="space-y-5 sm:space-y-6">
           <SummaryCard data={progress.data} onShowDisciplines={() => setTab('disciplines')} />
           <ScholarshipTeaser />
           <Segmented label="Разделы успеваемости" options={TABS} value={tab} onChange={setTab} />
@@ -72,7 +72,7 @@ function SummaryCard({ data, onShowDisciplines }: { data: ProgressBundle; onShow
   const { summary, disciplines } = data;
   const total = disciplines.length;
   return (
-    <Card padding="lg" className="bg-surface">
+    <Card padding="lg" className="bg-surface sm:p-7">
       <div className="flex items-center gap-4 sm:gap-6">
         <RingProgress
           value={summary.avgRating}
@@ -132,26 +132,21 @@ function SummaryCard({ data, onShowDisciplines }: { data: ProgressBundle; onShow
 }
 
 function DisciplinesTab({ data }: { data: ProgressBundle }) {
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(true);
   const sorted = useMemo(() => {
-    if (showAll) return data.disciplines;
-    return data.disciplines
-      .filter((item) => item.threshold > 0 && !item.autoReached)
-      .sort((a, b) => a.rating - b.rating);
+    const items = showAll ? data.disciplines : data.disciplines.filter((item) => item.threshold > 0 && !item.autoReached);
+    return [...items].sort((a, b) => b.rating - a.rating);
   }, [data.disciplines, showAll]);
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <SectionTitle className="mb-0">
-          {showAll ? `Дисциплины семестра · ${data.disciplines.length}` : `Требуют внимания · ${sorted.length}`}
-        </SectionTitle>
+      <div className="flex justify-end">
         <button
           type="button"
           onClick={() => setShowAll((value) => !value)}
           className="cursor-pointer text-[13px] font-semibold text-brand hover:underline underline-offset-2"
         >
-          {showAll ? 'Только под угрозой' : 'Показать все'}
+          {showAll ? 'Только требующие внимания' : 'Показать все'}
         </button>
       </div>
       {sorted.length === 0 ? (
@@ -164,7 +159,7 @@ function DisciplinesTab({ data }: { data: ProgressBundle }) {
         <ul className="space-y-2">
           {sorted.map((item) => (
             <li key={item.id}>
-              <DisciplineItem item={item} defaultOpen={!showAll && item === sorted[0]} />
+              <DisciplineItem item={item} defaultOpen={item === sorted[0]} />
             </li>
           ))}
         </ul>
@@ -179,15 +174,26 @@ function DisciplineItem({ item, defaultOpen }: { item: Discipline; defaultOpen?:
   const max = item.controlPoints.reduce((sum, point) => sum + point.max, 0);
   const pending = item.controlPoints.filter((point) => point.earned === null);
   const tone = item.autoReached ? 'ok' : item.toAuto !== null && item.toAuto > max - earned ? 'danger' : item.threshold > 0 ? 'warn' : 'neutral';
+  const progressTone = item.autoReached ? 'bg-ok' : tone === 'danger' ? 'bg-danger' : 'bg-brand';
 
   return (
     <AccordionItem
       defaultOpen={defaultOpen}
       tone={tone === 'danger' ? 'danger' : tone === 'ok' ? 'neutral' : 'neutral'}
       title={
-        <span className="flex items-center gap-1.5">
-          {item.title}
-          {item.autoReached && <CheckCircle2 className="size-4 text-ok" aria-label="Автомат достигнут" />}
+        <span className="block">
+          <span className="flex items-center gap-1.5">
+            {item.title}
+            {item.autoReached && <CheckCircle2 className="size-4 text-ok" aria-label="Автомат достигнут" />}
+          </span>
+          <span className="mt-2 block" aria-label={`Рейтинг по дисциплине: ${Math.round(item.rating)}%`}>
+            <span className="relative block h-1.5 overflow-visible rounded-full bg-grid" aria-hidden="true">
+              <span className={cx('block h-full rounded-full', progressTone)} style={{ width: `${Math.max(0, Math.min(100, item.rating))}%` }} />
+              {item.threshold > 0 && (
+                <span className="absolute -top-0.5 -bottom-0.5 w-0.5 rounded-full bg-ink" style={{ left: `calc(${item.threshold}% - 1px)` }} />
+              )}
+            </span>
+          </span>
         </span>
       }
       subtitle={
@@ -216,7 +222,7 @@ function DisciplineItem({ item, defaultOpen }: { item: Discipline; defaultOpen?:
             label={`Рейтинг по дисциплине «${item.title}»`}
           />
           <p className="mt-1.5 text-[12px] text-muted">
-            Маркер на полосе — порог {item.threshold}% для «автомата» по регламенту МГИМО.
+            Маркер на полосе — порог {item.threshold}% для «автомата» по учебному регламенту.
           </p>
         </div>
 

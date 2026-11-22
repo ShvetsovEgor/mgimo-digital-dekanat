@@ -23,7 +23,7 @@ export function ScholarshipGaps({ result, funded }: { result: ScholarshipResult;
   return (
     <ul className="divide-y divide-line rounded-[12px] border border-line bg-surface">
       {result.gaps.map((gap) => (
-        <li key={gap.id} className="flex items-start justify-between gap-3 px-4 py-3">
+        <li key={gap.id} className="flex items-start justify-between gap-3 px-3 py-2.5">
           <span className="min-w-0">
             <span className="block text-sm font-medium text-ink">{gap.title}</span>
             <span className="mt-0.5 block text-[13px] text-muted">

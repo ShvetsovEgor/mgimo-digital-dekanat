@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { cx } from '@/lib/cx';
 import { LessonBlock } from './LessonCard';
 import type { WeekDay } from '@/lib/types';
+import type { WeekEntry } from '@/lib/types';
 
 const ROW_HEIGHT = 52; // px на час
 const FIRST_HOUR = 8; // раньше 08:00 занятий не бывает — не тратим высоту впустую
@@ -24,11 +25,11 @@ function nowTop(now: Date): number | null {
 export function WeekCalendar({
   days,
   now,
-  onOpenChange,
+  onOpenEntry,
 }: {
   days: WeekDay[];
   now: Date;
-  onOpenChange?: (entryId: number) => void;
+  onOpenEntry?: (entry: WeekEntry) => void;
 }) {
   const codes = useMemo(() => days.flatMap((day) => day.entries.map((entry) => entry.subjectCode)), [days]);
   const height = ((END_MIN - START_MIN) / 60) * ROW_HEIGHT;
@@ -85,7 +86,7 @@ export function WeekCalendar({
                       codes={codes}
                       status={cancelled ? 'cancelled' : undefined}
                       className="h-full overflow-hidden"
-                      onClick={entry.change && onOpenChange ? () => onOpenChange(entry.id) : undefined}
+                      onClick={onOpenEntry ? () => onOpenEntry(entry) : undefined}
                     />
                   </div>
                 );

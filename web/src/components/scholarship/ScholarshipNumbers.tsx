@@ -14,8 +14,8 @@ export function ScholarshipNumbers({
   rules: ScholarshipRules;
 }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <div className="rounded-[12px] border border-line bg-surface p-4">
+    <div className="grid gap-2 sm:grid-cols-2">
+      <div className="rounded-[12px] border border-line bg-surface p-3.5">
         <p className="text-[12px] text-quiet">Сейчас назначено</p>
         {assigned ? (
           <>
@@ -31,7 +31,7 @@ export function ScholarshipNumbers({
           </>
         )}
       </div>
-      <div className={cx('rounded-[12px] border bg-surface p-4', forecast.amount > 0 ? 'border-brand' : 'border-line')}>
+      <div className={cx('rounded-[12px] border bg-surface p-3.5', forecast.amount > 0 ? 'border-brand' : 'border-line')}>
         <p className="text-[12px] text-quiet">По баллам этого семестра</p>
         <p className={cx('nums mt-1 text-2xl font-semibold', forecast.amount > 0 ? 'text-brand' : 'text-ink')}>
           {formatMonthly(forecast.amount)}
